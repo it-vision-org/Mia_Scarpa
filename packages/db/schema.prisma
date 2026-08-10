@@ -30,6 +30,11 @@ enum DiscountType {
   FIXED
 }
 
+enum Gender {
+  MEN
+  WOMEN
+}
+
 model User {
   id                   String    @id @default(cuid())
   name                 String
@@ -76,10 +81,15 @@ model Category {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  parentId String?
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[] @relation("CategoryTree")
+
   products Product[]
 
   @@index([slug])
   @@index([isActive])
+  @@index([parentId])
 }
 
 model Product {
@@ -90,6 +100,7 @@ model Product {
   basePrice   Decimal  @db.Decimal(10, 3)
   isPublished Boolean  @default(false)
   isFeatured  Boolean  @default(false)
+  gender      Gender   @default(MEN)
   order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -105,6 +116,7 @@ model Product {
   @@index([isPublished])
   @@index([isFeatured])
   @@index([categoryId])
+  @@index([gender])
 }
 
 model ProductImage {
@@ -230,22 +242,29 @@ model StoreSettings {
 
   logoUrl String?
 
-  heroImage                 String?
-  heroBadge                 String? @default("New Collection 2025")
-  heroLine1                 String? @default("Léger.")
-  heroLine2                 String? @default("Flexible.")
-  heroLine3                 String? @default("Confortable.")
-  heroSubtitle              String? @default("Engineered for everyday comfort without compromising on style.") @db.Text
-  heroCta1                  String? @default("Shop Collection")
-  heroCta2                  String? @default("Watch Story")
-  heroOverlayCardLabel      String? @default("Collection")
-  heroOverlayCardYear       String? @default("2025")
-  heroOverlayCardCollection String? @default("")
+  heroImage String?
+  heroCta1  String? @default("Explore")
 
-  videoUrl          String?
-  videoSectionLabel String? @default("Our Story")
-  videoSectionTitle String? @default("Comfort that moves with you")
-  videoSectionDesc  String? @default("See how Flex Comfort Shoes are crafted for every step of your day.") @db.Text
+  videoUrl String?
+
+  shopCoverImage  String?
+  menCoverImage   String?
+  womenCoverImage String?
+
+  featuredImage             String?
+  featuredOverlayLabel      String? @default("Collection")
+  featuredOverlayYear       String? @default("2025")
+  featuredOverlayCollection String? @default("")
+
+  editorialLabel1 String? @default("Craftsmanship")
+  editorialTitle1 String? @default("Made to last")
+  editorialDesc1  String? @default("Every pair is built from carefully selected materials, finished by hand for comfort and durability that holds up season after season.") @db.Text
+  editorialImage1 String?
+
+  editorialLabel2 String? @default("Design")
+  editorialTitle2 String? @default("Timeless silhouettes")
+  editorialDesc2  String? @default("Clean lines and considered proportions, designed to move seamlessly between everyday wear and dressed-up occasions.") @db.Text
+  editorialImage2 String?
 
   collectionLabel String? @default("Collection")
   collectionTitle String? @default("Featured Shoes")
@@ -290,6 +309,7 @@ model ContactSubmission {
   id        String   @id @default(cuid())
   name      String
   email     String
+  phone     String?
   subject   String?
   message   String   @db.Text
   isRead    Boolean  @default(false)

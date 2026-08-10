@@ -7,6 +7,7 @@ import { sendContactFormEmail } from "@shoestore/utils/email";
 export type ContactInput = {
   name: string;
   email: string;
+  phone?: string;
   subject?: string;
   message: string;
 };
@@ -25,6 +26,7 @@ export async function submitContact(
       data: {
         name: data.name.trim(),
         email: data.email.trim().toLowerCase(),
+        phone: data.phone?.trim() || null,
         subject: data.subject?.trim() || null,
         message: data.message.trim(),
         userId: user?.id ?? null,
@@ -55,6 +57,7 @@ async function notifySuperAdmins(data: ContactInput) {
     recipient: admins.map((a) => a.email),
     name: data.name.trim(),
     email: data.email.trim(),
+    phone: data.phone?.trim() || undefined,
     subject: data.subject?.trim(),
     message: data.message.trim(),
   });
@@ -70,6 +73,7 @@ export async function getContacts(opts?: { unreadOnly?: boolean }) {
     id: c.id,
     name: c.name,
     email: c.email,
+    phone: c.phone,
     subject: c.subject,
     message: c.message,
     isRead: c.isRead,

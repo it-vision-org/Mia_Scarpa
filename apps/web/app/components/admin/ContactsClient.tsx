@@ -9,6 +9,7 @@ type Contact = {
   id: string;
   name: string;
   email: string;
+  phone: string | null;
   subject: string | null;
   message: string;
   isRead: boolean;
@@ -66,6 +67,9 @@ function ContactRow({ contact, onUpdate }: { contact: Contact; onUpdate: (id: st
             )}
           </div>
           <p className="break-all text-sm text-[var(--color-muted)]">{contact.email}</p>
+          {contact.phone && (
+            <p className="text-sm text-[var(--color-muted)]">{contact.phone}</p>
+          )}
           {contact.subject && (
             <p className="mt-0.5 break-words text-sm font-medium text-[var(--color-text)]">{contact.subject}</p>
           )}

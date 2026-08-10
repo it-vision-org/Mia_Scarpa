@@ -1,5 +1,6 @@
 "use server";
 
+import { cache } from "react";
 import { revalidatePath } from "next/cache";
 import { db } from "@shoestore/db";
 import type { ActionResult, ContactInfo, SerializedStoreSettings } from "@/types";
@@ -11,27 +12,24 @@ const DEFAULT_CONTACT: ContactInfo = {
   responseTime: "Within 24 hours",
 };
 
-async function getOrCreate() {
-  const existing = await db.storeSettings.findFirst();
+// Store settings is a singleton row. `cache()` deduplicates concurrent calls
+// within a single request (header, layout, and page all read settings), so
+// only one of them can ever race to create the row — without this, each
+// caller's own `findFirst` could miss the not-yet-committed row from another
+// and create its own duplicate. `orderBy: id` keeps reads deterministic if a
+// duplicate ever exists regardless.
+const getOrCreate = cache(async () => {
+  const existing = await db.storeSettings.findFirst({ orderBy: { id: "asc" } });
   if (existing) return existing;
   return db.storeSettings.create({ data: {} });
-}
+});
 
 function serialize(s: any, usps: any[]): SerializedStoreSettings {
   return {
     id: s.id,
     logoUrl: s.logoUrl,
     heroImage: s.heroImage,
-    heroBadge: s.heroBadge,
-    heroLine1: s.heroLine1,
-    heroLine2: s.heroLine2,
-    heroLine3: s.heroLine3,
-    heroSubtitle: s.heroSubtitle,
     heroCta1: s.heroCta1,
-    heroCta2: s.heroCta2,
-    heroOverlayCardLabel: s.heroOverlayCardLabel,
-    heroOverlayCardYear: s.heroOverlayCardYear,
-    heroOverlayCardCollection: s.heroOverlayCardCollection,
     colorAccent: s.colorAccent,
     colorGreenDark: s.colorGreenDark,
     colorGreen: s.colorGreen,
@@ -39,9 +37,21 @@ function serialize(s: any, usps: any[]): SerializedStoreSettings {
     colorGreenLight: s.colorGreenLight,
     colorGreenBright: s.colorGreenBright,
     videoUrl: s.videoUrl,
-    videoSectionLabel: s.videoSectionLabel,
-    videoSectionTitle: s.videoSectionTitle,
-    videoSectionDesc: s.videoSectionDesc,
+    shopCoverImage: s.shopCoverImage,
+    menCoverImage: s.menCoverImage,
+    womenCoverImage: s.womenCoverImage,
+    featuredImage: s.featuredImage,
+    featuredOverlayLabel: s.featuredOverlayLabel,
+    featuredOverlayYear: s.featuredOverlayYear,
+    featuredOverlayCollection: s.featuredOverlayCollection,
+    editorialLabel1: s.editorialLabel1,
+    editorialTitle1: s.editorialTitle1,
+    editorialDesc1: s.editorialDesc1,
+    editorialImage1: s.editorialImage1,
+    editorialLabel2: s.editorialLabel2,
+    editorialTitle2: s.editorialTitle2,
+    editorialDesc2: s.editorialDesc2,
+    editorialImage2: s.editorialImage2,
     collectionLabel: s.collectionLabel,
     collectionTitle: s.collectionTitle,
     collectionDesc: s.collectionDesc,
@@ -103,21 +113,13 @@ export async function saveLogoUrl(logoUrl: string): Promise<ActionResult> {
 
 export async function saveHeroSettings(data: {
   heroImage?: string | null;
-  heroBadge?: string | null;
-  heroLine1?: string | null;
-  heroLine2?: string | null;
-  heroLine3?: string | null;
-  heroSubtitle?: string | null;
   heroCta1?: string | null;
-  heroCta2?: string | null;
-  heroOverlayCardLabel?: string | null;
-  heroOverlayCardYear?: string | null;
-  heroOverlayCardCollection?: string | null;
 }): Promise<ActionResult> {
   try {
     const settings = await getOrCreate();
     await db.storeSettings.update({ where: { id: settings.id }, data });
     revalidatePath("/", "layout");
+    revalidatePath("/admin", "layout");
     return { success: true };
   } catch (error) {
     console.error("[STORE SETTINGS] saveHero error:", error);
@@ -137,6 +139,7 @@ export async function saveColorSettings(data: {
     const settings = await getOrCreate();
     await db.storeSettings.update({ where: { id: settings.id }, data });
     revalidatePath("/", "layout");
+    revalidatePath("/admin", "layout");
     return { success: true };
   } catch (error) {
     console.error("[STORE SETTINGS] saveColors error:", error);
@@ -146,17 +149,72 @@ export async function saveColorSettings(data: {
 
 export async function saveVideoSettings(data: {
   videoUrl?: string | null;
-  videoSectionLabel?: string | null;
-  videoSectionTitle?: string | null;
-  videoSectionDesc?: string | null;
 }): Promise<ActionResult> {
   try {
     const settings = await getOrCreate();
     await db.storeSettings.update({ where: { id: settings.id }, data });
     revalidatePath("/", "layout");
+    revalidatePath("/admin", "layout");
     return { success: true };
   } catch (error) {
     console.error("[STORE SETTINGS] saveVideo error:", error);
+    return { success: false, error: "Failed to save" };
+  }
+}
+
+export async function saveShopCoverSettings(data: {
+  shopCoverImage?: string | null;
+  menCoverImage?: string | null;
+  womenCoverImage?: string | null;
+}): Promise<ActionResult> {
+  try {
+    const settings = await getOrCreate();
+    await db.storeSettings.update({ where: { id: settings.id }, data });
+    revalidatePath("/shop");
+    revalidatePath("/admin", "layout");
+    return { success: true };
+  } catch (error) {
+    console.error("[STORE SETTINGS] saveShopCover error:", error);
+    return { success: false, error: "Failed to save" };
+  }
+}
+
+export async function saveFeaturedSettings(data: {
+  featuredImage?: string | null;
+  featuredOverlayLabel?: string | null;
+  featuredOverlayYear?: string | null;
+  featuredOverlayCollection?: string | null;
+}): Promise<ActionResult> {
+  try {
+    const settings = await getOrCreate();
+    await db.storeSettings.update({ where: { id: settings.id }, data });
+    revalidatePath("/", "layout");
+    revalidatePath("/admin", "layout");
+    return { success: true };
+  } catch (error) {
+    console.error("[STORE SETTINGS] saveFeatured error:", error);
+    return { success: false, error: "Failed to save" };
+  }
+}
+
+export async function saveEditorialSettings(data: {
+  editorialLabel1?: string | null;
+  editorialTitle1?: string | null;
+  editorialDesc1?: string | null;
+  editorialImage1?: string | null;
+  editorialLabel2?: string | null;
+  editorialTitle2?: string | null;
+  editorialDesc2?: string | null;
+  editorialImage2?: string | null;
+}): Promise<ActionResult> {
+  try {
+    const settings = await getOrCreate();
+    await db.storeSettings.update({ where: { id: settings.id }, data });
+    revalidatePath("/", "layout");
+    revalidatePath("/admin", "layout");
+    return { success: true };
+  } catch (error) {
+    console.error("[STORE SETTINGS] saveEditorial error:", error);
     return { success: false, error: "Failed to save" };
   }
 }
@@ -170,6 +228,7 @@ export async function saveCollectionSettings(data: {
     const settings = await getOrCreate();
     await db.storeSettings.update({ where: { id: settings.id }, data });
     revalidatePath("/", "layout");
+    revalidatePath("/admin", "layout");
     return { success: true };
   } catch (error) {
     console.error("[STORE SETTINGS] saveCollection error:", error);
@@ -186,6 +245,7 @@ export async function saveFooterSettings(data: {
     const settings = await getOrCreate();
     await db.storeSettings.update({ where: { id: settings.id }, data });
     revalidatePath("/", "layout");
+    revalidatePath("/admin", "layout");
     return { success: true };
   } catch (error) {
     console.error("[STORE SETTINGS] saveFooter error:", error);
@@ -203,6 +263,7 @@ export async function saveUsps(
       data: items.map((u) => ({ ...u, storeId: settings.id })),
     });
     revalidatePath("/", "layout");
+    revalidatePath("/admin", "layout");
     return { success: true };
   } catch (error) {
     console.error("[STORE SETTINGS] saveUsps error:", error);

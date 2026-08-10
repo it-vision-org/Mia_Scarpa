@@ -50,6 +50,8 @@ function productToAdminDetail(
     colorImages,
     isPublished: p.isPublished,
     isFeatured: p.isFeatured,
+    gender: p.gender,
+    categoryId: p.categoryId ?? null,
     brandName: p.category?.name ?? null,
   };
 }
@@ -112,6 +114,8 @@ export async function createProduct(
         basePrice,
         isPublished: data.isPublished,
         isFeatured: data.isFeatured,
+        gender: data.gender,
+        categoryId: data.categoryId,
         images: {
           create: data.images.map((url, idx) => ({ url, order: idx })),
         },
@@ -159,6 +163,8 @@ export async function updateProduct(
         basePrice,
         isPublished: data.isPublished,
         isFeatured: data.isFeatured,
+        gender: data.gender,
+        categoryId: data.categoryId,
         images: {
           create: data.images.map((url, idx) => ({ url, order: idx })),
         },

@@ -13,6 +13,7 @@ export function ContactForm() {
   const [error, setError] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
 
@@ -20,7 +21,7 @@ export function ContactForm() {
     e.preventDefault();
     setError("");
     startTransition(async () => {
-      const res = await submitContact({ name, email, subject, message });
+      const res = await submitContact({ name, email, phone, subject, message });
       if (!res.success) {
         setError(res.error ?? "Something went wrong.");
         return;
@@ -32,6 +33,7 @@ export function ContactForm() {
   function resetForm() {
     setName("");
     setEmail("");
+    setPhone("");
     setSubject("");
     setMessage("");
     setError("");
@@ -77,6 +79,11 @@ export function ContactForm() {
           <label className="text-sm font-bold text-[var(--color-text)]">Email *</label>
           <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className={inp} />
         </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <label className="text-sm font-bold text-[var(--color-text)]">Phone Number</label>
+        <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+216 XX XXX XXX" className={inp} />
       </div>
 
       <div className="space-y-1.5">

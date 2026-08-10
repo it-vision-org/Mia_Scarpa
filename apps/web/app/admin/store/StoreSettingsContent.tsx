@@ -2,7 +2,15 @@ import { DEFAULT_COLORS } from "@/lib/store-config";
 import { getDeliveryFeeCents, getContactInfo } from "@/actions/storeConfigActions";
 import { getStoreSettings } from "@/actions/storeSettingsActions";
 import { StoreSettingsClient } from "@/components/admin/StoreSettingsClient";
-import { DEFAULT_HERO, DEFAULT_VIDEO, DEFAULT_FOOTER_CTA, DEFAULT_COLLECTION, DEFAULT_USPS } from "@/types";
+import {
+  DEFAULT_HERO,
+  DEFAULT_FOOTER_CTA,
+  DEFAULT_COLLECTION,
+  DEFAULT_USPS,
+  DEFAULT_FEATURED_OVERLAY,
+  DEFAULT_EDITORIAL_1,
+  DEFAULT_EDITORIAL_2,
+} from "@/types";
 
 export async function StoreSettingsContent() {
   const [deliveryFeeCents, contactInfo, settingsResult] = await Promise.all([
@@ -13,13 +21,7 @@ export async function StoreSettingsContent() {
   const settings = settingsResult.success ? settingsResult.data! : null;
 
   const hero = {
-    badge: settings?.heroBadge ?? DEFAULT_HERO.badge,
-    line1: settings?.heroLine1 ?? DEFAULT_HERO.line1,
-    line2: settings?.heroLine2 ?? DEFAULT_HERO.line2,
-    line3: settings?.heroLine3 ?? DEFAULT_HERO.line3,
-    subtitle: settings?.heroSubtitle ?? DEFAULT_HERO.subtitle,
     cta1: settings?.heroCta1 ?? DEFAULT_HERO.cta1,
-    cta2: settings?.heroCta2 ?? DEFAULT_HERO.cta2,
   };
 
   const colors = {
@@ -29,12 +31,6 @@ export async function StoreSettingsContent() {
     "green-mid": settings?.colorGreenMid ?? DEFAULT_COLORS["green-mid"],
     "green-light": settings?.colorGreenLight ?? DEFAULT_COLORS["green-light"],
     "green-bright": settings?.colorGreenBright ?? DEFAULT_COLORS["green-bright"],
-  };
-
-  const video = {
-    label: settings?.videoSectionLabel ?? DEFAULT_VIDEO.label,
-    title: settings?.videoSectionTitle ?? DEFAULT_VIDEO.title,
-    desc: settings?.videoSectionDesc ?? DEFAULT_VIDEO.desc,
   };
 
   const footerCta = {
@@ -54,25 +50,46 @@ export async function StoreSettingsContent() {
       ? settings.usps.map((u) => ({ label: u.label, desc: u.desc }))
       : DEFAULT_USPS;
 
+  const featuredOverlay = {
+    label: settings?.featuredOverlayLabel ?? DEFAULT_FEATURED_OVERLAY.label,
+    year: settings?.featuredOverlayYear ?? DEFAULT_FEATURED_OVERLAY.year,
+    collection: settings?.featuredOverlayCollection ?? DEFAULT_FEATURED_OVERLAY.collection,
+  };
+
+  const editorial1 = {
+    label: settings?.editorialLabel1 ?? DEFAULT_EDITORIAL_1.label,
+    title: settings?.editorialTitle1 ?? DEFAULT_EDITORIAL_1.title,
+    desc: settings?.editorialDesc1 ?? DEFAULT_EDITORIAL_1.desc,
+  };
+
+  const editorial2 = {
+    label: settings?.editorialLabel2 ?? DEFAULT_EDITORIAL_2.label,
+    title: settings?.editorialTitle2 ?? DEFAULT_EDITORIAL_2.title,
+    desc: settings?.editorialDesc2 ?? DEFAULT_EDITORIAL_2.desc,
+  };
+
   return (
     <StoreSettingsClient
       hero={hero}
       colors={colors}
-      video={video}
       footerCta={footerCta}
       collection={collection}
       usps={usps}
+      featuredOverlay={featuredOverlay}
+      editorial1={editorial1}
+      editorial2={editorial2}
       deliveryFeeCents={deliveryFeeCents}
       contactInfo={contactInfo}
       media={{
         logoUrl: settings?.logoUrl ?? null,
         heroImage: settings?.heroImage ?? null,
         videoUrl: settings?.videoUrl ?? null,
-        overlayCard: {
-          label: settings?.heroOverlayCardLabel ?? "Collection",
-          year: settings?.heroOverlayCardYear ?? "2025",
-          collection: settings?.heroOverlayCardCollection ?? "",
-        },
+        shopCoverImage: settings?.shopCoverImage ?? null,
+        menCoverImage: settings?.menCoverImage ?? null,
+        womenCoverImage: settings?.womenCoverImage ?? null,
+        featuredImage: settings?.featuredImage ?? null,
+        editorialImage1: settings?.editorialImage1 ?? null,
+        editorialImage2: settings?.editorialImage2 ?? null,
       }}
     />
   );

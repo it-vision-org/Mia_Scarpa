@@ -6,7 +6,17 @@ import { Plus, X, Loader2, Link as LinkIcon, Upload, Copy, Images } from "lucide
 
 import { createProduct, updateProduct } from "@/actions/adminActions";
 import { ImagePickerModal } from "./ImagePickerModal";
-import type { AdminProductDetail } from "@/types";
+import type { AdminProductDetail, CategoryNode, Gender } from "@/types";
+
+function flattenCategories(
+  nodes: CategoryNode[],
+  depth = 0,
+): { id: string; label: string }[] {
+  return nodes.flatMap((n) => [
+    { id: n.id, label: `${"— ".repeat(depth)}${n.name}` },
+    ...flattenCategories(n.children, depth + 1),
+  ]);
+}
 
 type SizeEntry = { size: string; stock: number };
 type ColorRow = {
@@ -181,17 +191,27 @@ function SizesEditor({
 }
 
 // ── Main form ─────────────────────────────────────────────────────────────────
-export function ProductForm({ initialData }: { initialData?: AdminProductDetail }) {
+export function ProductForm({
+  initialData,
+  categoryTree = [],
+}: {
+  initialData?: AdminProductDetail;
+  categoryTree?: CategoryNode[];
+}) {
   const router = useRouter();
   const [, startTransition] = useTransition();
 
   const [name, setName]     = useState(initialData?.name ?? "");
   const [price, setPrice]   = useState(initialData ? String(initialData.priceCents / 100) : "");
+  const [gender, setGender] = useState<Gender>(initialData?.gender ?? "MEN");
+  const [categoryId, setCategoryId] = useState<string>(initialData?.categoryId ?? "");
   const [isPublished, setIsPublished] = useState(initialData?.isPublished ?? true);
   const [isFeatured, setIsFeatured]   = useState(initialData?.isFeatured ?? false);
   const [submitting, setSubmitting]   = useState(false);
   const [uploading, setUploading]     = useState(false);
   const [error, setError]             = useState("");
+
+  const flatCategories = useMemo(() => flattenCategories(categoryTree), [categoryTree]);
 
   // ── Main product photos ─────────────────────────────────────────────────
   const [mainImages, setMainImages] = useState<string[]>(initialData?.images ?? []);
@@ -369,6 +389,8 @@ export function ProductForm({ initialData }: { initialData?: AdminProductDetail 
       })),
       isPublished,
       isFeatured,
+      gender,
+      categoryId: categoryId || null,
     };
 
     startTransition(async () => {
@@ -402,6 +424,33 @@ export function ProductForm({ initialData }: { initialData?: AdminProductDetail 
       <Field label="Base Price (DT)">
         <input type="number" min="0" step="0.001" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="e.g. 89.900" className={inp} />
       </Field>
+
+      {/* Gender + Category */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Gender *">
+          <select value={gender} onChange={(e) => setGender(e.target.value as Gender)} className={inp}>
+            <option value="MEN">Men</option>
+            <option value="WOMEN">Women</option>
+          </select>
+        </Field>
+        <Field label="Category">
+          <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className={inp}>
+            <option value="">No category</option>
+            {flatCategories.map((c) => (
+              <option key={c.id} value={c.id}>{c.label}</option>
+            ))}
+          </select>
+          {flatCategories.length === 0 && (
+            <p className="text-xs text-[var(--color-muted)]">
+              No categories yet — create some in{" "}
+              <a href="/admin/categories" className="underline hover:text-[var(--color-accent)]">
+                Categories
+              </a>
+              .
+            </p>
+          )}
+        </Field>
+      </div>
 
       {/* Main Product Photos */}
       <div className="rounded-2xl border border-[var(--color-border)] bg-white p-5 space-y-3">

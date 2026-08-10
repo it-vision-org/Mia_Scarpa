@@ -46,7 +46,7 @@ export function ProductCard({ product }: { product: SerializedProduct }) {
     <>
       <Link
         href={`/product/${product.slug}`}
-        className="group block overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm transition hover:shadow-md hover:border-[var(--color-green-light)]"
+        className="group block overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)] transition hover:border-[var(--color-text)]"
       >
         <div className="relative aspect-square overflow-hidden bg-[var(--color-bg)]">
           {activeImage ? (
@@ -64,7 +64,7 @@ export function ProductCard({ product }: { product: SerializedProduct }) {
             </div>
           )}
           {product.isFeatured && (
-            <span className="absolute left-3 top-3 rounded-full bg-[var(--color-accent)] px-2.5 py-0.5 text-xs font-semibold text-white">
+            <span className="absolute left-3 top-3 text-xs font-semibold uppercase tracking-widest text-[var(--color-text)]">
               Featured
             </span>
           )}
@@ -106,15 +106,15 @@ export function ProductCard({ product }: { product: SerializedProduct }) {
         </div>
         <div className="p-4">
           {product.category?.name && (
-            <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">
+            <p className="text-xs uppercase tracking-wider text-[var(--color-muted)]">
               {product.category.name}
             </p>
           )}
-          <h3 className="mt-1 font-semibold text-[var(--color-text)] group-hover:text-[var(--color-accent)]">
+          <h3 className="font-display mt-1 text-base text-[var(--color-text)]">
             {product.name}
           </h3>
-          <div className="mt-2 flex items-center gap-2">
-            <span className="text-sm font-bold text-[var(--color-text)]">
+          <div className="mt-1.5 flex items-center gap-2">
+            <span className="text-sm text-[var(--color-text)]">
               {formatPrice(product.basePrice)}
             </span>
           </div>
@@ -122,7 +122,7 @@ export function ProductCard({ product }: { product: SerializedProduct }) {
           <button
             type="button"
             onClick={openQuickAdd}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-accent)] py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[var(--color-green-mid)] active:scale-95"
+            className="mt-3 flex w-full items-center justify-center gap-2 border border-[var(--color-text)] py-2.5 text-xs font-semibold uppercase tracking-widest text-[var(--color-text)] transition hover:bg-[var(--color-text)] hover:text-white active:scale-[0.98]"
           >
             <ShoppingCart className="h-3.5 w-3.5" />
             Add to Cart

@@ -2,7 +2,9 @@
   "Nav": {
     "Home": "Accueil",
     "Shop": "Boutique",
-    "About": "À Propos",
+    "Men": "Homme",
+    "Women": "Femme",
+    "About": "À Propos de Nous",
     "Contact": "Contact",
     "Cart": "Panier",
     "SignIn": "Connexion"
@@ -123,5 +125,21 @@
   },
   "LanguageSelector": {
     "Label": "Choisir la langue"
+  },
+  "Footer": {
+    "ShopHeading": "Boutique",
+    "AllProducts": "Tous les produits",
+    "HelpHeading": "Aide",
+    "About": "À propos",
+    "Contact": "Contact",
+    "AccountHeading": "Compte",
+    "SignIn": "Connexion",
+    "MyAccount": "Mon compte",
+    "NewsletterHeading": "Restez informé",
+    "NewsletterDesc": "Inscrivez-vous pour un accès anticipé aux nouveautés et aux ventes privées.",
+    "NewsletterPlaceholder": "Adresse e-mail",
+    "NewsletterPhonePlaceholder": "Téléphone (facultatif)",
+    "NewsletterSubmit": "S'inscrire",
+    "Rights": "Tous droits réservés."
   }
 }

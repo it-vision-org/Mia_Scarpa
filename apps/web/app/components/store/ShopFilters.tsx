@@ -1,9 +1,11 @@
 import Link from "next/link";
+import type { CategoryNode } from "@/types";
 
 type ShopFiltersProps = {
-  categories: { name: string; slug: string }[];
+  categories: CategoryNode[];
   current: {
     category?: string;
+    gender?: string;
     search?: string;
   };
 };
@@ -30,23 +32,63 @@ export function ShopFilters({ categories, current }: ShopFiltersProps) {
     <aside className="space-y-6">
       <div>
         <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">
+          Gender
+        </h2>
+        <div className="space-y-0.5">
+          <Link
+            href={buildShopUrl({ category: current.category, search: current.search })}
+            className={linkClass(!current.gender)}
+          >
+            All
+          </Link>
+          <Link
+            href={buildShopUrl({ gender: "men", category: current.category, search: current.search })}
+            className={linkClass(current.gender === "men")}
+          >
+            Men
+          </Link>
+          <Link
+            href={buildShopUrl({ gender: "women", category: current.category, search: current.search })}
+            className={linkClass(current.gender === "women")}
+          >
+            Women
+          </Link>
+        </div>
+      </div>
+
+      <div>
+        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">
           Category
         </h2>
         <div className="space-y-0.5">
           <Link
-            href={buildShopUrl({ search: current.search })}
+            href={buildShopUrl({ gender: current.gender, search: current.search })}
             className={linkClass(!current.category)}
           >
             All categories
           </Link>
           {categories.map((c) => (
-            <Link
-              key={c.slug}
-              href={buildShopUrl({ category: c.slug, search: current.search })}
-              className={linkClass(current.category === c.slug)}
-            >
-              {c.name}
-            </Link>
+            <div key={c.id}>
+              <Link
+                href={buildShopUrl({ category: c.slug, gender: current.gender, search: current.search })}
+                className={linkClass(current.category === c.slug)}
+              >
+                {c.name}
+              </Link>
+              {c.children.length > 0 && (
+                <div className="ml-3 space-y-0.5 border-l border-[var(--color-border)] pl-2">
+                  {c.children.map((child) => (
+                    <Link
+                      key={child.id}
+                      href={buildShopUrl({ category: child.slug, gender: current.gender, search: current.search })}
+                      className={linkClass(current.category === child.slug)}
+                    >
+                      {child.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </div>
       </div>

@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,900;1,9..40,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,900;1,9..40,400&family=Playfair+Display:wght@500;600;700&display=swap");
 @import "tailwindcss";
 
 html,
@@ -8,16 +8,21 @@ body {
   font-family: "DM Sans", system-ui, sans-serif;
 }
 
+.font-display {
+  font-family: "Playfair Display", Georgia, serif;
+}
+
 :root {
-  --color-bg: #f4f7ee;
+  --font-display: "Playfair Display", Georgia, serif;
+  --color-bg: #f7f5f1;
   --color-surface: #ffffff;
-  --color-border: #d6e8b8;
-  --color-text: #1a2410;
-  --color-muted: #6a7860;
-  --color-accent: #4a7018;
-  --color-green-dark: #1a3406;
-  --color-green: #4a7018;
-  --color-green-mid: #5c8c1e;
-  --color-green-light: #7ab820;
-  --color-green-bright: #9ed43a;
+  --color-border: #e4e0d8;
+  --color-text: #1a1a1a;
+  --color-muted: #7a756c;
+  --color-accent: #1a1a1a;
+  --color-green-dark: #0d0d0c;
+  --color-green: #1a1a1a;
+  --color-green-mid: #33312d;
+  --color-green-light: #8c8579;
+  --color-green-bright: #d4cfc4;
 }

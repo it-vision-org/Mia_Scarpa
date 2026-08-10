@@ -84,6 +84,7 @@ const PRODUCT_INCLUDE = {
 
 export async function getPublishedProducts(filters?: {
   categorySlug?: string;
+  gender?: "men" | "women";
   search?: string;
 }): Promise<ActionResult<SerializedProduct[]>> {
   try {
@@ -92,6 +93,7 @@ export async function getPublishedProducts(filters?: {
       where: {
         isPublished: true,
         ...(filters?.categorySlug ? { category: { slug: filters.categorySlug } } : {}),
+        ...(filters?.gender ? { gender: filters.gender.toUpperCase() as "MEN" | "WOMEN" } : {}),
         ...(search
           ? {
               OR: [

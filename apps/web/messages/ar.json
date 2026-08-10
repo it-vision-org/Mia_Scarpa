@@ -2,6 +2,8 @@
   "Nav": {
     "Home": "الرئيسية",
     "Shop": "المتجر",
+    "Men": "رجال",
+    "Women": "نساء",
     "About": "من نحن",
     "Contact": "اتصل بنا",
     "Cart": "السلة",
@@ -123,5 +125,21 @@
   },
   "LanguageSelector": {
     "Label": "اختر اللغة"
+  },
+  "Footer": {
+    "ShopHeading": "المتجر",
+    "AllProducts": "جميع المنتجات",
+    "HelpHeading": "مساعدة",
+    "About": "من نحن",
+    "Contact": "اتصل بنا",
+    "AccountHeading": "الحساب",
+    "SignIn": "تسجيل الدخول",
+    "MyAccount": "حسابي",
+    "NewsletterHeading": "ابق على تواصل",
+    "NewsletterDesc": "اشترك للحصول على وصول مبكر للمنتجات الجديدة والعروض الخاصة.",
+    "NewsletterPlaceholder": "البريد الإلكتروني",
+    "NewsletterPhonePlaceholder": "رقم الهاتف (اختياري)",
+    "NewsletterSubmit": "اشتراك",
+    "Rights": "جميع الحقوق محفوظة."
   }
 }

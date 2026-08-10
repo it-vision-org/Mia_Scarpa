@@ -8,7 +8,7 @@ export function HeroImage({ src }: { src?: string | null }) {
   if (!src || failed) {
     return (
       <div
-        className="relative flex w-full flex-col items-center justify-center gap-4 rounded-3xl border border-white/15 bg-white/5 backdrop-blur-sm"
+        className="relative flex w-full flex-col items-center justify-center gap-4 border border-white/15 bg-white/5 backdrop-blur-sm"
         style={{ aspectRatio: "4/5" }}
       >
         <svg
@@ -38,7 +38,7 @@ export function HeroImage({ src }: { src?: string | null }) {
       src={src}
       alt="Flex Comfort Shoes"
       onError={() => setFailed(true)}
-      className="relative w-full rounded-3xl border border-white/20 object-cover shadow-[0_30px_80px_rgba(0,0,0,0.4)]"
+      className="relative w-full border border-white/20 object-cover"
       style={{ aspectRatio: "4/5" }}
     />
   );

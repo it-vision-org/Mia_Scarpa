@@ -8,10 +8,10 @@ export type StoreColors = {
 };
 
 export const DEFAULT_COLORS: StoreColors = {
-  accent: "#4a7018",
-  "green-dark": "#1a3406",
-  green: "#4a7018",
-  "green-mid": "#5c8c1e",
-  "green-light": "#7ab820",
-  "green-bright": "#9ed43a",
+  accent: "#1a1a1a",
+  "green-dark": "#0d0d0c",
+  green: "#1a1a1a",
+  "green-mid": "#33312d",
+  "green-light": "#8c8579",
+  "green-bright": "#d4cfc4",
 };

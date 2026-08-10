@@ -2,7 +2,17 @@
 
 import { useEffect, useRef } from "react";
 
-export function AutoPlayVideo({ src, poster }: { src: string; poster?: string }) {
+export function AutoPlayVideo({
+  src,
+  poster,
+  controls = true,
+  className,
+}: {
+  src: string;
+  poster?: string;
+  controls?: boolean;
+  className?: string;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -34,8 +44,8 @@ export function AutoPlayVideo({ src, poster }: { src: string; poster?: string })
       muted
       loop
       playsInline
-      controls
-      className="h-full w-full object-cover"
+      controls={controls}
+      className={className ?? "h-full w-full object-cover"}
     />
   );
 }

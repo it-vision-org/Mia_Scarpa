@@ -27,13 +27,7 @@ export function HeroTextEditor({ initial, onPreviewChange }: Props) {
     setError("");
     startTransition(async () => {
       const res = await saveHeroSettings({
-        heroBadge: form.badge,
-        heroLine1: form.line1,
-        heroLine2: form.line2,
-        heroLine3: form.line3,
-        heroSubtitle: form.subtitle,
         heroCta1: form.cta1,
-        heroCta2: form.cta2,
       });
       if (res.success) setSaved(true);
       else setError(res.error ?? "Failed to save");
@@ -42,28 +36,8 @@ export function HeroTextEditor({ initial, onPreviewChange }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Badge text">
-          <input value={form.badge} onChange={(e) => set("badge", e.target.value)} className={inp} />
-        </Field>
-        <Field label="CTA button 1">
-          <input value={form.cta1} onChange={(e) => set("cta1", e.target.value)} className={inp} />
-        </Field>
-        <Field label='Headline line 1 (e.g. "Léger.")'>
-          <input value={form.line1} onChange={(e) => set("line1", e.target.value)} className={inp} />
-        </Field>
-        <Field label='Headline line 2 — accent (e.g. "Flexible.")'>
-          <input value={form.line2} onChange={(e) => set("line2", e.target.value)} className={inp} />
-        </Field>
-        <Field label='Headline line 3 (e.g. "Confortable.")'>
-          <input value={form.line3} onChange={(e) => set("line3", e.target.value)} className={inp} />
-        </Field>
-        <Field label="CTA button 2 (video link)">
-          <input value={form.cta2} onChange={(e) => set("cta2", e.target.value)} className={inp} />
-        </Field>
-      </div>
-      <Field label="Subtitle / description">
-        <textarea rows={3} value={form.subtitle} onChange={(e) => set("subtitle", e.target.value)} className={inp} />
+      <Field label="Button text">
+        <input value={form.cta1} onChange={(e) => set("cta1", e.target.value)} className={inp} />
       </Field>
       {error && <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">{error}</p>}
       <SaveButton pending={pending} saved={saved} onClick={handleSave} />

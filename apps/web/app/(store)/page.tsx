@@ -1,14 +1,23 @@
 import Link from "next/link";
-import { ArrowRight, Play, Feather, Leaf, Zap, Star } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight } from "lucide-react";
 
 import { getFeaturedProducts } from "@/actions/productActions";
 import { ProductGrid } from "@/components/store/ProductGrid";
-import { HeroImage } from "@/components/store/HeroImage";
+import { ProductTile } from "@/components/store/ProductTile";
 import { AutoPlayVideo } from "@/components/store/AutoPlayVideo";
+import { Reveal } from "@/components/ui/Reveal";
+import { SectionDivider } from "@/components/ui/SectionDivider";
 import { getStoreSettings } from "@/actions/storeSettingsActions";
-import { DEFAULT_HERO, DEFAULT_VIDEO, DEFAULT_FOOTER_CTA, DEFAULT_COLLECTION, DEFAULT_USPS } from "@/types";
-
-const USP_ICONS = [Feather, Leaf, Zap, Star];
+import {
+  DEFAULT_HERO,
+  DEFAULT_FOOTER_CTA,
+  DEFAULT_COLLECTION,
+  DEFAULT_USPS,
+  DEFAULT_FEATURED_OVERLAY,
+  DEFAULT_EDITORIAL_1,
+  DEFAULT_EDITORIAL_2,
+} from "@/types";
 
 export default async function HomePage() {
   const [featured, settingsResult] = await Promise.all([
@@ -19,19 +28,7 @@ export default async function HomePage() {
   const settings = settingsResult.success ? settingsResult.data : null;
 
   const hero = {
-    badge: settings?.heroBadge ?? DEFAULT_HERO.badge,
-    line1: settings?.heroLine1 ?? DEFAULT_HERO.line1,
-    line2: settings?.heroLine2 ?? DEFAULT_HERO.line2,
-    line3: settings?.heroLine3 ?? DEFAULT_HERO.line3,
-    subtitle: settings?.heroSubtitle ?? DEFAULT_HERO.subtitle,
     cta1: settings?.heroCta1 ?? DEFAULT_HERO.cta1,
-    cta2: settings?.heroCta2 ?? DEFAULT_HERO.cta2,
-  };
-
-  const video = {
-    label: settings?.videoSectionLabel ?? DEFAULT_VIDEO.label,
-    title: settings?.videoSectionTitle ?? DEFAULT_VIDEO.title,
-    desc: settings?.videoSectionDesc ?? DEFAULT_VIDEO.desc,
   };
 
   const footerCta = {
@@ -51,10 +48,24 @@ export default async function HomePage() {
       ? settings.usps.map((u) => ({ label: u.label, desc: u.desc }))
       : DEFAULT_USPS;
 
-  const overlayCard = {
-    label: settings?.heroOverlayCardLabel ?? "Collection",
-    year: settings?.heroOverlayCardYear ?? "2025",
-    collection: settings?.heroOverlayCardCollection ?? "",
+  const featuredOverlay = {
+    label: settings?.featuredOverlayLabel ?? DEFAULT_FEATURED_OVERLAY.label,
+    year: settings?.featuredOverlayYear ?? DEFAULT_FEATURED_OVERLAY.year,
+    collection: settings?.featuredOverlayCollection ?? DEFAULT_FEATURED_OVERLAY.collection,
+  };
+  const featuredImage = settings?.featuredImage ?? settings?.heroImage ?? null;
+
+  const editorial1 = {
+    label: settings?.editorialLabel1 ?? DEFAULT_EDITORIAL_1.label,
+    title: settings?.editorialTitle1 ?? DEFAULT_EDITORIAL_1.title,
+    desc: settings?.editorialDesc1 ?? DEFAULT_EDITORIAL_1.desc,
+    image: settings?.editorialImage1 ?? products[0]?.primaryImage ?? null,
+  };
+  const editorial2 = {
+    label: settings?.editorialLabel2 ?? DEFAULT_EDITORIAL_2.label,
+    title: settings?.editorialTitle2 ?? DEFAULT_EDITORIAL_2.title,
+    desc: settings?.editorialDesc2 ?? DEFAULT_EDITORIAL_2.desc,
+    image: settings?.editorialImage2 ?? products[1]?.primaryImage ?? null,
   };
 
   const videoUrl = settings?.videoUrl ?? null;
@@ -62,170 +73,182 @@ export default async function HomePage() {
 
   return (
     <main>
-      {/* ── HERO ─────────────────────────────────────────────────────── */}
-      <section className="relative min-h-screen overflow-hidden flex items-center">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[var(--color-green-dark)]" />
-          <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-green-dark)] via-[var(--color-green)] to-[var(--color-green-mid)]" />
-          <div className="absolute -top-40 -right-40 h-[700px] w-[700px] rounded-full bg-[var(--color-green-light)] opacity-20 blur-[120px]" />
-          <div className="absolute bottom-0 -left-40 h-[500px] w-[500px] rounded-full bg-[var(--color-green-bright)] opacity-10 blur-[100px]" />
-          <div
-            className="absolute inset-0 opacity-[0.04]"
-            style={{
-              backgroundImage:
-                "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
-              backgroundSize: "60px 60px",
-            }}
+      {/* ── HERO — FULL-SCREEN VIDEO ─────────────────────────────────── */}
+      <section className="relative h-screen w-full overflow-hidden bg-[var(--color-green-dark)]">
+        {hasVideo ? (
+          <AutoPlayVideo
+            src={videoUrl}
+            controls={false}
+            className="absolute inset-0 h-full w-full object-cover"
           />
-        </div>
+        ) : settings?.heroImage ? (
+          <Image src={settings.heroImage} alt="" fill priority className="object-cover" />
+        ) : null}
 
-        <div className="relative mx-auto w-full max-w-6xl px-6 py-24 md:py-32">
-          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+        <div className="absolute inset-0 bg-black/30" />
 
-            {/* LEFT: text */}
-            <div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.3em] text-white backdrop-blur-sm">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--color-green-bright)]" />
-                {hero.badge}
-              </span>
-              <h1 className="mt-6 text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-6xl md:text-7xl">
-                {hero.line1}
-                <br />
-                <span className="text-[var(--color-green-bright)] drop-shadow-[0_0_40px_rgba(158,212,58,0.4)]">
-                  {hero.line2}
-                </span>
-                <br />
-                {hero.line3}
-              </h1>
-              <p className="mt-6 max-w-md text-base text-white/65 md:text-lg">
-                {hero.subtitle}
-              </p>
-              <div className="mt-10 flex flex-wrap items-center gap-4">
-                <Link
-                  href="/shop"
-                  className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 text-sm font-bold text-[var(--color-green)] shadow-[0_8px_30px_rgba(0,0,0,0.25)] transition hover:scale-105"
-                >
-                  {hero.cta1}
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-                {hasVideo && (
-                  <a
-                    href="#video"
-                    className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-8 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20"
-                  >
-                    <Play className="h-4 w-4 fill-white" />
-                    {hero.cta2}
-                  </a>
-                )}
-              </div>
-            </div>
-
-            {/* RIGHT: commercial photo */}
-            <div className="flex items-center justify-center lg:justify-end">
-              <div className="relative w-full max-w-md">
-                <div className="absolute -inset-3 rounded-[2.5rem] border border-white/10" />
-                <div className="absolute inset-0 rounded-3xl bg-[var(--color-green-bright)] opacity-10 blur-2xl" />
-                <HeroImage src={settings?.heroImage} />
-                <div className="absolute -bottom-4 -left-4 rounded-2xl border border-white/20 bg-white/10 px-4 py-2.5 backdrop-blur-md">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-white/60">{overlayCard.label}</p>
-                  <p className="text-base font-black text-white">{overlayCard.year}</p>
-                  {overlayCard.collection && (
-                    <p className="text-xs text-white/70">{overlayCard.collection}</p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white/30">Scroll</span>
-          <div className="h-10 w-px bg-gradient-to-b from-white/30 to-transparent" />
+        <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
+          <Link
+            href="/shop"
+            className="inline-flex items-center gap-2 border border-white/70 px-10 py-3.5 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-white hover:text-[var(--color-green-dark)]"
+          >
+            {hero.cta1}
+          </Link>
         </div>
       </section>
+
+      {/* ── DIVIDER ──────────────────────────────────────────────────── */}
+      <SectionDivider />
+
+      {/* ── FEATURED: IMAGE + PRODUCTS ───────────────────────────────── */}
+      {products.length > 0 && (
+        <section className="bg-white">
+          <div className="w-full">
+            <div className="grid grid-cols-1 gap-1 lg:h-[640px] lg:grid-cols-2">
+              {/* left: image, fills the full half */}
+              <Reveal className="h-full">
+                <div className="relative h-[420px] w-full overflow-hidden bg-[var(--color-bg)] lg:h-full">
+                  {featuredImage && (
+                    <Image
+                      src={featuredImage}
+                      alt=""
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                    />
+                  )}
+                  <div className="absolute bottom-4 left-4 border border-white/20 bg-black/50 px-4 py-2.5 backdrop-blur-sm">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-white/60">
+                      {featuredOverlay.label}
+                    </p>
+                    <p className="font-display text-base text-white">{featuredOverlay.year}</p>
+                    {featuredOverlay.collection && (
+                      <p className="text-xs text-white/70">{featuredOverlay.collection}</p>
+                    )}
+                  </div>
+                </div>
+              </Reveal>
+
+              {/* right: 3-4 featured products, covering squares */}
+              <Reveal delay={0.1} className="h-full">
+                <div className="grid h-[420px] grid-cols-2 grid-rows-2 gap-1 lg:h-full">
+                  {products.slice(0, 4).map((product) => (
+                    <div key={product.id} className="relative h-full w-full">
+                      <ProductTile product={product} />
+                    </div>
+                  ))}
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── USP BAR ──────────────────────────────────────────────────── */}
-      <section className="border-b border-[var(--color-border)] bg-white">
+      <section className="border-y border-[var(--color-border)] bg-white">
         <div className="mx-auto max-w-6xl px-6 py-10">
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-8">
-            {usp.map((item, i) => {
-              const Icon = USP_ICONS[i] ?? Star;
-              return (
-                <div key={i} className="flex flex-col items-center gap-3 text-center">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--color-bg)] ring-1 ring-[var(--color-border)]">
-                    <Icon className="h-5 w-5 text-[var(--color-accent)]" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-[var(--color-text)]">{item.label}</p>
-                    <p className="mt-0.5 text-xs text-[var(--color-muted)]">{item.desc}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <Reveal className="grid grid-cols-2 divide-x divide-[var(--color-border)] md:grid-cols-4">
+            {usp.map((item, i) => (
+              <div key={i} className="px-4 text-center first:pl-0 last:pr-0">
+                <p className="text-base font-semibold uppercase tracking-wide text-[var(--color-text)] sm:text-lg">{item.label}</p>
+                <p className="mt-1.5 text-sm text-[var(--color-muted)]">{item.desc}</p>
+              </div>
+            ))}
+          </Reveal>
         </div>
       </section>
 
-      {/* ── VIDEO ────────────────────────────────────────────────────── */}
-      {videoUrl && (
-        <section id="video" className="py-24 bg-[var(--color-bg)]">
-          <div className="mx-auto max-w-6xl px-6">
-            <div className="mb-10 text-center">
-              <p className="text-xs font-bold uppercase tracking-[0.3em] text-[var(--color-accent)]">
-                {video.label}
-              </p>
-              <h2 className="mt-2 text-3xl font-bold text-[var(--color-text)] md:text-4xl">
-                {video.title}
-              </h2>
-              <p className="mt-3 text-sm text-[var(--color-muted)]">{video.desc}</p>
-            </div>
+      {/* ── EDITORIAL / CRAFTSMANSHIP ────────────────────────────────── */}
+      {(editorial1.image || editorial2.image) && (
+        <section className="bg-white">
+          {editorial1.image && (
+            <Reveal>
+              <div className="grid grid-cols-1 items-center lg:grid-cols-2">
+                <div className="relative aspect-[4/5] w-full overflow-hidden bg-[var(--color-bg)] lg:aspect-auto lg:h-[720px]">
+                  <Image
+                    src={editorial1.image}
+                    alt={editorial1.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                  />
+                </div>
+                <div className="px-6 py-12 lg:px-16 xl:px-20">
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--color-muted)]">
+                    {editorial1.label}
+                  </p>
+                  <h2 className="font-display mt-3 text-4xl text-[var(--color-text)] md:text-5xl">
+                    {editorial1.title}
+                  </h2>
+                  <p className="mt-5 max-w-md text-base text-[var(--color-muted)]">{editorial1.desc}</p>
+                </div>
+              </div>
+            </Reveal>
+          )}
 
-            <div className="relative aspect-video w-full overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white shadow-lg">
-              <AutoPlayVideo src={videoUrl} />
-            </div>
-          </div>
+          {editorial2.image && (
+            <Reveal>
+              <div className="grid grid-cols-1 items-center lg:grid-cols-2">
+                <div className="order-2 px-6 py-12 lg:order-1 lg:px-16 xl:px-20">
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--color-muted)]">
+                    {editorial2.label}
+                  </p>
+                  <h2 className="font-display mt-3 text-4xl text-[var(--color-text)] md:text-5xl">
+                    {editorial2.title}
+                  </h2>
+                  <p className="mt-5 max-w-md text-base text-[var(--color-muted)]">{editorial2.desc}</p>
+                </div>
+                <div className="order-1 relative aspect-[4/5] w-full overflow-hidden bg-[var(--color-bg)] lg:order-2 lg:aspect-auto lg:h-[720px]">
+                  <Image
+                    src={editorial2.image}
+                    alt={editorial2.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                  />
+                </div>
+              </div>
+            </Reveal>
+          )}
         </section>
       )}
 
       {/* ── PRODUCTS ─────────────────────────────────────────────────── */}
       <section className="border-t border-[var(--color-border)] py-20 bg-white">
         <div className="mx-auto max-w-6xl px-6">
-          <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+          <Reveal className="mb-10 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.3em] text-[var(--color-accent)]">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--color-muted)]">
                 {collection.label}
               </p>
-              <h2 className="mt-1 text-3xl font-bold text-[var(--color-text)]">{collection.title}</h2>
+              <h2 className="font-display mt-1 text-3xl text-[var(--color-text)]">{collection.title}</h2>
               <p className="mt-1 text-sm text-[var(--color-muted)]">{collection.desc}</p>
             </div>
             <Link
               href="/shop"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-accent)] transition hover:text-[var(--color-green-mid)]"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-[var(--color-text)] transition hover:text-[var(--color-muted)]"
             >
               View all <ArrowRight className="h-3.5 w-3.5" />
             </Link>
-          </div>
-          <ProductGrid products={products} />
+          </Reveal>
+          <Reveal delay={0.1}>
+            <ProductGrid products={products} />
+          </Reveal>
         </div>
       </section>
 
       {/* ── FOOTER CTA ───────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden border-t border-[var(--color-border)] py-24">
-        <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-green-dark)] to-[var(--color-green)]" />
-        <div className="absolute inset-0 opacity-10"
-          style={{ backgroundImage: "radial-gradient(circle at 50% 50%, var(--color-green-light) 0%, transparent 70%)" }}
-        />
-        <div className="relative mx-auto max-w-xl px-6 text-center">
-          <h2 className="text-3xl font-black text-white md:text-5xl">{footerCta.title}</h2>
+      <section className="relative border-t border-[var(--color-border)] bg-[var(--color-green-dark)] py-24">
+        <Reveal className="relative mx-auto max-w-xl px-6 text-center">
+          <h2 className="font-display text-3xl text-white md:text-5xl">{footerCta.title}</h2>
           <p className="mt-4 text-white/60">{footerCta.desc}</p>
           <Link
             href="/shop"
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-[var(--color-green-bright)] px-10 py-4 text-sm font-bold text-[var(--color-green-dark)] shadow-[0_8px_30px_rgba(158,212,58,0.3)] transition hover:scale-105"
+            className="mt-8 inline-flex items-center gap-2 bg-white px-10 py-4 text-xs font-semibold uppercase tracking-widest text-[var(--color-green-dark)] transition hover:bg-white/90"
           >
             {footerCta.btn} <ArrowRight className="h-4 w-4" />
           </Link>
-        </div>
+        </Reveal>
       </section>
     </main>
   );

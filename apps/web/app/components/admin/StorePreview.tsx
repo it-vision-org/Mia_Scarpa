@@ -1,28 +1,44 @@
 "use client";
 
 import type { StoreColors } from "@/lib/store-config";
-import type { HeroText, VideoText, FooterCtaText, UspItem } from "@/types";
+import type { HeroText, FooterCtaText, UspItem, FeaturedOverlay, EditorialBlock } from "@/types";
 
 type Props = {
   hero: HeroText;
-  video: VideoText;
   footerCta: FooterCtaText;
   usp: UspItem[];
   colors: StoreColors;
   logoUrl?: string | null;
   heroImageUrl?: string | null;
+  featuredOverlay: FeaturedOverlay;
+  featuredImageUrl?: string | null;
+  editorial1: EditorialBlock;
+  editorialImage1Url?: string | null;
+  editorial2: EditorialBlock;
+  editorialImage2Url?: string | null;
 };
 
-export function StorePreview({ hero, video, footerCta, usp, colors, logoUrl, heroImageUrl }: Props) {
+export function StorePreview({
+  hero,
+  footerCta,
+  usp,
+  colors,
+  logoUrl,
+  heroImageUrl,
+  featuredOverlay,
+  featuredImageUrl,
+  editorial1,
+  editorialImage1Url,
+  editorial2,
+  editorialImage2Url,
+}: Props) {
   // scoped CSS variables so they don't bleed into the admin UI
   const vars = {
-    "--p-dark":   colors["green-dark"],
-    "--p-green":  colors.green,
-    "--p-mid":    colors["green-mid"],
-    "--p-light":  colors["green-light"],
-    "--p-bright": colors["green-bright"],
+    "--p-dark": colors["green-dark"],
     "--p-accent": colors.accent,
   } as React.CSSProperties;
+
+  const featuredImg = featuredImageUrl ?? heroImageUrl ?? null;
 
   return (
     <div style={vars} className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-md">
@@ -33,7 +49,7 @@ export function StorePreview({ hero, video, footerCta, usp, colors, logoUrl, her
         <span className="h-2.5 w-2.5 rounded-full bg-yellow-400" />
         <span className="h-2.5 w-2.5 rounded-full bg-green-400" />
         <div className="ml-2 flex-1 rounded-full bg-white border border-[var(--color-border)] px-3 py-0.5 text-[10px] text-[var(--color-muted)]">
-          flexcomfortshoes.com
+          miascarpa.com
         </div>
         <span className="text-[10px] font-semibold text-[var(--color-muted)]">Live Preview</span>
       </div>
@@ -42,141 +58,91 @@ export function StorePreview({ hero, video, footerCta, usp, colors, logoUrl, her
       <div className="overflow-y-auto" style={{ maxHeight: "72vh" }}>
 
         {/* ── mini navbar ── */}
-        <div className="flex items-center justify-between border-b border-[#e5e7eb] bg-white px-4 py-2">
-          <div className="flex items-center gap-1.5">
-            {logoUrl ? (
-              <img key={logoUrl} src={logoUrl} alt="logo" className="h-5 object-contain" />
-            ) : (
-              <span
-                className="rounded px-1.5 py-0.5 text-[9px] font-black text-white"
-                style={{ backgroundColor: "var(--p-green)" }}
-              >
-                FLEX
-              </span>
-            )}
-            <span className="text-[9px] text-gray-500">Comfort Shoes</span>
-          </div>
-          <div className="flex gap-3">
-            <span className="text-[9px] text-gray-400">Home</span>
-            <span className="text-[9px] text-gray-400">Shop</span>
+        <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-white px-4 py-2.5">
+          {logoUrl ? (
+            <img key={logoUrl} src={logoUrl} alt="logo" className="h-4 object-contain" />
+          ) : (
+            <span className="font-display text-[11px] text-[var(--color-text)]">Mia Scarpa</span>
+          )}
+          <div className="flex gap-2.5">
+            {["Men", "Women", "About Us", "Contact"].map((l) => (
+              <span key={l} className="text-[7px] font-semibold uppercase tracking-wider text-gray-400">{l}</span>
+            ))}
           </div>
         </div>
 
-        {/* ── mini hero ── */}
-        <div
-          className="px-5 py-6"
-          style={{
-            background: `linear-gradient(135deg, var(--p-dark) 0%, var(--p-green) 55%, var(--p-mid) 100%)`,
-          }}
-        >
-          <div className="flex items-start gap-4">
-            {/* left text */}
-            <div className="flex-1">
-              <div
-                className="mb-2 inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/10 px-2 py-0.5"
-                style={{ fontSize: 8 }}
-              >
-                <span
-                  className="h-1 w-1 rounded-full"
-                  style={{ backgroundColor: "var(--p-bright)" }}
-                />
-                <span className="font-bold uppercase tracking-widest text-white">{hero.badge}</span>
-              </div>
+        {/* ── mini hero (full-bleed dark, video/photo + explore button only) ── */}
+        <div className="relative flex flex-col items-center justify-center overflow-hidden px-5 py-14 text-center" style={{ background: "var(--p-dark)" }}>
+          {heroImageUrl && (
+            <img key={heroImageUrl} src={heroImageUrl} alt="" className="absolute inset-0 h-full w-full object-cover opacity-50" />
+          )}
+          <span className="relative inline-block border border-white/70 bg-black/10 px-3 py-1.5 text-[7px] font-semibold uppercase tracking-widest text-white backdrop-blur-sm">
+            {hero.cta1}
+          </span>
+        </div>
 
-              <div className="font-black leading-tight text-white" style={{ fontSize: 18 }}>
-                {hero.line1}
-                <br />
-                <span style={{ color: "var(--p-bright)" }}>{hero.line2}</span>
-                <br />
-                {hero.line3}
-              </div>
-
-              <p className="mt-1.5 line-clamp-2 leading-relaxed text-white/60" style={{ fontSize: 8 }}>
-                {hero.subtitle}
-              </p>
-
-              <div className="mt-2.5 flex flex-wrap gap-1.5">
-                <span
-                  className="inline-flex items-center gap-0.5 rounded-full bg-white font-bold"
-                  style={{ fontSize: 8, padding: "3px 8px", color: "var(--p-green)" }}
-                >
-                  {hero.cta1} →
-                </span>
-                <span
-                  className="inline-flex items-center gap-0.5 rounded-full border border-white/30 bg-white/10 text-white"
-                  style={{ fontSize: 8, padding: "3px 8px" }}
-                >
-                  ▶ {hero.cta2}
-                </span>
-              </div>
+        {/* ── mini featured: photo + products ── */}
+        <div className="grid grid-cols-2">
+          <div className="relative aspect-square overflow-hidden bg-[var(--color-bg)]">
+            {featuredImg && <img src={featuredImg} alt="" className="h-full w-full object-cover" />}
+            <div className="absolute bottom-1.5 left-1.5 border border-white/20 bg-black/50 px-1.5 py-1">
+              <p className="text-white/60 leading-none" style={{ fontSize: 5 }}>{featuredOverlay.label}</p>
+              <p className="font-display leading-none text-white" style={{ fontSize: 7 }}>{featuredOverlay.year}</p>
             </div>
-
-            {/* right: hero photo */}
-            <div
-              className="shrink-0 overflow-hidden rounded-xl border border-white/15"
-              style={{ width: 72, aspectRatio: "4/5", background: heroImageUrl ? undefined : "rgba(255,255,255,0.1)" }}
-            >
-              {heroImageUrl && (
-                <img key={heroImageUrl} src={heroImageUrl} alt="" className="h-full w-full object-cover" />
-              )}
-            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-px bg-[var(--color-border)]">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="aspect-square bg-[var(--color-bg)]" />
+            ))}
           </div>
         </div>
 
-        {/* ── mini USP bar ── */}
-        <div className="grid grid-cols-4 divide-x divide-gray-100 border-b border-gray-100 bg-white">
+        {/* ── mini USP bar (plain divided text) ── */}
+        <div className="grid grid-cols-4 divide-x divide-[var(--color-border)] border-b border-[var(--color-border)] bg-white py-2.5">
           {usp.map((item, i) => (
-            <div key={i} className="flex flex-col items-center gap-0.5 px-1 py-2.5 text-center">
-              <div
-                className="mb-1 flex h-5 w-5 items-center justify-center rounded-lg"
-                style={{ backgroundColor: colors["green-dark"] + "20" }}
-              >
-                <span style={{ fontSize: 9, color: "var(--p-accent)" }}>✦</span>
-              </div>
-              <p className="font-semibold text-gray-800" style={{ fontSize: 8 }}>{item.label}</p>
-              <p className="leading-tight text-gray-400" style={{ fontSize: 7 }}>{item.desc}</p>
+            <div key={i} className="px-1 text-center">
+              <p className="font-semibold uppercase text-[var(--color-text)]" style={{ fontSize: 6.5 }}>{item.label}</p>
+              <p className="mt-0.5 leading-tight text-[var(--color-muted)]" style={{ fontSize: 5.5 }}>{item.desc}</p>
             </div>
           ))}
         </div>
 
-        {/* ── mini video section ── */}
-        <div className="bg-gray-50 px-5 py-5">
-          <div className="mb-3 text-center">
-            <p className="font-bold uppercase tracking-widest" style={{ fontSize: 8, color: "var(--p-accent)" }}>
-              {video.label}
-            </p>
-            <p className="mt-0.5 font-bold leading-tight text-gray-800" style={{ fontSize: 12 }}>
-              {video.title}
-            </p>
-            <p className="mt-0.5 line-clamp-1 text-gray-400" style={{ fontSize: 8 }}>
-              {video.desc}
-            </p>
-          </div>
-          <div
-            className="flex aspect-video w-full items-center justify-center rounded-xl"
-            style={{ background: `linear-gradient(135deg, var(--p-dark), var(--p-green))` }}
-          >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 ring-2 ring-white/25">
-              <span className="ml-0.5 text-white" style={{ fontSize: 10 }}>▶</span>
+        {/* ── mini editorial blocks ── */}
+        {[
+          { block: editorial1, img: editorialImage1Url, flip: false },
+          { block: editorial2, img: editorialImage2Url, flip: true },
+        ].map(({ block, img, flip }, i) => (
+          <div key={i} className={`grid grid-cols-2 ${flip ? "" : ""}`}>
+            {flip && (
+              <div className="flex flex-col justify-center px-3 py-4">
+                <p className="font-semibold uppercase tracking-widest text-[var(--color-muted)]" style={{ fontSize: 6 }}>{block.label}</p>
+                <p className="font-display mt-1 leading-tight text-[var(--color-text)]" style={{ fontSize: 11 }}>{block.title}</p>
+                <p className="mt-1 line-clamp-2 text-[var(--color-muted)]" style={{ fontSize: 6 }}>{block.desc}</p>
+              </div>
+            )}
+            <div className="relative aspect-square overflow-hidden bg-[var(--color-bg)]">
+              {img && <img src={img} alt="" className="h-full w-full object-cover" />}
             </div>
+            {!flip && (
+              <div className="flex flex-col justify-center px-3 py-4">
+                <p className="font-semibold uppercase tracking-widest text-[var(--color-muted)]" style={{ fontSize: 6 }}>{block.label}</p>
+                <p className="font-display mt-1 leading-tight text-[var(--color-text)]" style={{ fontSize: 11 }}>{block.title}</p>
+                <p className="mt-1 line-clamp-2 text-[var(--color-muted)]" style={{ fontSize: 6 }}>{block.desc}</p>
+              </div>
+            )}
           </div>
-        </div>
+        ))}
 
-        {/* ── mini products placeholder ── */}
+        {/* ── mini products grid ── */}
         <div className="bg-white px-5 py-5">
-          <div className="mb-3">
-            <p className="font-bold uppercase tracking-widest" style={{ fontSize: 8, color: "var(--p-accent)" }}>
-              Collection
-            </p>
-            <p className="font-bold text-gray-800" style={{ fontSize: 12 }}>Featured Shoes</p>
-          </div>
-          <div className="grid grid-cols-3 gap-2">
+          <p className="font-semibold uppercase tracking-widest text-[var(--color-muted)]" style={{ fontSize: 7 }}>Collection</p>
+          <p className="font-display mt-0.5 text-[var(--color-text)]" style={{ fontSize: 12 }}>Featured Shoes</p>
+          <div className="mt-3 grid grid-cols-3 gap-px bg-[var(--color-border)]">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="overflow-hidden rounded-xl border border-gray-100">
-                <div className="aspect-square bg-gray-100" />
-                <div className="p-1.5">
-                  <div className="h-1.5 w-3/4 rounded bg-gray-200" />
-                  <div className="mt-1 h-1.5 w-1/2 rounded bg-gray-100" />
+              <div key={i} className="bg-white">
+                <div className="aspect-square bg-[var(--color-bg)]" />
+                <div className="border-t border-[var(--color-border)] p-1.5">
+                  <div className="h-1.5 w-3/4 rounded bg-[var(--color-border)]" />
                 </div>
               </div>
             ))}
@@ -184,26 +150,15 @@ export function StorePreview({ hero, video, footerCta, usp, colors, logoUrl, her
         </div>
 
         {/* ── mini footer CTA ── */}
-        <div
-          className="px-5 py-6 text-center"
-          style={{ background: `linear-gradient(135deg, var(--p-dark), var(--p-green))` }}
-        >
-          <p className="font-black leading-tight text-white" style={{ fontSize: 14 }}>
+        <div className="px-5 py-6 text-center" style={{ background: "var(--p-dark)" }}>
+          <p className="font-display leading-tight text-white" style={{ fontSize: 14 }}>
             {footerCta.title}
           </p>
-          <p className="mt-1 line-clamp-1 text-white/60" style={{ fontSize: 8 }}>
+          <p className="mt-1 line-clamp-1 text-white/60" style={{ fontSize: 7 }}>
             {footerCta.desc}
           </p>
-          <span
-            className="mt-2.5 inline-block rounded-full font-bold"
-            style={{
-              fontSize: 9,
-              padding: "5px 14px",
-              backgroundColor: "var(--p-bright)",
-              color: "var(--p-dark)",
-            }}
-          >
-            {footerCta.btn} →
+          <span className="mt-2.5 inline-block bg-white px-3 py-1.5 font-semibold uppercase tracking-widest" style={{ fontSize: 7, color: "var(--p-dark)" }}>
+            {footerCta.btn}
           </span>
         </div>
 

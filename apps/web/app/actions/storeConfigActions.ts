@@ -9,24 +9,17 @@ import {
   saveContactInfo as saveContactInfoInDB,
   saveHeroSettings,
   saveColorSettings,
-  saveVideoSettings,
   saveFooterSettings,
   saveCollectionSettings,
   saveUsps,
 } from "./storeSettingsActions";
 import type { ContactInfo } from "@/types";
-import { DEFAULT_HERO, DEFAULT_VIDEO, DEFAULT_FOOTER_CTA, DEFAULT_COLLECTION, DEFAULT_USPS } from "@/types";
+import { DEFAULT_HERO, DEFAULT_FOOTER_CTA, DEFAULT_COLLECTION, DEFAULT_USPS } from "@/types";
 
 export async function resetToDefault(): Promise<{ success: boolean; error?: string }> {
   try {
     await saveHeroSettings({
-      heroBadge: DEFAULT_HERO.badge,
-      heroLine1: DEFAULT_HERO.line1,
-      heroLine2: DEFAULT_HERO.line2,
-      heroLine3: DEFAULT_HERO.line3,
-      heroSubtitle: DEFAULT_HERO.subtitle,
       heroCta1: DEFAULT_HERO.cta1,
-      heroCta2: DEFAULT_HERO.cta2,
     });
     await saveColorSettings({
       colorAccent: DEFAULT_COLORS.accent,
@@ -35,11 +28,6 @@ export async function resetToDefault(): Promise<{ success: boolean; error?: stri
       colorGreenMid: DEFAULT_COLORS["green-mid"],
       colorGreenLight: DEFAULT_COLORS["green-light"],
       colorGreenBright: DEFAULT_COLORS["green-bright"],
-    });
-    await saveVideoSettings({
-      videoSectionLabel: DEFAULT_VIDEO.label,
-      videoSectionTitle: DEFAULT_VIDEO.title,
-      videoSectionDesc: DEFAULT_VIDEO.desc,
     });
     await saveFooterSettings({
       footerCtaTitle: DEFAULT_FOOTER_CTA.title,

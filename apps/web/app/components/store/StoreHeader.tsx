@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { UserCircle } from "lucide-react";
 import { LogoImage } from "./LogoImage";
 import { CartIcon } from "./CartIcon";
@@ -10,33 +11,38 @@ import { LanguageSelector } from "./LanguageSelector";
 import { getCurrentUser } from "@/lib/session";
 import { getTranslations } from "next-intl/server";
 import { getStoreSettings } from "@/actions/storeSettingsActions";
+import { getCategoryTree } from "@/actions/categoryActions";
 
 export async function StoreHeader() {
-  const [session, settings] = await Promise.all([getCurrentUser(), getStoreSettings()]);
+  const [session, settings, categoryTreeResult] = await Promise.all([
+    getCurrentUser(),
+    getStoreSettings(),
+    getCategoryTree(),
+  ]);
   const t = await getTranslations("Nav");
   const logoUrl = settings.success ? settings.data?.logoUrl ?? null : null;
+  const categoryTree = categoryTreeResult.success ? (categoryTreeResult.data ?? []) : [];
 
   return (
     <>
       <CartDrawer />
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-[var(--color-border)]">
-        {/* Accent line at the very top */}
-        <div className="h-0.5 w-full bg-gradient-to-r from-transparent via-[var(--color-accent)]/40 to-transparent" />
-
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:gap-4 sm:px-6">
+      <header className="sticky top-0 z-40 bg-[var(--color-bg)]/95 backdrop-blur-xl border-b border-[var(--color-border)]">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-4 sm:gap-4 sm:px-6">
 
           {/* Logo */}
-          <Link href="/" className="shrink-0 transition-opacity hover:opacity-80">
-            <LogoImage height={38} src={logoUrl} />
+          <Link href="/" className="shrink-0 transition-opacity hover:opacity-70">
+            <LogoImage height={34} src={logoUrl} />
           </Link>
 
-          {/* Pill nav — center */}
+          {/* Nav — center */}
           <div className="hidden sm:flex">
-            <NavLinks />
+            <Suspense fallback={null}>
+              <NavLinks categoryTree={categoryTree} />
+            </Suspense>
           </div>
 
           {/* Right actions */}
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-2 sm:gap-3">
             <LanguageSelector />
 
             <CartIcon />
@@ -48,14 +54,14 @@ export async function StoreHeader() {
             ) : (
               <Link
                 href="/account/login"
-                className="flex items-center gap-2 rounded-xl border border-[var(--color-border)] px-2.5 py-2 text-sm font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent)]/5 sm:px-3.5"
+                className="flex items-center gap-2 px-2 py-2 text-xs font-semibold uppercase tracking-widest text-[var(--color-text)] transition hover:text-[var(--color-muted)] sm:px-2.5"
               >
                 <UserCircle size={16} />
                 <span className="hidden sm:block">{t("SignIn")}</span>
               </Link>
             )}
 
-            <MobileNavMenu />
+            <MobileNavMenu categoryTree={categoryTree} />
           </div>
         </div>
       </header>

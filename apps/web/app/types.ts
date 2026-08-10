@@ -14,6 +14,8 @@ export type ColorImage = {
   sizes: SizeStock[];  // per-color stock per size
 };
 
+export type Gender = "MEN" | "WOMEN";
+
 export type AdminProductDetail = {
   id: string;
   name: string;
@@ -23,6 +25,8 @@ export type AdminProductDetail = {
   colorImages: ColorImage[];
   isPublished: boolean;
   isFeatured: boolean;
+  gender: Gender;
+  categoryId: string | null;
 };
 
 export type ProductInput = {
@@ -32,6 +36,16 @@ export type ProductInput = {
   colorImages: ColorImage[];  // each color owns its sizes+stock
   isPublished: boolean;
   isFeatured: boolean;
+  gender: Gender;
+  categoryId: string | null;
+};
+
+export type CategoryNode = {
+  id: string;
+  name: string;
+  slug: string;
+  parentId: string | null;
+  children: CategoryNode[];
 };
 
 // ─── Shared action result ─────────────────────────────────────────────────────
@@ -189,21 +203,7 @@ export type OrderStatistics = {
 // ─── Store settings types ─────────────────────────────────────────────────────
 
 export type HeroText = {
-  badge: string;
-  line1: string;
-  line2: string;
-  line3: string;
-  subtitle: string;
   cta1: string;
-  cta2: string;
-};
-
-export type VideoText = { label: string; title: string; desc: string };
-
-export const DEFAULT_VIDEO: VideoText = {
-  label: "Our Story",
-  title: "Comfort that moves with you",
-  desc: "See how Flex Comfort Shoes are crafted for every step of your day.",
 };
 
 export type CollectionText = { label: string; title: string; desc: string };
@@ -222,6 +222,28 @@ export const DEFAULT_FOOTER_CTA: FooterCtaText = {
   btn: "Shop All Shoes",
 };
 
+export type FeaturedOverlay = { label: string; year: string; collection: string };
+
+export const DEFAULT_FEATURED_OVERLAY: FeaturedOverlay = {
+  label: "Collection",
+  year: "2025",
+  collection: "",
+};
+
+export type EditorialBlock = { label: string; title: string; desc: string };
+
+export const DEFAULT_EDITORIAL_1: EditorialBlock = {
+  label: "Craftsmanship",
+  title: "Made to last",
+  desc: "Every pair is built from carefully selected materials, finished by hand for comfort and durability that holds up season after season.",
+};
+
+export const DEFAULT_EDITORIAL_2: EditorialBlock = {
+  label: "Design",
+  title: "Timeless silhouettes",
+  desc: "Clean lines and considered proportions, designed to move seamlessly between everyday wear and dressed-up occasions.",
+};
+
 export type UspItem = { label: string; desc: string };
 
 export const DEFAULT_USPS: UspItem[] = [
@@ -232,13 +254,7 @@ export const DEFAULT_USPS: UspItem[] = [
 ];
 
 export const DEFAULT_HERO: HeroText = {
-  badge: "New Collection 2025",
-  line1: "Léger.",
-  line2: "Flexible.",
-  line3: "Confortable.",
-  subtitle: "Engineered for everyday comfort without compromising on style.",
-  cta1: "Shop Collection",
-  cta2: "Watch Story",
+  cta1: "Explore",
 };
 
 export type StoreUspItem = {
@@ -252,16 +268,7 @@ export type SerializedStoreSettings = {
   id: string;
   logoUrl: string | null;
   heroImage: string | null;
-  heroBadge: string | null;
-  heroLine1: string | null;
-  heroLine2: string | null;
-  heroLine3: string | null;
-  heroSubtitle: string | null;
   heroCta1: string | null;
-  heroCta2: string | null;
-  heroOverlayCardLabel: string | null;
-  heroOverlayCardYear: string | null;
-  heroOverlayCardCollection: string | null;
   colorAccent: string | null;
   colorGreenDark: string | null;
   colorGreen: string | null;
@@ -269,9 +276,21 @@ export type SerializedStoreSettings = {
   colorGreenLight: string | null;
   colorGreenBright: string | null;
   videoUrl: string | null;
-  videoSectionLabel: string | null;
-  videoSectionTitle: string | null;
-  videoSectionDesc: string | null;
+  shopCoverImage: string | null;
+  menCoverImage: string | null;
+  womenCoverImage: string | null;
+  featuredImage: string | null;
+  featuredOverlayLabel: string | null;
+  featuredOverlayYear: string | null;
+  featuredOverlayCollection: string | null;
+  editorialLabel1: string | null;
+  editorialTitle1: string | null;
+  editorialDesc1: string | null;
+  editorialImage1: string | null;
+  editorialLabel2: string | null;
+  editorialTitle2: string | null;
+  editorialDesc2: string | null;
+  editorialImage2: string | null;
   collectionLabel: string | null;
   collectionTitle: string | null;
   collectionDesc: string | null;
