@@ -24,6 +24,7 @@ import { HeroPhotoUpload } from "./HeroPhotoUpload";
 import { ShopCoverUpload } from "./ShopCoverUpload";
 import { FeaturedPhotoUpload } from "./FeaturedPhotoUpload";
 import { EditorialBlockEditor } from "./EditorialBlockEditor";
+import { HomepageFeaturedPicker } from "./HomepageFeaturedPicker";
 import { VideoUpload } from "./VideoUpload";
 import { LogoUpload } from "./LogoUpload";
 import { StorePreview } from "./StorePreview";
@@ -330,6 +331,8 @@ export function StoreSettingsClient({
   featuredOverlay,
   editorial1,
   editorial2,
+  allProducts,
+  homepageFeaturedProductIds,
   deliveryFeeCents,
   contactInfo,
   media,
@@ -342,6 +345,8 @@ export function StoreSettingsClient({
   featuredOverlay: FeaturedOverlay;
   editorial1: EditorialBlock;
   editorial2: EditorialBlock;
+  allProducts: { id: string; name: string; priceCents: number; images: string[]; isPublished: boolean }[];
+  homepageFeaturedProductIds: string[];
   deliveryFeeCents: number;
   contactInfo: ContactInfo;
   media: StoreMedia;
@@ -467,6 +472,15 @@ export function StoreSettingsClient({
         }
         preview={<FeaturedMiniPreview overlay={featuredOverlayPreview} imageUrl={featuredImageUrl ?? heroImageUrl} />}
       />
+
+      {/* Homepage featured products — full width, needs room for the product grid */}
+      <div className="rounded-2xl border border-[var(--color-border)] bg-white p-6 shadow-sm">
+        <h2 className="text-base font-bold text-[var(--color-text)]">🛍️ Homepage Featured Products</h2>
+        <p className="mb-5 mt-0.5 text-sm text-[var(--color-muted)]">
+          The 4 products shown next to the photo above, right after the hero video.
+        </p>
+        <HomepageFeaturedPicker products={allProducts} initialSelectedIds={homepageFeaturedProductIds} />
+      </div>
 
       {/* USP bar */}
       <EditRow

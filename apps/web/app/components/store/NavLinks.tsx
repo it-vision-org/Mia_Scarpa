@@ -151,18 +151,20 @@ function VerticalGenderItem({
 
 export function NavLinks({
   vertical = false,
-  categoryTree = [],
+  menCategoryTree = [],
+  womenCategoryTree = [],
 }: {
   vertical?: boolean;
-  categoryTree?: CategoryNode[];
+  menCategoryTree?: CategoryNode[];
+  womenCategoryTree?: CategoryNode[];
 }) {
   const pathname = usePathname();
   const gender = useSearchParams().get("gender");
   const t = useTranslations("Nav");
 
   const GENDER_LINKS = [
-    { href: "/shop?gender=men", label: t("Men") },
-    { href: "/shop?gender=women", label: t("Women") },
+    { href: "/shop?gender=men", label: t("Men"), categories: menCategoryTree },
+    { href: "/shop?gender=women", label: t("Women"), categories: womenCategoryTree },
   ];
   const OTHER_LINKS = [
     { href: "/about", label: t("About") },
@@ -172,13 +174,13 @@ export function NavLinks({
   if (vertical) {
     return (
       <div className="flex flex-col gap-1">
-        {GENDER_LINKS.map(({ href, label }) => (
+        {GENDER_LINKS.map(({ href, label, categories }) => (
           <VerticalGenderItem
             key={href}
             href={href}
             label={label}
             active={isActive(pathname, gender, href)}
-            categories={categoryTree}
+            categories={categories}
           />
         ))}
         {OTHER_LINKS.map(({ href, label }) => (
@@ -200,13 +202,13 @@ export function NavLinks({
 
   return (
     <div className="flex items-center gap-8">
-      {GENDER_LINKS.map(({ href, label }) => (
+      {GENDER_LINKS.map(({ href, label, categories }) => (
         <GenderMenuItem
           key={href}
           href={href}
           label={label}
           active={isActive(pathname, gender, href)}
-          categories={categoryTree}
+          categories={categories}
         />
       ))}
       {OTHER_LINKS.map(({ href, label }) => {

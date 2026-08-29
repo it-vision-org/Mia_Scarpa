@@ -21,18 +21,21 @@ export default async function ShopPage({
   const params = await searchParams;
   const gender = params.gender === "men" || params.gender === "women" ? params.gender : undefined;
 
-  const [productsResult, categoryTreeResult, settingsResult] = await Promise.all([
+  const [productsResult, menTreeResult, womenTreeResult, settingsResult] = await Promise.all([
     getPublishedProducts({
       categorySlug: params.category,
       gender,
       search: params.search,
     }),
-    getCategoryTree(),
+    getCategoryTree("MEN"),
+    getCategoryTree("WOMEN"),
     getStoreSettings(),
   ]);
 
   const products = productsResult.success ? (productsResult.data ?? []) : [];
-  const categoryTree = categoryTreeResult.success ? (categoryTreeResult.data ?? []) : [];
+  const menTree = menTreeResult.success ? (menTreeResult.data ?? []) : [];
+  const womenTree = womenTreeResult.success ? (womenTreeResult.data ?? []) : [];
+  const categoryTree = gender === "men" ? menTree : gender === "women" ? womenTree : [...menTree, ...womenTree];
   const settings = settingsResult.success ? settingsResult.data : null;
 
   const coverImage =

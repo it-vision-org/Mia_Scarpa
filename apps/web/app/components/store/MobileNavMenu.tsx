@@ -6,7 +6,13 @@ import { Menu, X } from "lucide-react";
 import { NavLinks } from "./NavLinks";
 import type { CategoryNode } from "@/types";
 
-export function MobileNavMenu({ categoryTree = [] }: { categoryTree?: CategoryNode[] }) {
+export function MobileNavMenu({
+  menCategoryTree = [],
+  womenCategoryTree = [],
+}: {
+  menCategoryTree?: CategoryNode[];
+  womenCategoryTree?: CategoryNode[];
+}) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -29,7 +35,7 @@ export function MobileNavMenu({ categoryTree = [] }: { categoryTree?: CategoryNo
       {open && (
         <div className="absolute inset-x-0 top-full z-40 border-t border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-3 shadow-lg">
           <Suspense fallback={null}>
-            <NavLinks vertical categoryTree={categoryTree} />
+            <NavLinks vertical menCategoryTree={menCategoryTree} womenCategoryTree={womenCategoryTree} />
           </Suspense>
         </div>
       )}

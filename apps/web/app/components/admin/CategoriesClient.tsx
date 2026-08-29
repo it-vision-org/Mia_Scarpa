@@ -4,16 +4,18 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, Pencil, Loader2, FolderTree, Check, X } from "lucide-react";
 import { createCategory, updateCategory, deleteCategory } from "@/actions/categoryActions";
-import type { CategoryNode } from "@/types";
+import type { CategoryNode, Gender } from "@/types";
 import { ConfirmDialog } from "./ConfirmDialog";
 
 const inp =
   "w-full rounded-xl border border-[var(--color-border)] bg-white px-3 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-muted)] outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition";
 
 function NewCategoryForm({
+  gender,
   parentId,
   onDone,
 }: {
+  gender: Gender;
   parentId: string | null;
   onDone: () => void;
 }) {
@@ -27,7 +29,7 @@ function NewCategoryForm({
     if (!name.trim()) return;
     setError("");
     startTransition(async () => {
-      const res = await createCategory({ name: name.trim(), parentId });
+      const res = await createCategory({ name: name.trim(), gender, parentId });
       if (res.success) {
         setName("");
         onDone();
@@ -66,7 +68,7 @@ function NewCategoryForm({
   );
 }
 
-function CategoryRow({ category, depth }: { category: CategoryNode; depth: number }) {
+function CategoryRow({ category, gender, depth }: { category: CategoryNode; gender: Gender; depth: number }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(category.name);
@@ -149,14 +151,14 @@ function CategoryRow({ category, depth }: { category: CategoryNode; depth: numbe
 
       {addingChild && (
         <div className="mt-2" style={{ marginLeft: 24 }}>
-          <NewCategoryForm parentId={category.id} onDone={() => setAddingChild(false)} />
+          <NewCategoryForm gender={gender} parentId={category.id} onDone={() => setAddingChild(false)} />
         </div>
       )}
 
       {category.children.length > 0 && (
         <div className="mt-2 space-y-2">
           {category.children.map((child) => (
-            <CategoryRow key={child.id} category={child} depth={depth + 1} />
+            <CategoryRow key={child.id} category={child} gender={gender} depth={depth + 1} />
           ))}
         </div>
       )}
@@ -175,43 +177,61 @@ function CategoryRow({ category, depth }: { category: CategoryNode; depth: numbe
   );
 }
 
-export function CategoriesClient({ initialTree }: { initialTree: CategoryNode[] }) {
+function CategoryGenderSection({ gender, label, tree }: { gender: Gender; label: string; tree: CategoryNode[] }) {
   const [showNewForm, setShowNewForm] = useState(false);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-[var(--color-muted)]">
-          {initialTree.length} top-level {initialTree.length === 1 ? "category" : "categories"}
-        </p>
+        <div>
+          <h2 className="text-base font-bold text-[var(--color-text)]">{label}</h2>
+          <p className="text-xs text-[var(--color-muted)]">
+            {tree.length} top-level {tree.length === 1 ? "category" : "categories"}
+          </p>
+        </div>
         {!showNewForm && (
           <button
             onClick={() => setShowNewForm(true)}
             className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[var(--color-green-mid)] active:scale-95"
           >
             <Plus className="h-4 w-4" />
-            New Category
+            New {label} Category
           </button>
         )}
       </div>
 
       {showNewForm && (
-        <div className="rounded-2xl border border-[var(--color-accent)]/30 bg-[var(--color-accent)]/5 p-4">
-          <NewCategoryForm parentId={null} onDone={() => setShowNewForm(false)} />
+        <div className="rounded-2xl border border-[var(--color-accent)]/30 bg-white p-4">
+          <NewCategoryForm gender={gender} parentId={null} onDone={() => setShowNewForm(false)} />
         </div>
       )}
 
-      {initialTree.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[var(--color-border)] py-16 text-center">
-          <p className="text-sm text-[var(--color-muted)]">No categories yet.</p>
+      {tree.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-[var(--color-border)] bg-white py-12 text-center">
+          <p className="text-sm text-[var(--color-muted)]">No {label.toLowerCase()} categories yet.</p>
         </div>
       ) : (
         <div className="space-y-2">
-          {initialTree.map((cat) => (
-            <CategoryRow key={cat.id} category={cat} depth={0} />
+          {tree.map((cat) => (
+            <CategoryRow key={cat.id} category={cat} gender={gender} depth={0} />
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+export function CategoriesClient({
+  menTree,
+  womenTree,
+}: {
+  menTree: CategoryNode[];
+  womenTree: CategoryNode[];
+}) {
+  return (
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <CategoryGenderSection gender="MEN" label="Men" tree={menTree} />
+      <CategoryGenderSection gender="WOMEN" label="Women" tree={womenTree} />
     </div>
   );
 }

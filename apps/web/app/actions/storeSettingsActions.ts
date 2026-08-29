@@ -64,6 +64,7 @@ function serialize(s: any, usps: any[]): SerializedStoreSettings {
     contactLocation: s.contactLocation,
     contactResponseTime: s.contactResponseTime,
     usps: usps.map((u) => ({ id: u.id, label: u.label, desc: u.desc, order: u.order })),
+    homepageFeaturedProductIds: s.homepageFeaturedProductIds ?? [],
   };
 }
 
@@ -267,6 +268,22 @@ export async function saveUsps(
     return { success: true };
   } catch (error) {
     console.error("[STORE SETTINGS] saveUsps error:", error);
+    return { success: false, error: "Failed to save" };
+  }
+}
+
+export async function saveHomepageFeaturedProducts(productIds: string[]): Promise<ActionResult> {
+  try {
+    const settings = await getOrCreate();
+    await db.storeSettings.update({
+      where: { id: settings.id },
+      data: { homepageFeaturedProductIds: productIds },
+    });
+    revalidatePath("/", "layout");
+    revalidatePath("/admin", "layout");
+    return { success: true };
+  } catch (error) {
+    console.error("[STORE SETTINGS] saveHomepageFeaturedProducts error:", error);
     return { success: false, error: "Failed to save" };
   }
 }

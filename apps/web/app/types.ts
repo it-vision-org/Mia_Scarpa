@@ -45,6 +45,7 @@ export type CategoryNode = {
   name: string;
   slug: string;
   parentId: string | null;
+  gender: Gender;
   children: CategoryNode[];
 };
 
@@ -303,6 +304,7 @@ export type SerializedStoreSettings = {
   contactLocation: string | null;
   contactResponseTime: string | null;
   usps: StoreUspItem[];
+  homepageFeaturedProductIds: string[];
 };
 
 export type ContactInfo = {

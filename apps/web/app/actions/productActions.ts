@@ -128,6 +128,24 @@ export async function getFeaturedProducts(): Promise<ActionResult<SerializedProd
   }
 }
 
+// Returns published products matching the given IDs, in the same order the
+// IDs were passed in (used for the admin-curated homepage featured picks).
+export async function getProductsByIds(ids: string[]): Promise<ActionResult<SerializedProduct[]>> {
+  if (ids.length === 0) return { success: true, data: [] };
+  try {
+    const products = await db.product.findMany({
+      where: { id: { in: ids }, isPublished: true },
+      include: PRODUCT_INCLUDE,
+    });
+    const byId = new Map(products.map((p) => [p.id, p]));
+    const ordered = ids.map((id) => byId.get(id)).filter((p): p is NonNullable<typeof p> => Boolean(p));
+    return { success: true, data: ordered.map(serializeProduct) };
+  } catch (error) {
+    console.error("[PRODUCTS] byIds error:", error);
+    return { success: false, error: "Failed to load products" };
+  }
+}
+
 export async function getProductBySlug(slug: string): Promise<ActionResult<SerializedProduct>> {
   if (!slug) return { success: false, error: "Product not found" };
   try {

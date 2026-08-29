@@ -76,6 +76,7 @@ model Category {
   slug        String   @unique
   description String?
   image       String?
+  gender      Gender   @default(MEN)
   order       Int      @default(0)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
@@ -90,6 +91,7 @@ model Category {
   @@index([slug])
   @@index([isActive])
   @@index([parentId])
+  @@index([gender])
 }
 
 model Product {
@@ -288,6 +290,8 @@ model StoreSettings {
   contactLocation     String? @default("Tunisia")
   contactResponseTime String? @default("Within 24 hours")
 
+  homepageFeaturedProductIds String[] @default([])
+
   updatedAt DateTime @updatedAt
 
   usps StoreUsp[]
@@ -320,4 +324,45 @@ model ContactSubmission {
 
   @@index([isRead])
   @@index([createdAt])
+}
+
+enum SocialPlatform {
+  MESSENGER
+  INSTAGRAM
+  WHATSAPP
+}
+
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+model SocialConversation {
+  id              String          @id @default(cuid())
+  platform        SocialPlatform
+  externalId      String
+  customerName    String?
+  customerAvatar  String?
+  lastMessageText String?
+  lastMessageAt   DateTime        @default(now())
+  unreadCount     Int             @default(0)
+  messages        SocialMessage[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@unique([platform, externalId])
+  @@index([platform, lastMessageAt])
+}
+
+model SocialMessage {
+  id             String             @id @default(cuid())
+  conversationId String
+  conversation   SocialConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  externalId     String?
+  direction      MessageDirection
+  text           String?            @db.Text
+  attachmentUrl  String?
+  sentAt         DateTime           @default(now())
+
+  @@index([conversationId, sentAt])
 }

@@ -5,6 +5,7 @@ import { PrismaPlugin } from "@prisma/nextjs-monorepo-workaround-plugin";
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["ws", "@neondatabase/serverless"],
   env: {
     UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
     UPLOADTHING_APP_ID: process.env.UPLOADTHING_APP_ID,
@@ -14,7 +15,9 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com", pathname: "/**" },
       { protocol: "https", hostname: "utfs.io", pathname: "/**" },
+      { protocol: "https", hostname: "*.utfs.io", pathname: "/**" },
       { protocol: "https", hostname: "ufs.sh", pathname: "/**" },
+      { protocol: "https", hostname: "*.ufs.sh", pathname: "/**" },
       { protocol: "https", hostname: "i.ibb.co", pathname: "/**" },
     ],
     unoptimized: process.env.NODE_ENV === "development",

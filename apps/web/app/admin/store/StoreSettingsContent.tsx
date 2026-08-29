@@ -1,6 +1,7 @@
 import { DEFAULT_COLORS } from "@/lib/store-config";
 import { getDeliveryFeeCents, getContactInfo } from "@/actions/storeConfigActions";
 import { getStoreSettings } from "@/actions/storeSettingsActions";
+import { getAdminProducts } from "@/actions/adminActions";
 import { StoreSettingsClient } from "@/components/admin/StoreSettingsClient";
 import {
   DEFAULT_HERO,
@@ -13,12 +14,14 @@ import {
 } from "@/types";
 
 export async function StoreSettingsContent() {
-  const [deliveryFeeCents, contactInfo, settingsResult] = await Promise.all([
+  const [deliveryFeeCents, contactInfo, settingsResult, productsResult] = await Promise.all([
     getDeliveryFeeCents(),
     getContactInfo(),
     getStoreSettings(),
+    getAdminProducts(),
   ]);
   const settings = settingsResult.success ? settingsResult.data! : null;
+  const allProducts = productsResult.success ? (productsResult.data ?? []) : [];
 
   const hero = {
     cta1: settings?.heroCta1 ?? DEFAULT_HERO.cta1,
@@ -78,6 +81,14 @@ export async function StoreSettingsContent() {
       featuredOverlay={featuredOverlay}
       editorial1={editorial1}
       editorial2={editorial2}
+      allProducts={allProducts.map((p) => ({
+        id: p.id,
+        name: p.name,
+        priceCents: p.priceCents,
+        images: p.images.length > 0 ? p.images : p.colorImages.flatMap((c) => c.imageUrls),
+        isPublished: p.isPublished,
+      }))}
+      homepageFeaturedProductIds={settings?.homepageFeaturedProductIds ?? []}
       deliveryFeeCents={deliveryFeeCents}
       contactInfo={contactInfo}
       media={{

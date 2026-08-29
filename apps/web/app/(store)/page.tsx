@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
-import { getFeaturedProducts } from "@/actions/productActions";
+import { getFeaturedProducts, getProductsByIds } from "@/actions/productActions";
 import { ProductGrid } from "@/components/store/ProductGrid";
 import { ProductTile } from "@/components/store/ProductTile";
 import { AutoPlayVideo } from "@/components/store/AutoPlayVideo";
@@ -26,6 +26,13 @@ export default async function HomePage() {
   ]);
   const products = featured.success ? (featured.data ?? []) : [];
   const settings = settingsResult.success ? settingsResult.data : null;
+
+  const curatedIds = settings?.homepageFeaturedProductIds ?? [];
+  const curatedResult = curatedIds.length > 0 ? await getProductsByIds(curatedIds) : null;
+  const homepageFeatured =
+    curatedResult?.success && (curatedResult.data?.length ?? 0) > 0
+      ? curatedResult.data!
+      : products.slice(0, 4);
 
   const hero = {
     cta1: settings?.heroCta1 ?? DEFAULT_HERO.cta1,
@@ -101,7 +108,7 @@ export default async function HomePage() {
       <SectionDivider />
 
       {/* ── FEATURED: IMAGE + PRODUCTS ───────────────────────────────── */}
-      {products.length > 0 && (
+      {homepageFeatured.length > 0 && (
         <section className="bg-white">
           <div className="w-full">
             <div className="grid grid-cols-1 gap-1 lg:h-[640px] lg:grid-cols-2">
@@ -132,7 +139,7 @@ export default async function HomePage() {
               {/* right: 3-4 featured products, covering squares */}
               <Reveal delay={0.1} className="h-full">
                 <div className="grid h-[420px] grid-cols-2 grid-rows-2 gap-1 lg:h-full">
-                  {products.slice(0, 4).map((product) => (
+                  {homepageFeatured.map((product) => (
                     <div key={product.id} className="relative h-full w-full">
                       <ProductTile product={product} />
                     </div>

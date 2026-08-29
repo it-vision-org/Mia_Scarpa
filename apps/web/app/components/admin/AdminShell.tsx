@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { ShoppingBag, Plus, Store, ClipboardList, MessageSquare, Users, Menu, X, FolderTree } from "lucide-react";
+import { ShoppingBag, Plus, Store, ClipboardList, MessageSquare, MessageCircle, Users, Menu, X, FolderTree } from "lucide-react";
 import { LogoutButton } from "./LogoutButton";
 import { LogoImage } from "@/components/store/LogoImage";
 import { markAllContactsRead } from "@/actions/contactActions";
@@ -12,10 +12,12 @@ export function AdminShell({
   children,
   logoUrl,
   unreadContactsCount = 0,
+  unreadSocialCount = 0,
 }: {
   children: React.ReactNode;
   logoUrl?: string | null;
   unreadContactsCount?: number;
+  unreadSocialCount?: number;
 }) {
   const pathname = usePathname();
 
@@ -71,6 +73,13 @@ export function AdminShell({
       icon: MessageSquare,
       label: "Contacts",
       badge: unreadCount > 0 ? unreadCount : undefined,
+    },
+    {
+      href: "/admin/social",
+      active: pathname.startsWith("/admin/social"),
+      icon: MessageCircle,
+      label: "Social Media",
+      badge: unreadSocialCount > 0 ? unreadSocialCount : undefined,
     },
     {
       href: "/admin/store",

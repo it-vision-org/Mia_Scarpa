@@ -10,12 +10,15 @@ import type { AdminProductDetail, CategoryNode, Gender } from "@/types";
 
 function flattenCategories(
   nodes: CategoryNode[],
+  gender: Gender,
   depth = 0,
 ): { id: string; label: string }[] {
-  return nodes.flatMap((n) => [
-    { id: n.id, label: `${"— ".repeat(depth)}${n.name}` },
-    ...flattenCategories(n.children, depth + 1),
-  ]);
+  return nodes
+    .filter((n) => n.gender === gender)
+    .flatMap((n) => [
+      { id: n.id, label: `${"— ".repeat(depth)}${n.name}` },
+      ...flattenCategories(n.children, gender, depth + 1),
+    ]);
 }
 
 type SizeEntry = { size: string; stock: number };
@@ -211,7 +214,13 @@ export function ProductForm({
   const [uploading, setUploading]     = useState(false);
   const [error, setError]             = useState("");
 
-  const flatCategories = useMemo(() => flattenCategories(categoryTree), [categoryTree]);
+  const flatCategories = useMemo(() => flattenCategories(categoryTree, gender), [categoryTree, gender]);
+
+  function handleGenderChange(next: Gender) {
+    setGender(next);
+    // the previously selected category may not exist in the new gender's tree
+    setCategoryId((current) => (flattenCategories(categoryTree, next).some((c) => c.id === current) ? current : ""));
+  }
 
   // ── Main product photos ─────────────────────────────────────────────────
   const [mainImages, setMainImages] = useState<string[]>(initialData?.images ?? []);
@@ -428,7 +437,7 @@ export function ProductForm({
       {/* Gender + Category */}
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Gender *">
-          <select value={gender} onChange={(e) => setGender(e.target.value as Gender)} className={inp}>
+          <select value={gender} onChange={(e) => handleGenderChange(e.target.value as Gender)} className={inp}>
             <option value="MEN">Men</option>
             <option value="WOMEN">Women</option>
           </select>
