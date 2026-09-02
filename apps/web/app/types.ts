@@ -16,6 +16,24 @@ export type ColorImage = {
 
 export type Gender = "MEN" | "WOMEN";
 
+// ─── SEO fields — shared by Product, Category, and their admin forms ──────────
+// All optional. Left empty, the public pages auto-generate title/description/
+// image from the entity's own name, description, and main photo.
+
+export type SeoFields = {
+  seoTitle: string | null;
+  seoDescription: string | null;
+  seoKeywords: string | null;
+  ogImage: string | null;
+};
+
+export type SeoFieldsInput = {
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
+  ogImage?: string;
+};
+
 export type AdminProductDetail = {
   id: string;
   name: string;
@@ -27,7 +45,7 @@ export type AdminProductDetail = {
   isFeatured: boolean;
   gender: Gender;
   categoryId: string | null;
-};
+} & SeoFields;
 
 export type ProductInput = {
   name: string;
@@ -38,7 +56,7 @@ export type ProductInput = {
   isFeatured: boolean;
   gender: Gender;
   categoryId: string | null;
-};
+} & SeoFieldsInput;
 
 export type CategoryNode = {
   id: string;
@@ -131,7 +149,18 @@ export type SerializedProduct = {
   colors: SerializedProductColor[];
   createdAt: string;
   updatedAt: string;
-};
+} & SeoFields;
+
+// ─── Public category SEO lookup (used for /shop?category= metadata) ──────────
+
+export type SeoCategory = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  image: string | null;
+  gender: Gender;
+} & SeoFields;
 
 // ─── Order types ──────────────────────────────────────────────────────────────
 
@@ -305,6 +334,35 @@ export type SerializedStoreSettings = {
   contactResponseTime: string | null;
   usps: StoreUspItem[];
   homepageFeaturedProductIds: string[];
+
+  // ── SEO & Référencement ──────────────────────────────────────────────────
+  orgName: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  seoKeywords: string | null;
+  seoCanonicalUrl: string | null;
+  seoOgTitle: string | null;
+  seoOgDescription: string | null;
+  seoOgImage: string | null;
+  seoTwitterTitle: string | null;
+  seoTwitterDescription: string | null;
+  seoTwitterImage: string | null;
+  seoIndexingEnabled: boolean;
+};
+
+export type SeoSettingsInput = {
+  orgName: string;
+  seoTitle: string;
+  seoDescription: string;
+  seoKeywords: string;
+  seoCanonicalUrl: string;
+  seoOgTitle: string;
+  seoOgDescription: string;
+  seoOgImage: string;
+  seoTwitterTitle: string;
+  seoTwitterDescription: string;
+  seoTwitterImage: string;
+  seoIndexingEnabled: boolean;
 };
 
 export type ContactInfo = {

@@ -52,6 +52,10 @@ function productToAdminDetail(
     isFeatured: p.isFeatured,
     gender: p.gender,
     categoryId: p.categoryId ?? null,
+    seoTitle: p.seoTitle ?? null,
+    seoDescription: p.seoDescription ?? null,
+    seoKeywords: p.seoKeywords ?? null,
+    ogImage: p.ogImage ?? null,
     brandName: p.category?.name ?? null,
   };
 }
@@ -116,6 +120,10 @@ export async function createProduct(
         isFeatured: data.isFeatured,
         gender: data.gender,
         categoryId: data.categoryId,
+        seoTitle: data.seoTitle?.trim() || null,
+        seoDescription: data.seoDescription?.trim() || null,
+        seoKeywords: data.seoKeywords?.trim() || null,
+        ogImage: data.ogImage?.trim() || null,
         images: {
           create: data.images.map((url, idx) => ({ url, order: idx })),
         },
@@ -165,6 +173,10 @@ export async function updateProduct(
         isFeatured: data.isFeatured,
         gender: data.gender,
         categoryId: data.categoryId,
+        seoTitle: data.seoTitle?.trim() || null,
+        seoDescription: data.seoDescription?.trim() || null,
+        seoKeywords: data.seoKeywords?.trim() || null,
+        ogImage: data.ogImage?.trim() || null,
         images: {
           create: data.images.map((url, idx) => ({ url, order: idx })),
         },

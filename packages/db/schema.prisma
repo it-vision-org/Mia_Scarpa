@@ -86,6 +86,12 @@ model Category {
   parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
   children Category[] @relation("CategoryTree")
 
+  // ── SEO overrides — fall back to auto-generated values from category data when empty ──
+  seoTitle       String?
+  seoDescription String? @db.Text
+  seoKeywords    String?
+  ogImage        String?
+
   products Product[]
 
   @@index([slug])
@@ -109,6 +115,12 @@ model Product {
 
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  // ── SEO overrides — fall back to auto-generated values from product data when empty ──
+  seoTitle       String?
+  seoDescription String? @db.Text
+  seoKeywords    String?
+  ogImage        String?
 
   images     ProductImage[]
   colors     ProductColor[]
@@ -289,6 +301,20 @@ model StoreSettings {
   contactPhone        String? @default("+216 XX XXX XXX")
   contactLocation     String? @default("Tunisia")
   contactResponseTime String? @default("Within 24 hours")
+
+  // ── SEO & Référencement ──────────────────────────────────────────────────
+  orgName               String? @default("Mia Scarpa")
+  seoTitle              String? @default("Mia Scarpa — Chaussures en cuir pour homme et femme en Tunisie")
+  seoDescription        String? @default("Découvrez Mia Scarpa : chaussures en cuir pour homme et femme, alliant artisanat, élégance intemporelle et confort au quotidien. Livraison rapide partout en Tunisie.") @db.Text
+  seoKeywords           String? @default("mia scarpa, chaussures cuir tunisie, chaussures homme tunisie, chaussures femme tunisie, souliers en cuir, bottines cuir, mocassins, sneakers cuir, chaussures élégantes tunisie")
+  seoCanonicalUrl       String?
+  seoOgTitle            String?
+  seoOgDescription      String? @db.Text
+  seoOgImage            String?
+  seoTwitterTitle       String?
+  seoTwitterDescription String? @db.Text
+  seoTwitterImage       String?
+  seoIndexingEnabled    Boolean @default(true)
 
   homepageFeaturedProductIds String[] @default([])
 

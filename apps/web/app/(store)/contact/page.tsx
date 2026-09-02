@@ -1,6 +1,37 @@
 import { Mail, Phone, MapPin } from "lucide-react";
+import type { Metadata } from "next";
 import { ContactForm } from "@/components/store/ContactForm";
 import { getContactInfo } from "@/actions/storeConfigActions";
+import { getBaseUrl, getSiteIdentity, ogImages } from "@/lib/seo";
+
+const CONTACT_TITLE = "Contact";
+const CONTACT_DESCRIPTION =
+  "Une question sur une commande, une pointure ou un modèle Mia Scarpa ? Contactez-nous — réponse rapide garantie, service client basé en Tunisie.";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const [baseUrl, identity] = await Promise.all([getBaseUrl(), getSiteIdentity()]);
+  const url = `${baseUrl}/contact`;
+
+  return {
+    title: CONTACT_TITLE,
+    description: CONTACT_DESCRIPTION,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "website",
+      title: CONTACT_TITLE,
+      description: CONTACT_DESCRIPTION,
+      url,
+      siteName: identity.storeName,
+      images: ogImages(identity.seo.ogImage),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: CONTACT_TITLE,
+      description: CONTACT_DESCRIPTION,
+      images: identity.seo.twitterImage ? [identity.seo.twitterImage] : undefined,
+    },
+  };
+}
 
 function phoneHref(phone: string) {
   const digits = phone.replace(/[^\d+]/g, "");
