@@ -1,7 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
 
+import { getBaseUrl } from "@/lib/seo";
 import { getFeaturedProducts, getProductsByIds } from "@/actions/productActions";
 import { ProductGrid } from "@/components/store/ProductGrid";
 import { ProductTile } from "@/components/store/ProductTile";
@@ -18,6 +20,14 @@ import {
   DEFAULT_EDITORIAL_1,
   DEFAULT_EDITORIAL_2,
 } from "@/types";
+
+// Title / description / OG come from the root layout's global SEO settings — the
+// home page IS the content those settings describe. Only the canonical URL is
+// page-specific (self-referencing on the current host).
+export async function generateMetadata(): Promise<Metadata> {
+  const baseUrl = await getBaseUrl();
+  return { alternates: { canonical: `${baseUrl}/` } };
+}
 
 export default async function HomePage() {
   const [featured, settingsResult] = await Promise.all([

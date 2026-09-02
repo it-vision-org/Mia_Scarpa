@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { ShoppingBag, Plus, Store, ClipboardList, MessageSquare, MessageCircle, Users, Menu, X, FolderTree } from "lucide-react";
+import { ShoppingBag, Plus, Store, ClipboardList, MessageSquare, MessageCircle, Users, Menu, X, FolderTree, Search } from "lucide-react";
 import { LogoutButton } from "./LogoutButton";
 import { LogoImage } from "@/components/store/LogoImage";
 import { markAllContactsRead } from "@/actions/contactActions";
@@ -86,6 +86,12 @@ export function AdminShell({
       active: pathname === "/admin/store",
       icon: Store,
       label: "Store",
+    },
+    {
+      href: "/admin/seo",
+      active: pathname.startsWith("/admin/seo"),
+      icon: Search,
+      label: "SEO",
     },
     {
       href: "/admin/team",

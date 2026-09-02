@@ -1,6 +1,37 @@
 import { ShieldCheck, Truck, RefreshCw, Headphones, Star, Users, Leaf } from "lucide-react";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
+import { getBaseUrl, getSiteIdentity, ogImages } from "@/lib/seo";
+
+const ABOUT_TITLE = "À propos";
+const ABOUT_DESCRIPTION =
+  "Mia Scarpa, c'est l'artisanat du cuir au service de l'élégance : des chaussures pour homme et femme pensées pour durer, confortables au quotidien et livrées partout en Tunisie.";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const [baseUrl, identity] = await Promise.all([getBaseUrl(), getSiteIdentity()]);
+  const url = `${baseUrl}/about`;
+
+  return {
+    title: ABOUT_TITLE,
+    description: ABOUT_DESCRIPTION,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "website",
+      title: ABOUT_TITLE,
+      description: ABOUT_DESCRIPTION,
+      url,
+      siteName: identity.storeName,
+      images: ogImages(identity.seo.ogImage),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: ABOUT_TITLE,
+      description: ABOUT_DESCRIPTION,
+      images: identity.seo.twitterImage ? [identity.seo.twitterImage] : undefined,
+    },
+  };
+}
 
 const VALUES = [
   {

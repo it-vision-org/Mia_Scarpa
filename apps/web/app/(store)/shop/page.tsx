@@ -1,17 +1,91 @@
 import { Suspense } from "react";
 import Image from "next/image";
-import { getPublishedProducts } from "@/actions/productActions";
+import type { Metadata } from "next";
+import { getPublishedProducts, getCategoryBySlug } from "@/actions/productActions";
 import { getCategoryTree } from "@/actions/categoryActions";
 import { getStoreSettings } from "@/actions/storeSettingsActions";
 import { ProductGrid } from "@/components/store/ProductGrid";
 import { ShopFilters } from "@/components/store/ShopFilters";
 import { ShopSearchInput } from "@/components/store/ShopSearchInput";
+import { JsonLd } from "@/components/seo/JsonLd";
+import {
+  getBaseUrl,
+  getSiteIdentity,
+  truncate,
+  ogImages,
+  breadcrumbJsonLd,
+  MAX_DESCRIPTION_LENGTH,
+} from "@/lib/seo";
 
 type SearchParams = Promise<{
   category?: string;
   gender?: string;
   search?: string;
 }>;
+
+const SHOP_DEFAULT_TITLE = "Toute la collection";
+const SHOP_DEFAULT_DESCRIPTION =
+  "Parcourez toutes les chaussures Mia Scarpa pour homme et femme : cuir, sneakers, bottines et mocassins. Livraison rapide partout en Tunisie.";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const [baseUrl, identity] = await Promise.all([getBaseUrl(), getSiteIdentity()]);
+
+  // Filtered views canonicalize to their own filter URL; the bare listing to /shop.
+  let title = SHOP_DEFAULT_TITLE;
+  let description = SHOP_DEFAULT_DESCRIPTION;
+  let image = identity.seo.ogImage;
+  let keywords: string | undefined;
+  let canonical = `${baseUrl}/shop`;
+
+  if (params.gender === "men" || params.gender === "women") {
+    const label = params.gender === "men" ? "homme" : "femme";
+    title = `Chaussures ${label}`;
+    description = `Découvrez la collection Mia Scarpa pour ${label} : cuir, sneakers, bottines et mocassins. Livraison rapide partout en Tunisie.`;
+    canonical = `${baseUrl}/shop?gender=${params.gender}`;
+  }
+
+  if (params.category) {
+    const categoryResult = await getCategoryBySlug(params.category);
+    const category = categoryResult.success ? categoryResult.data : null;
+    if (category) {
+      title = category.seoTitle?.trim() || `${category.name} — Mia Scarpa`;
+      description =
+        category.seoDescription?.trim() ||
+        (category.description
+          ? truncate(category.description, MAX_DESCRIPTION_LENGTH)
+          : SHOP_DEFAULT_DESCRIPTION);
+      image = category.ogImage?.trim() || category.image || identity.seo.ogImage;
+      keywords = category.seoKeywords?.trim() || undefined;
+      canonical = `${baseUrl}/shop?category=${category.slug}`;
+    }
+  }
+
+  return {
+    title,
+    description,
+    keywords,
+    alternates: { canonical },
+    openGraph: {
+      type: "website",
+      title,
+      description,
+      url: canonical,
+      siteName: identity.storeName,
+      images: ogImages(image),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: image ? [image] : undefined,
+    },
+  };
+}
 
 export default async function ShopPage({
   searchParams,
@@ -47,8 +121,17 @@ export default async function ShopPage({
 
   const title = gender === "men" ? "Men" : gender === "women" ? "Women" : "Shop";
 
+  const baseUrl = await getBaseUrl();
+  const breadcrumbItems = [
+    { name: "Accueil", url: `${baseUrl}/` },
+    { name: "Boutique", url: `${baseUrl}/shop` },
+    ...(gender === "men" ? [{ name: "Homme", url: `${baseUrl}/shop?gender=men` }] : []),
+    ...(gender === "women" ? [{ name: "Femme", url: `${baseUrl}/shop?gender=women` }] : []),
+  ];
+
   return (
     <main className="w-full pb-10">
+      <JsonLd data={breadcrumbJsonLd(breadcrumbItems)} />
       {/* ── COVER ──────────────────────────────────────────────────────── */}
       <div className="relative h-[40vh] min-h-[280px] w-full overflow-hidden bg-[var(--color-green-dark)]">
         {coverImage && (
