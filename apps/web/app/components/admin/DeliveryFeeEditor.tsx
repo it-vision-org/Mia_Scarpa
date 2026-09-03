@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { saveDeliveryFee } from "@/actions/storeConfigActions";
 import { formatPrice } from "@/lib/utils";
 import { Field, SaveButton, inp } from "./HeroTextEditor";
+import { useTranslations } from "next-intl";
 
 export function DeliveryFeeEditor({
   initialCents,
@@ -12,6 +13,7 @@ export function DeliveryFeeEditor({
   initialCents: number;
   onPreviewChange?: (cents: number) => void;
 }) {
+  const t = useTranslations("Admin");
   const [amount, setAmount] = useState((initialCents / 100).toString());
   const [pending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
@@ -34,7 +36,7 @@ export function DeliveryFeeEditor({
     startTransition(async () => {
       const res = await saveDeliveryFee(parsed);
       if (res.success) setSaved(true);
-      else setError(res.error ?? "Failed to save");
+      else setError(res.error ?? t("FailedToSave"));
     });
   }
 
@@ -60,21 +62,22 @@ export function DeliveryFeeEditor({
 }
 
 export function DeliveryFeeMiniPreview({ cents }: { cents: number }) {
+  const t = useTranslations("Admin");
   const subtotal = 85;
   const deliveryTnd = cents / 100;
   return (
     <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-sm">
       <div className="space-y-2 text-xs">
         <div className="flex justify-between text-[var(--color-muted)]">
-          <span>Subtotal</span>
+          <span>{t("FieldSubtotal")}</span>
           <span>{formatPrice(subtotal)}</span>
         </div>
         <div className="flex justify-between text-[var(--color-muted)]">
-          <span>Delivery</span>
-          <span>{cents === 0 ? "Free" : formatPrice(deliveryTnd)}</span>
+          <span>{t("FieldDelivery")}</span>
+          <span>{cents === 0 ? t("FieldFree") : formatPrice(deliveryTnd)}</span>
         </div>
         <div className="flex justify-between border-t border-[var(--color-border)] pt-2 font-bold text-[var(--color-text)]">
-          <span>Total</span>
+          <span>{t("FieldTotal")}</span>
           <span>{formatPrice(subtotal + deliveryTnd)}</span>
         </div>
       </div>

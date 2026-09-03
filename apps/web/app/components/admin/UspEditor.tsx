@@ -5,6 +5,7 @@ import { Plus, Trash2, ChevronUp, ChevronDown } from "lucide-react";
 import { saveUsps } from "@/actions/storeSettingsActions";
 import type { UspItem } from "@/types";
 import { SaveButton, inp } from "./HeroTextEditor";
+import { useTranslations } from "next-intl";
 
 export function UspEditor({
   initial,
@@ -13,6 +14,7 @@ export function UspEditor({
   initial: UspItem[];
   onPreviewChange?: (v: UspItem[]) => void;
 }) {
+  const t = useTranslations("Admin");
   const [items, setItems] = useState(initial);
   const [pending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
@@ -29,7 +31,7 @@ export function UspEditor({
   }
 
   function addItem() {
-    update([...items, { label: "New feature", desc: "Description" }]);
+    update([...items, { label: t("UspDefaultLabel"), desc: t("UspDefaultDesc") }]);
   }
 
   function removeItem(index: number) {
@@ -49,7 +51,7 @@ export function UspEditor({
     startTransition(async () => {
       const res = await saveUsps(items.map((item, order) => ({ ...item, order })));
       if (res.success) setSaved(true);
-      else setError(res.error ?? "Failed to save");
+      else setError(res.error ?? t("FailedToSave"));
     });
   }
 
@@ -79,13 +81,13 @@ export function UspEditor({
             <input
               value={item.label}
               onChange={(e) => set(i, "label", e.target.value)}
-              placeholder="Label"
+              placeholder={t("FieldLabel")}
               className={inp}
             />
             <input
               value={item.desc}
               onChange={(e) => set(i, "desc", e.target.value)}
-              placeholder="Description"
+              placeholder={t("FieldDescription")}
               className={inp}
             />
           </div>
@@ -104,7 +106,7 @@ export function UspEditor({
         onClick={addItem}
         className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-[var(--color-border)] px-4 py-2 text-sm font-semibold text-[var(--color-muted)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
       >
-        <Plus size={14} /> Add USP
+        <Plus size={14} /> {t("AddUsp")}
       </button>
 
       {error && <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">{error}</p>}

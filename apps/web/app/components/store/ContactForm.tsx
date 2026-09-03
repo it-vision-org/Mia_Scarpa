@@ -1,29 +1,45 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Loader2, CheckCircle2, Send, RotateCcw } from "lucide-react";
+import { Loader2, CheckCircle2, RotateCcw } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { submitContact } from "@/actions/contactActions";
 
 const inp =
-  "w-full rounded-xl border border-[var(--color-border)] bg-white px-4 py-3 text-sm text-[var(--color-text)] placeholder:text-[var(--color-muted)] outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition";
+  "w-full border border-[var(--color-border)] bg-transparent px-4 py-4 text-sm text-[var(--color-text)] outline-none transition placeholder:text-xs placeholder:font-semibold placeholder:uppercase placeholder:tracking-[0.15em] placeholder:text-[var(--color-muted)] focus:border-[var(--color-text)]";
+
+const submitBtn =
+  "inline-flex w-full items-center justify-center gap-2 border border-[var(--color-text)] bg-[var(--color-text)] px-6 py-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:bg-transparent hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-60";
 
 export function ContactForm() {
+  const t = useTranslations("Contact");
   const [isPending, startTransition] = useTransition();
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!name.trim()) {
+      setError(t("ErrorName"));
+      return;
+    }
+    if (!phone.trim()) {
+      setError(t("ErrorPhone"));
+      return;
+    }
+    if (!message.trim()) {
+      setError(t("ErrorMessage"));
+      return;
+    }
     setError("");
     startTransition(async () => {
-      const res = await submitContact({ name, email, phone, subject, message });
+      const res = await submitContact({ name, email, phone, message });
       if (!res.success) {
-        setError(res.error ?? "Something went wrong.");
+        setError(res.error ?? t("ErrorGeneric"));
         return;
       }
       setSent(true);
@@ -34,7 +50,6 @@ export function ContactForm() {
     setName("");
     setEmail("");
     setPhone("");
-    setSubject("");
     setMessage("");
     setError("");
     setSent(false);
@@ -42,74 +57,77 @@ export function ContactForm() {
 
   if (sent) {
     return (
-      <div className="flex flex-col items-center gap-4 rounded-2xl border border-[var(--color-border)] bg-white p-10 text-center shadow-sm">
-        <div className="rounded-full bg-[var(--color-green-bright)] p-3">
-          <CheckCircle2 className="h-8 w-8 text-[var(--color-accent)]" />
-        </div>
+      <div className="flex flex-col items-center gap-4 border border-[var(--color-border)] p-10 text-center">
+        <CheckCircle2 className="h-8 w-8 text-[var(--color-accent)]" />
         <div>
-          <h3 className="text-lg font-bold text-[var(--color-text)]">Message sent!</h3>
-          <p className="mt-1 text-sm text-[var(--color-muted)]">
-            Thanks {name.split(" ")[0]}! We&apos;ll get back to you soon.
+          <h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-[var(--color-text)]">
+            {t("SuccessTitle")}
+          </h3>
+          <p className="mt-2 text-sm text-[var(--color-muted)]">
+            {t("SuccessBody", { name: name.split(" ")[0] })}
           </p>
         </div>
         <button
           type="button"
           onClick={resetForm}
-          className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] px-5 py-2.5 text-sm font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-bg)]"
+          className="inline-flex items-center gap-2 border border-[var(--color-border)] px-5 py-3 text-xs font-semibold uppercase tracking-[0.15em] text-[var(--color-text)] transition hover:border-[var(--color-text)]"
         >
-          <RotateCcw className="h-4 w-4" />
-          Send Another Message
+          <RotateCcw className="h-3.5 w-3.5" />
+          {t("SendAnother")}
         </button>
       </div>
     );
   }
 
+  const emailLabel = `${t("FieldEmail")} (${t("Optional")})`;
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-[var(--color-border)] bg-white p-6 shadow-sm sm:p-8">
+    <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        <div className="border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <label className="text-sm font-bold text-[var(--color-text)]">Full Name *</label>
-          <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" className={inp} />
-        </div>
-        <div className="space-y-1.5">
-          <label className="text-sm font-bold text-[var(--color-text)]">Email *</label>
-          <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className={inp} />
-        </div>
-      </div>
+      <input
+        required
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder={t("FieldName")}
+        aria-label={t("FieldName")}
+        className={inp}
+      />
 
-      <div className="space-y-1.5">
-        <label className="text-sm font-bold text-[var(--color-text)]">Phone Number</label>
-        <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+216 XX XXX XXX" className={inp} />
-      </div>
+      <input
+        required
+        type="tel"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        placeholder={t("FieldPhone")}
+        aria-label={t("FieldPhone")}
+        className={inp}
+      />
 
-      <div className="space-y-1.5">
-        <label className="text-sm font-bold text-[var(--color-text)]">Subject</label>
-        <input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="What's this about?" className={inp} />
-      </div>
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder={emailLabel}
+        aria-label={emailLabel}
+        className={inp}
+      />
 
-      <div className="space-y-1.5">
-        <label className="text-sm font-bold text-[var(--color-text)]">Message *</label>
-        <textarea
-          required
-          rows={5}
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Tell us how we can help..."
-          className={inp}
-        />
-      </div>
+      <textarea
+        required
+        rows={6}
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder={t("FieldMessage")}
+        aria-label={t("FieldMessage")}
+        className={inp + " resize-y"}
+      />
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-accent)] py-3.5 text-sm font-bold text-white shadow-sm transition hover:bg-[var(--color-green-mid)] disabled:opacity-60"
-      >
-        {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-        {isPending ? "Sending…" : "Send Message"}
+      <button type="submit" disabled={isPending} className={submitBtn}>
+        {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+        {isPending ? t("Submitting") : t("Submit")}
       </button>
     </form>
   );

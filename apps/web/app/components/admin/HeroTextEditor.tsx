@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Loader2, CheckCircle2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { saveHeroSettings } from "@/actions/storeSettingsActions";
 import type { HeroText } from "@/types";
 
@@ -11,6 +12,7 @@ type Props = {
 };
 
 export function HeroTextEditor({ initial, onPreviewChange }: Props) {
+  const t = useTranslations("Admin");
   const [form, setForm] = useState(initial);
   const [pending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
@@ -30,13 +32,13 @@ export function HeroTextEditor({ initial, onPreviewChange }: Props) {
         heroCta1: form.cta1,
       });
       if (res.success) setSaved(true);
-      else setError(res.error ?? "Failed to save");
+      else setError(res.error ?? t("FailedToSave"));
     });
   }
 
   return (
     <div className="space-y-4">
-      <Field label="Button text">
+      <Field label={t("FieldButtonText")}>
         <input value={form.cta1} onChange={(e) => set("cta1", e.target.value)} className={inp} />
       </Field>
       {error && <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">{error}</p>}
@@ -59,6 +61,7 @@ export function Field({ label, children }: { label: string; children: React.Reac
 }
 
 export function SaveButton({ pending, saved, onClick }: { pending: boolean; saved: boolean; onClick: () => void }) {
+  const t = useTranslations("Admin");
   return (
     <button
       type="button"
@@ -67,7 +70,7 @@ export function SaveButton({ pending, saved, onClick }: { pending: boolean; save
       className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[var(--color-green-mid)] disabled:opacity-60"
     >
       {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : saved ? <CheckCircle2 className="h-4 w-4" /> : null}
-      {pending ? "Saving…" : saved ? "Saved!" : "Save Changes"}
+      {pending ? t("Saving") : saved ? t("SavedExcl") : t("SaveChanges")}
     </button>
   );
 }

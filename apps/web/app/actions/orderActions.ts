@@ -4,6 +4,7 @@ import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
 import { db, OrderStatus as PrismaOrderStatus } from "@shoestore/db";
 import { getCurrentUser } from "@/lib/session";
+import { isPromoLive } from "@/lib/promo";
 import type {
   ActionResult,
   CreateOrderInput,
@@ -13,6 +14,27 @@ import type {
   DiscountType,
   OrdersPage,
 } from "@/types";
+
+// Effective base price for a product (promo price when the promo is live now).
+function productBasePrice(p: {
+  basePrice: unknown;
+  promoActive?: boolean | null;
+  promoPrice?: unknown;
+  promoStartsAt?: Date | null;
+  promoEndsAt?: Date | null;
+}): number {
+  const basePrice = Number(p.basePrice);
+  const promoPrice = p.promoPrice != null ? Number(p.promoPrice) : null;
+  return isPromoLive({
+    basePrice,
+    promoActive: p.promoActive ?? false,
+    promoPrice,
+    promoStartsAt: p.promoStartsAt ?? null,
+    promoEndsAt: p.promoEndsAt ?? null,
+  })
+    ? (promoPrice as number)
+    : basePrice;
+}
 
 function generateOrderNumber(): string {
   return "FLEX-" + randomBytes(4).toString("hex").toUpperCase();
@@ -103,7 +125,7 @@ export async function createOrder(
             name: true,
             productId: true,
             product: {
-              select: { id: true, name: true, basePrice: true, isPublished: true, colors: { select: { images: { orderBy: { order: "asc" }, take: 1, select: { url: true } } }, take: 1 } },
+              select: { id: true, name: true, basePrice: true, isPublished: true, promoActive: true, promoPrice: true, promoStartsAt: true, promoEndsAt: true, colors: { select: { images: { orderBy: { order: "asc" }, take: 1, select: { url: true } } }, take: 1 } },
             },
           },
         },
@@ -126,7 +148,7 @@ export async function createOrder(
 
     const subtotal = input.items.reduce((sum, item) => {
       const v = variantMap.get(item.variantId)!;
-      const price = v.priceOverride != null ? Number(v.priceOverride) : Number(v.color.product.basePrice);
+      const price = v.priceOverride != null ? Number(v.priceOverride) : productBasePrice(v.color.product);
       return sum + price * item.quantity;
     }, 0);
     const total = subtotal + deliveryFee;
@@ -152,7 +174,7 @@ export async function createOrder(
             create: input.items.map((item) => {
               const v = variantMap.get(item.variantId)!;
               const unitPrice =
-                v.priceOverride != null ? Number(v.priceOverride) : Number(v.color.product.basePrice);
+                v.priceOverride != null ? Number(v.priceOverride) : productBasePrice(v.color.product);
               const productImage = v.color.product.colors[0]?.images[0]?.url ?? null;
               return {
                 variantId: item.variantId,
@@ -445,7 +467,7 @@ export async function addOrderItem(
             name: true,
             productId: true,
             images: { orderBy: { order: "asc" }, take: 1, select: { url: true } },
-            product: { select: { id: true, name: true, basePrice: true } },
+            product: { select: { id: true, name: true, basePrice: true, promoActive: true, promoPrice: true, promoStartsAt: true, promoEndsAt: true } },
           },
         },
       },
@@ -454,7 +476,7 @@ export async function addOrderItem(
     if (variant.stock < quantity) return { success: false, error: "Not enough stock available" };
 
     const unitPrice =
-      variant.priceOverride != null ? Number(variant.priceOverride) : Number(variant.color.product.basePrice);
+      variant.priceOverride != null ? Number(variant.priceOverride) : productBasePrice(variant.color.product);
 
     const result = await db.$transaction(async (tx) => {
       await tx.orderItem.create({
@@ -547,7 +569,7 @@ export async function updateOrderItemVariant(
             name: true,
             productId: true,
             images: { orderBy: { order: "asc" }, take: 1, select: { url: true } },
-            product: { select: { id: true, name: true, basePrice: true } },
+            product: { select: { id: true, name: true, basePrice: true, promoActive: true, promoPrice: true, promoStartsAt: true, promoEndsAt: true } },
           },
         },
       },
@@ -556,7 +578,7 @@ export async function updateOrderItemVariant(
     if (newVariant.stock < item.quantity) return { success: false, error: "Not enough stock for this variant" };
 
     const unitPrice =
-      newVariant.priceOverride != null ? Number(newVariant.priceOverride) : Number(newVariant.color.product.basePrice);
+      newVariant.priceOverride != null ? Number(newVariant.priceOverride) : productBasePrice(newVariant.color.product);
 
     const result = await db.$transaction(async (tx) => {
       await tx.orderItem.update({

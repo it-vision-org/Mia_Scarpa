@@ -2,7 +2,16 @@
 
 import { useState } from "react";
 
-export function LogoImage({ height = 40, src }: { height?: number; src?: string | null }) {
+export function LogoImage({
+  height = 40,
+  src,
+  maxWidth,
+}: {
+  height?: number;
+  src?: string | null;
+  /** Optional hard cap on rendered width so a wide logo can't push adjacent nav items. */
+  maxWidth?: number | string;
+}) {
   const [failed, setFailed] = useState(false);
 
   if (!src || failed) {
@@ -18,8 +27,8 @@ export function LogoImage({ height = 40, src }: { height?: number; src?: string 
       src={src}
       alt="Store logo"
       onError={() => setFailed(true)}
-      style={{ height, width: "auto" }}
-      className="object-contain"
+      style={{ maxHeight: height, width: "auto", maxWidth: maxWidth ?? "100%" }}
+      className="object-contain object-left"
     />
   );
 }

@@ -101,6 +101,8 @@ export async function StoreSettingsContent() {
         featuredImage: settings?.featuredImage ?? null,
         editorialImage1: settings?.editorialImage1 ?? null,
         editorialImage2: settings?.editorialImage2 ?? null,
+        contactCoverImage: settings?.contactCoverImage ?? null,
+        promoBadgeImage: settings?.promoBadgeImage ?? null,
       }}
     />
   );

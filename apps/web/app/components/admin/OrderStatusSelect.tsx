@@ -1,15 +1,18 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { updateOrderStatus } from "@/actions/orderActions";
+import { orderStatusKey } from "@/lib/orderStatus";
 
 const STATUSES = [
-  { value: "PENDING",   label: "Pending",   color: "text-yellow-700 bg-yellow-50 border-yellow-200" },
-  { value: "CONFIRMED", label: "Confirmed", color: "text-blue-700 bg-blue-50 border-blue-200" },
-  { value: "SHIPPED",   label: "Shipped",   color: "text-purple-700 bg-purple-50 border-purple-200" },
-  { value: "DELIVERED", label: "Delivered", color: "text-green-700 bg-green-50 border-green-200" },
-  { value: "CANCELLED", label: "Cancelled", color: "text-red-700 bg-red-50 border-red-200" },
-  { value: "RETURNED",  label: "Returned",  color: "text-orange-700 bg-orange-50 border-orange-200" },
+  { value: "PENDING",    color: "text-yellow-700 bg-yellow-50 border-yellow-200" },
+  { value: "CONFIRMED",  color: "text-blue-700 bg-blue-50 border-blue-200" },
+  { value: "PROCESSING", color: "text-sky-700 bg-sky-50 border-sky-200" },
+  { value: "SHIPPED",    color: "text-purple-700 bg-purple-50 border-purple-200" },
+  { value: "DELIVERED",  color: "text-green-700 bg-green-50 border-green-200" },
+  { value: "CANCELLED",  color: "text-red-700 bg-red-50 border-red-200" },
+  { value: "RETURNED",   color: "text-orange-700 bg-orange-50 border-orange-200" },
 ] as const;
 
 type Status = (typeof STATUSES)[number]["value"];
@@ -21,6 +24,7 @@ export function OrderStatusSelect({
   orderId: string;
   currentStatus: string;
 }) {
+  const t = useTranslations("Admin");
   const [status, setStatus] = useState<Status>(currentStatus as Status);
   const [, startTransition] = useTransition();
 
@@ -43,7 +47,7 @@ export function OrderStatusSelect({
     >
       {STATUSES.map((s) => (
         <option key={s.value} value={s.value}>
-          {s.label}
+          {t(orderStatusKey(s.value))}
         </option>
       ))}
     </select>

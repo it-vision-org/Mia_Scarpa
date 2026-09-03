@@ -1,6 +1,7 @@
+import { useTranslations } from "next-intl";
 import type { SerializedOrder, ContactInfo } from "@/types";
 
-const STORE_NAME = "Flex Comfort Shoes";
+const STORE_NAME = "Mia Scarpa Shoes";
 
 export function PrintableOrders({
   orders,
@@ -9,6 +10,7 @@ export function PrintableOrders({
   orders: SerializedOrder[];
   storeInfo: ContactInfo;
 }) {
+  const t = useTranslations("Admin");
   return (
     <div className="hidden print:block">
       {orders.map((order, i) => (
@@ -20,7 +22,7 @@ export function PrintableOrders({
           <div className="flex items-start justify-between">
             <h1 className="text-2xl font-black uppercase tracking-wide text-black">{STORE_NAME}</h1>
             <div className="text-right text-sm text-black">
-              <p className="font-semibold">Commande #{order.orderNumber}</p>
+              <p className="font-semibold">{t("PrintOrderNo", { number: order.orderNumber })}</p>
               <p>
                 {new Date(order.createdAt).toLocaleDateString("fr-FR", {
                   day: "numeric",
@@ -34,7 +36,7 @@ export function PrintableOrders({
           {/* Addresses */}
           <div className="mt-10 grid grid-cols-2 gap-8">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wide text-black">Expédier à</p>
+              <p className="text-xs font-bold uppercase tracking-wide text-black">{t("PrintShipTo")}</p>
               <div className="mt-2 space-y-0.5 text-sm text-black">
                 <p>{order.customerName}</p>
                 {order.address && <p>{order.address}</p>}
@@ -44,7 +46,7 @@ export function PrintableOrders({
               </div>
             </div>
             <div>
-              <p className="text-xs font-bold uppercase tracking-wide text-black">Facturer à</p>
+              <p className="text-xs font-bold uppercase tracking-wide text-black">{t("PrintBillTo")}</p>
               <div className="mt-2 space-y-0.5 text-sm text-black">
                 <p>{order.customerName}</p>
                 {order.address && <p>{order.address}</p>}
@@ -58,8 +60,8 @@ export function PrintableOrders({
           {/* Items */}
           <div className="mt-10 border-t-2 border-black pt-3">
             <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wide text-black">
-              <span>Articles</span>
-              <span>Quantité</span>
+              <span>{t("PrintItems")}</span>
+              <span>{t("PrintQuantity")}</span>
             </div>
           </div>
           <div className="divide-y divide-black/10">
@@ -78,11 +80,11 @@ export function PrintableOrders({
                 <div className="min-w-0 flex-1">
                   <p className="text-sm text-black">{item.productName}</p>
                   <p className="text-xs text-black/60">
-                    {[item.size && `Taille ${item.size}`, item.colorName].filter(Boolean).join(" · ")}
+                    {[item.size && t("PrintSize", { size: item.size }), item.colorName].filter(Boolean).join(" · ")}
                   </p>
                 </div>
                 <span className="shrink-0 text-sm text-black">
-                  {item.quantity} of {item.quantity}
+                  {t("PrintQtyOfQty", { done: item.quantity, total: item.quantity })}
                 </span>
               </div>
             ))}
@@ -91,7 +93,7 @@ export function PrintableOrders({
 
           {/* Footer */}
           <div className="mt-16 space-y-1 text-center text-sm text-black">
-            <p className="mb-4 font-semibold">Merci pour votre achat !</p>
+            <p className="mb-4 font-semibold">{t("PrintThankYou")}</p>
             <p>{STORE_NAME}</p>
             {storeInfo.location && <p>{storeInfo.location}</p>}
             {storeInfo.email && <p>{storeInfo.email}</p>}

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Loader2, CheckCircle2, ImageIcon } from "lucide-react";
 import { saveShopCoverSettings } from "@/actions/storeSettingsActions";
+import { useTranslations } from "next-intl";
 import Uploader from "./Uploader";
 
 type Slot = "shop" | "men" | "women";
@@ -22,6 +23,7 @@ function CoverSlot({
   initialUrl: string | null;
   onUploaded?: (url: string) => void;
 }) {
+  const t = useTranslations("Admin");
   const meta = SLOT_META[slot];
   const [imageUrl, setImageUrl] = useState(initialUrl);
   const [imgFailed, setImgFailed] = useState(false);
@@ -42,7 +44,7 @@ function CoverSlot({
         setUploadSuccess(true);
         onUploaded?.(uploaded);
       } else {
-        setUploadError(result.error ?? "Failed to save photo");
+        setUploadError(result.error ?? t("FailedToSavePhoto"));
       }
     });
   }
@@ -91,7 +93,7 @@ function CoverSlot({
 
       <Uploader
         endpoint="storeImage"
-        buttonText={imageUrl ? "Upload New Photo" : "Upload Photo"}
+        buttonText={imageUrl ? t("UploadNewPhoto") : t("UploadPhoto")}
         handleUploadComplete={handleUploadComplete}
       />
     </div>

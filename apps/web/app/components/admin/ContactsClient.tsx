@@ -66,7 +66,9 @@ function ContactRow({ contact, onUpdate }: { contact: Contact; onUpdate: (id: st
               </span>
             )}
           </div>
-          <p className="break-all text-sm text-[var(--color-muted)]">{contact.email}</p>
+          {contact.email && (
+            <p className="break-all text-sm text-[var(--color-muted)]">{contact.email}</p>
+          )}
           {contact.phone && (
             <p className="text-sm text-[var(--color-muted)]">{contact.phone}</p>
           )}
@@ -120,13 +122,15 @@ function ContactRow({ contact, onUpdate }: { contact: Contact; onUpdate: (id: st
       {expanded && (
         <div className="border-t border-[var(--color-border)] bg-[var(--color-bg)] px-5 py-4">
           <p className="whitespace-pre-wrap text-sm text-[var(--color-text)]">{contact.message}</p>
-          <a
-            href={`mailto:${contact.email}?subject=Re: ${contact.subject ?? "Your message"}`}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
-          >
-            <Mail size={12} />
-            Reply via email
-          </a>
+          {contact.email && (
+            <a
+              href={`mailto:${contact.email}?subject=Re: ${contact.subject ?? "Your message"}`}
+              className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+            >
+              <Mail size={12} />
+              Reply via email
+            </a>
+          )}
         </div>
       )}
 

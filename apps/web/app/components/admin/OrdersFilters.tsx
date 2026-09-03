@@ -3,16 +3,10 @@
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useRef, useTransition } from "react";
 import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { orderStatusKey } from "@/lib/orderStatus";
 
-const STATUSES = [
-  { value: "ALL", label: "All" },
-  { value: "PENDING", label: "Pending" },
-  { value: "CONFIRMED", label: "Confirmed" },
-  { value: "SHIPPED", label: "Shipped" },
-  { value: "DELIVERED", label: "Delivered" },
-  { value: "CANCELLED", label: "Cancelled" },
-  { value: "RETURNED", label: "Returned" },
-];
+const STATUS_VALUES = ["ALL", "PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED", "RETURNED"];
 
 const STATUS_COLORS: Record<string, string> = {
   ALL: "bg-[var(--color-text)] text-white",
@@ -25,9 +19,11 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export function OrdersFilters() {
+  const t = useTranslations("Admin");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const statusLabel = (v: string) => (v === "ALL" ? t("StatusAll") : t(orderStatusKey(v)));
   const [, startTransition] = useTransition();
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -67,13 +63,13 @@ export function OrdersFilters() {
           type="search"
           defaultValue={currentSearch}
           onChange={(e) => handleSearch(e.target.value)}
-          placeholder="Search by name, email, phone, city…"
+          placeholder={t("PhSearchOrders")}
           className="w-full rounded-xl border border-[var(--color-border)] bg-white py-2 pl-9 pr-4 text-sm text-[var(--color-text)] placeholder:text-[var(--color-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-text)]/20"
         />
       </div>
 
       <div className="flex flex-wrap gap-1.5">
-        {STATUSES.map(({ value, label }) => {
+        {STATUS_VALUES.map((value) => {
           const active = currentStatus === value;
           return (
             <button
@@ -85,7 +81,7 @@ export function OrdersFilters() {
                   : "bg-[var(--color-bg)] text-[var(--color-muted)] hover:text-[var(--color-text)]"
               }`}
             >
-              {label}
+              {statusLabel(value)}
             </button>
           );
         })}

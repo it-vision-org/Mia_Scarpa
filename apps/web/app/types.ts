@@ -45,7 +45,22 @@ export type AdminProductDetail = {
   isFeatured: boolean;
   gender: Gender;
   categoryId: string | null;
+  promoActive: boolean;
+  promoPriceCents: number | null;
+  promoLabel: string | null;
+  promoImage: string | null;
+  promoStartsAt: string | null;
+  promoEndsAt: string | null;
 } & SeoFields;
+
+export type PromoInput = {
+  promoActive: boolean;
+  promoPriceCents: number | null;
+  promoLabel: string | null;
+  promoImage: string | null;
+  promoStartsAt: string | null; // ISO date or null
+  promoEndsAt: string | null;
+};
 
 export type ProductInput = {
   name: string;
@@ -56,7 +71,7 @@ export type ProductInput = {
   isFeatured: boolean;
   gender: Gender;
   categoryId: string | null;
-} & SeoFieldsInput;
+} & SeoFieldsInput & PromoInput;
 
 export type CategoryNode = {
   id: string;
@@ -149,6 +164,20 @@ export type SerializedProduct = {
   colors: SerializedProductColor[];
   createdAt: string;
   updatedAt: string;
+
+  // ── Promotion ──
+  promoActive: boolean;
+  promoPrice: number | null;
+  promoLabel: string | null;
+  promoImage: string | null;
+  promoStartsAt: string | null;
+  promoEndsAt: string | null;
+  /** promo toggled on, priced lower AND inside its date window right now */
+  promoLive: boolean;
+  /** what the customer pays now — promoPrice when live, else basePrice */
+  effectivePrice: number;
+  /** rounded discount %, 0 when no live promo */
+  promoPercent: number;
 } & SeoFields;
 
 // ─── Public category SEO lookup (used for /shop?category= metadata) ──────────
@@ -332,6 +361,8 @@ export type SerializedStoreSettings = {
   contactPhone: string | null;
   contactLocation: string | null;
   contactResponseTime: string | null;
+  contactCoverImage: string | null;
+  promoBadgeImage: string | null;
   usps: StoreUspItem[];
   homepageFeaturedProductIds: string[];
 

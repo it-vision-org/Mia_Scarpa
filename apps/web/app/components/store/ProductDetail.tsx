@@ -4,14 +4,24 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { ProductGallery } from "./ProductGallery";
 import { ProductActions } from "./ProductActions";
+import { PromoBadge } from "./PromoBadge";
 import { formatPrice } from "@/lib/utils";
 import type { SerializedProductColor } from "@/types";
+
+type PromoInfo = {
+  live: boolean;
+  effectivePrice: number;
+  image: string | null;
+  label: string | null;
+  percent: number;
+};
 
 type Props = {
   productId: string;
   productSlug: string;
   productName: string;
   basePrice: number;
+  promo?: PromoInfo;
   description: string | null;
   categoryName?: string | null;
   colors: SerializedProductColor[];
@@ -23,11 +33,14 @@ export function ProductDetail({
   productSlug,
   productName,
   basePrice,
+  promo,
   description,
   categoryName,
   colors,
   mainImages,
 }: Props) {
+  const promoLive = promo?.live ?? false;
+  const cartPrice = promoLive ? promo!.effectivePrice : basePrice;
   const [selectedColor, setSelectedColor] = useState<SerializedProductColor | null>(
     colors.length > 0 ? colors[0] : null,
   );
@@ -35,12 +48,25 @@ export function ProductDetail({
 
   return (
     <div className="grid gap-12 lg:grid-cols-2">
-      <ProductGallery
-        colors={colors}
-        productName={productName}
-        mainImages={mainImages}
-        selectedColor={selectedColor}
-      />
+      <div className="relative">
+        {promo && (
+          <PromoBadge
+            product={{
+              promoLive,
+              promoImage: promo.image,
+              promoLabel: promo.label,
+              promoPercent: promo.percent,
+            }}
+            className="left-3 top-3 h-32 w-32 sm:h-40 sm:w-40"
+          />
+        )}
+        <ProductGallery
+          colors={colors}
+          productName={productName}
+          mainImages={mainImages}
+          selectedColor={selectedColor}
+        />
+      </div>
 
       <div className="flex flex-col">
         {categoryName && (
@@ -51,11 +77,25 @@ export function ProductDetail({
 
         <h1 className="mt-2 text-3xl font-bold text-[var(--color-text)]">{productName}</h1>
 
-        <div className="mt-4 flex items-center gap-3">
+        <div className="mt-4 flex items-baseline gap-3">
           {basePrice > 0 ? (
-            <span className="text-2xl font-bold text-[var(--color-text)]">
-              {formatPrice(basePrice)}
-            </span>
+            promoLive ? (
+              <>
+                <span className="text-lg text-[var(--color-muted)] line-through decoration-1">
+                  {formatPrice(basePrice)}
+                </span>
+                <span className="text-2xl font-bold text-[var(--color-promo)]">
+                  {formatPrice(promo!.effectivePrice)}
+                </span>
+                <span className="rounded bg-[var(--color-promo)]/10 px-1.5 py-0.5 text-xs font-bold text-[var(--color-promo)]">
+                  -{promo!.percent}%
+                </span>
+              </>
+            ) : (
+              <span className="text-2xl font-bold text-[var(--color-text)]">
+                {formatPrice(basePrice)}
+              </span>
+            )
           ) : (
             <span className="text-lg text-[var(--color-muted)]">Price on request</span>
           )}
@@ -96,7 +136,7 @@ export function ProductDetail({
             productId={productId}
             productSlug={productSlug}
             productName={productName}
-            basePrice={basePrice}
+            basePrice={cartPrice}
             selectedColor={selectedColor}
           />
         </div>

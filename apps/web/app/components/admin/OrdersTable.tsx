@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   ArrowUp,
   ArrowDown,
@@ -18,20 +19,13 @@ import {
 
 import { bulkUpdateOrderStatus, bulkDeleteOrders, bulkAddOrderNote } from "@/actions/orderActions";
 import { formatPrice } from "@/lib/utils";
+import { orderStatusKey } from "@/lib/orderStatus";
 import { OrderStatusSelect } from "./OrderStatusSelect";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { PrintableOrders } from "./PrintableOrders";
 import type { SerializedOrder, OrderStatus, ContactInfo } from "@/types";
 
-const STATUS_OPTIONS: { value: OrderStatus; label: string }[] = [
-  { value: "PENDING", label: "Pending" },
-  { value: "CONFIRMED", label: "Confirmed" },
-  { value: "PROCESSING", label: "Processing" },
-  { value: "SHIPPED", label: "Shipped" },
-  { value: "DELIVERED", label: "Delivered" },
-  { value: "CANCELLED", label: "Cancelled" },
-  { value: "RETURNED", label: "Returned" },
-];
+const STATUS_OPTIONS: OrderStatus[] = ["PENDING","CONFIRMED","PROCESSING","SHIPPED","DELIVERED","CANCELLED","RETURNED"];
 
 const PAGE_SIZES = [10, 25, 50, 100];
 
@@ -48,6 +42,7 @@ function BulkNoteDialog({
   onConfirm: (note: string) => void;
   onCancel: () => void;
 }) {
+  const t = useTranslations("Admin");
   const [note, setNote] = useState("");
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4" onClick={onCancel}>
@@ -57,17 +52,15 @@ function BulkNoteDialog({
       >
         <div className="p-6">
           <p className="text-sm font-bold text-[var(--color-text)]">
-            Add note to {count} order{count !== 1 ? "s" : ""}
+            {t("AddNoteToN", { count })}
           </p>
-          <p className="mt-1 text-xs text-[var(--color-muted)]">
-            This replaces any existing note on the selected orders.
-          </p>
+          <p className="mt-1 text-xs text-[var(--color-muted)]">{t("BulkNoteReplaces")}</p>
           <textarea
             autoFocus
             rows={3}
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="Note…"
+            placeholder={t("PhNote")}
             className="mt-3 w-full rounded-xl border border-[var(--color-border)] bg-white px-3 py-2 text-sm text-[var(--color-text)] outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20"
           />
         </div>
@@ -78,7 +71,7 @@ function BulkNoteDialog({
             disabled={isPending}
             className="rounded-xl border border-[var(--color-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-bg)] disabled:opacity-50"
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             type="button"
@@ -86,7 +79,7 @@ function BulkNoteDialog({
             disabled={isPending}
             className="rounded-xl bg-[var(--color-accent)] px-4 py-2 text-sm font-bold text-white transition hover:bg-[var(--color-green-mid)] disabled:opacity-60"
           >
-            Save Note
+            {t("SaveNote")}
           </button>
         </div>
       </div>
@@ -98,11 +91,7 @@ function csvEscape(value: string): string {
   return `"${value.replace(/"/g, '""')}"`;
 }
 
-function downloadOrdersCsv(rows: SerializedOrder[]) {
-  const headers = [
-    "Order Number", "Customer Name", "Phone", "Email", "City",
-    "Items", "Subtotal", "Discount", "Shipping", "Total", "Status", "Date",
-  ];
+function downloadOrdersCsv(rows: SerializedOrder[], headers: string[]) {
   const lines = [headers.map(csvEscape).join(",")];
   for (const o of rows) {
     lines.push(
@@ -144,6 +133,7 @@ export function OrdersTable({
   totalCount: number;
   storeInfo: ContactInfo;
 }) {
+  const t = useTranslations("Admin");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -261,11 +251,11 @@ export function OrdersTable({
               className="rounded-lg border border-[var(--color-border)] bg-white px-2.5 py-1.5 text-xs font-semibold text-[var(--color-text)] outline-none disabled:opacity-40"
             >
               <option value="" disabled>
-                Change status…
+                {t("ChangeStatus")}
               </option>
               {STATUS_OPTIONS.map((s) => (
-                <option key={s.value} value={s.value}>
-                  {s.label}
+                <option key={s} value={s}>
+                  {t(orderStatusKey(s))}
                 </option>
               ))}
             </select>
@@ -281,11 +271,26 @@ export function OrdersTable({
             <button
               type="button"
               disabled={isPending}
-              onClick={() => downloadOrdersCsv(selectedOrders)}
+              onClick={() =>
+                downloadOrdersCsv(selectedOrders, [
+                  t("ColOrderNumber"),
+                  t("ColCustomerName"),
+                  t("FieldPhone"),
+                  t("FieldEmail"),
+                  t("ColCity"),
+                  t("ColItems"),
+                  t("FieldSubtotal"),
+                  t("FieldDiscount"),
+                  t("FieldShipping"),
+                  t("FieldTotal"),
+                  t("ColStatus"),
+                  t("ColDate"),
+                ])
+              }
               className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-bg)] disabled:opacity-40"
             >
               <Download className="h-3.5 w-3.5" />
-              Export CSV
+              {t("ExportCsv")}
             </button>
             <button
               type="button"
@@ -294,7 +299,7 @@ export function OrdersTable({
               className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-bg)] disabled:opacity-40"
             >
               <Printer className="h-3.5 w-3.5" />
-              Print
+              {t("Print")}
             </button>
             <button
               type="button"
@@ -303,12 +308,12 @@ export function OrdersTable({
               className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-40"
             >
               <Trash2 className="h-3.5 w-3.5" />
-              Delete
+              {t("Delete")}
             </button>
             <button
               type="button"
               onClick={() => setSelected(new Set())}
-              title="Clear selection"
+              title={t("TipClearSelection")}
               className="rounded-lg p-1.5 text-[var(--color-muted)] transition hover:bg-white hover:text-[var(--color-text)]"
             >
               <X className="h-3.5 w-3.5" />
@@ -332,29 +337,29 @@ export function OrdersTable({
                   />
                 </th>
                 <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
-                  Order
+                  {t("ColOrder")}
                 </th>
                 <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
                   <button type="button" onClick={() => handleSort("customerName")} className="inline-flex items-center gap-1 hover:text-[var(--color-text)]">
-                    Customer <SortIcon field="customerName" />
+                    {t("ColCustomer")} <SortIcon field="customerName" />
                   </button>
                 </th>
                 <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
-                  Items
+                  {t("ColItems")}
                 </th>
                 <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
                   <button type="button" onClick={() => handleSort("total")} className="inline-flex items-center gap-1 hover:text-[var(--color-text)]">
-                    Total <SortIcon field="total" />
+                    {t("FieldTotal")} <SortIcon field="total" />
                   </button>
                 </th>
                 <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
                   <button type="button" onClick={() => handleSort("status")} className="inline-flex items-center gap-1 hover:text-[var(--color-text)]">
-                    Status <SortIcon field="status" />
+                    {t("ColStatus")} <SortIcon field="status" />
                   </button>
                 </th>
                 <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
                   <button type="button" onClick={() => handleSort("createdAt")} className="inline-flex items-center gap-1 hover:text-[var(--color-text)]">
-                    Date <SortIcon field="createdAt" />
+                    {t("ColDate")} <SortIcon field="createdAt" />
                   </button>
                 </th>
               </tr>
@@ -473,8 +478,11 @@ export function OrdersTable({
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--color-border)] px-5 py-3">
           <div className="flex items-center gap-2 text-xs text-[var(--color-muted)]">
             <span>
-              Showing {orders.length === 0 ? 0 : (page - 1) * pageSize + 1}–
-              {Math.min(page * pageSize, totalCount)} of {totalCount}
+              {t("Showing", {
+                from: orders.length === 0 ? 0 : (page - 1) * pageSize + 1,
+                to: Math.min(page * pageSize, totalCount),
+                total: totalCount,
+              })}
             </span>
             <select
               value={pageSize}
@@ -483,7 +491,7 @@ export function OrdersTable({
             >
               {PAGE_SIZES.map((s) => (
                 <option key={s} value={s}>
-                  {s} / page
+                  {t("PerPage", { n: s })}
                 </option>
               ))}
             </select>
@@ -498,7 +506,7 @@ export function OrdersTable({
               <ChevronLeft className="h-3.5 w-3.5" />
             </button>
             <span className="px-2 text-xs font-semibold text-[var(--color-text)]">
-              Page {page} of {totalPages}
+              {t("PageOf", { page, pages: totalPages })}
             </span>
             <button
               type="button"
@@ -517,8 +525,8 @@ export function OrdersTable({
 
       {bulkDeleteConfirm && (
         <ConfirmDialog
-          title={`Delete ${selected.size} order${selected.size !== 1 ? "s" : ""}?`}
-          message="This permanently removes the selected orders. This cannot be undone."
+          title={t("DeleteNOrders", { count: selected.size })}
+          message={t("DeleteOrdersWarning")}
           isPending={isPending}
           onConfirm={handleBulkDelete}
           onCancel={() => setBulkDeleteConfirm(false)}

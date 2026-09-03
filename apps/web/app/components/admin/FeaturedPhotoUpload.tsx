@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Loader2, CheckCircle2, ImageIcon } from "lucide-react";
 import { saveFeaturedSettings } from "@/actions/storeSettingsActions";
+import { useTranslations } from "next-intl";
 import Uploader from "./Uploader";
 import { SaveButton } from "./HeroTextEditor";
 import type { FeaturedOverlay } from "@/types";
@@ -20,6 +21,7 @@ export function FeaturedPhotoUpload({
   onUploaded,
   onOverlayChange,
 }: Props) {
+  const t = useTranslations("Admin");
   const [imageUrl, setImageUrl] = useState(initialImageUrl);
   const [imgFailed, setImgFailed] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -44,7 +46,7 @@ export function FeaturedPhotoUpload({
         setUploadSuccess(true);
         onUploaded?.(uploaded);
       } else {
-        setUploadError(result.error ?? "Failed to save photo");
+        setUploadError(result.error ?? t("FailedToSavePhoto"));
       }
     });
   }
@@ -65,7 +67,7 @@ export function FeaturedPhotoUpload({
         featuredOverlayCollection: overlay.collection,
       });
       if (res.success) setSaved(true);
-      else setSaveError(res.error ?? "Failed to save");
+      else setSaveError(res.error ?? t("FailedToSave"));
     });
   }
 
@@ -119,7 +121,7 @@ export function FeaturedPhotoUpload({
 
         <Uploader
           endpoint="storeImage"
-          buttonText={imageUrl ? "Upload New Photo" : "Upload Photo"}
+          buttonText={imageUrl ? t("UploadNewPhoto") : t("UploadPhoto")}
           handleUploadComplete={handleUploadComplete}
         />
         <p className="text-xs text-[var(--color-muted)]">

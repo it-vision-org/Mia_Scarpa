@@ -6,9 +6,8 @@ import { sendContactFormEmail } from "@shoestore/utils/email";
 
 export type ContactInput = {
   name: string;
-  email: string;
-  phone?: string;
-  subject?: string;
+  email?: string;
+  phone: string;
   message: string;
 };
 
@@ -17,7 +16,7 @@ export async function submitContact(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     if (!data.name.trim()) return { success: false, error: "Name is required" };
-    if (!data.email.trim()) return { success: false, error: "Email is required" };
+    if (!data.phone.trim()) return { success: false, error: "Phone number is required" };
     if (!data.message.trim()) return { success: false, error: "Message is required" };
 
     const user = await getCurrentUser();
@@ -25,9 +24,9 @@ export async function submitContact(
     await db.contactSubmission.create({
       data: {
         name: data.name.trim(),
-        email: data.email.trim().toLowerCase(),
-        phone: data.phone?.trim() || null,
-        subject: data.subject?.trim() || null,
+        email: data.email?.trim().toLowerCase() || "",
+        phone: data.phone.trim(),
+        subject: null,
         message: data.message.trim(),
         userId: user?.id ?? null,
       },
@@ -56,9 +55,8 @@ async function notifySuperAdmins(data: ContactInput) {
   await sendContactFormEmail({
     recipient: admins.map((a) => a.email),
     name: data.name.trim(),
-    email: data.email.trim(),
-    phone: data.phone?.trim() || undefined,
-    subject: data.subject?.trim(),
+    email: data.email?.trim() || undefined,
+    phone: data.phone.trim(),
     message: data.message.trim(),
   });
 }

@@ -3,12 +3,15 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { LogIn, Loader2, Eye, EyeOff } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { loginUser } from "@/actions/customerAuthActions";
 
 const inp =
-  "w-full rounded-xl border border-[var(--color-border)] bg-white px-4 py-3 text-sm text-[var(--color-text)] placeholder:text-[var(--color-muted)] outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition";
+  "w-full border border-[var(--color-border)] bg-transparent px-4 py-4 text-sm text-[var(--color-text)] outline-none transition placeholder:text-xs placeholder:font-semibold placeholder:uppercase placeholder:tracking-[0.15em] placeholder:text-[var(--color-muted)] focus:border-[var(--color-text)]";
+
+const submitBtn =
+  "inline-flex w-full items-center justify-center gap-2 border border-[var(--color-text)] bg-[var(--color-text)] px-6 py-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:bg-transparent hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-60";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,47 +36,49 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="mx-auto max-w-md px-6 py-16 space-y-6">
+    <main className="mx-auto max-w-md px-6 py-20 space-y-10">
       <div className="text-center space-y-2">
-        <div className="flex justify-center">
-          <div className="rounded-full border border-[var(--color-border)] bg-[var(--color-bg)] p-4">
-            <LogIn size={28} className="text-[var(--color-text)]" />
-          </div>
-        </div>
-        <h1 className="text-2xl font-bold text-[var(--color-text)]">{t("Title")}</h1>
+        <h1 className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-text)]">{t("Title")}</h1>
         <p className="text-sm text-[var(--color-muted)]">{t("Subtitle")}</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="rounded-2xl border border-[var(--color-border)] bg-white p-6 space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+          <div className="border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
         )}
-        <div className="space-y-1.5">
-          <label className="text-sm font-bold text-[var(--color-text)]">{t("Email")}</label>
-          <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className={inp} />
+
+        <input
+          required
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder={t("Email")}
+          aria-label={t("Email")}
+          className={inp}
+        />
+
+        <div className="relative">
+          <input
+            required
+            type={showPw ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder={t("Password")}
+            aria-label={t("Password")}
+            className={inp + " pr-11"}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPw((v) => !v)}
+            aria-label={showPw ? "Hide password" : "Show password"}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-muted)] transition hover:text-[var(--color-text)]"
+          >
+            {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
         </div>
-        <div className="space-y-1.5">
-          <label className="text-sm font-bold text-[var(--color-text)]">{t("Password")}</label>
-          <div className="relative">
-            <input
-              required
-              type={showPw ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className={inp + " pr-11"}
-            />
-            <button type="button" onClick={() => setShowPw((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-muted)] hover:text-[var(--color-text)] transition">
-              {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
-          </div>
-        </div>
-        <button
-          type="submit"
-          disabled={isPending}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-text)] py-3 text-sm font-bold text-white shadow-sm transition hover:opacity-80 disabled:opacity-60"
-        >
-          {isPending ? <Loader2 size={16} className="animate-spin" /> : <LogIn size={16} />}
+
+        <button type="submit" disabled={isPending} className={submitBtn}>
+          {isPending && <Loader2 size={16} className="animate-spin" />}
           {t("Submit")}
         </button>
       </form>

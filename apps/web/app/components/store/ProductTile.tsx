@@ -1,7 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
-import { formatPrice } from "@/lib/utils";
 import type { SerializedProduct } from "@/types";
+import { ProductImage } from "./ProductImage";
+import { ProductPrice } from "./ProductPrice";
+import { PromoBadge } from "./PromoBadge";
 
 export function ProductTile({ product }: { product: SerializedProduct }) {
   return (
@@ -11,8 +12,9 @@ export function ProductTile({ product }: { product: SerializedProduct }) {
     >
       {/* image area — full-bleed, image never cropped/cut */}
       <div className="relative flex-1 overflow-hidden">
+        <PromoBadge product={product} />
         {product.primaryImage ? (
-          <Image
+          <ProductImage
             src={product.primaryImage}
             alt={product.name}
             fill
@@ -32,9 +34,7 @@ export function ProductTile({ product }: { product: SerializedProduct }) {
         <p className="truncate text-sm font-semibold text-[var(--color-text)]">{product.name}</p>
         <div className="mt-1 flex items-center justify-between gap-2">
           <p className="truncate text-xs text-[var(--color-muted)]">{product.category?.name ?? ""}</p>
-          <p className="shrink-0 text-sm font-semibold text-[var(--color-text)]">
-            {formatPrice(product.basePrice)}
-          </p>
+          <ProductPrice product={product} className="shrink-0 text-sm font-semibold text-[var(--color-text)]" />
         </div>
       </div>
     </Link>

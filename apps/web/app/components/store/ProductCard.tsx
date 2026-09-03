@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
-import { formatPrice } from "@/lib/utils";
 import type { SerializedProduct } from "@/types";
+import { ProductImage } from "./ProductImage";
+import { ProductPrice } from "./ProductPrice";
+import { PromoBadge } from "./PromoBadge";
 import { QuickAddModal } from "./QuickAddModal";
 
 export function ProductCard({ product }: { product: SerializedProduct }) {
@@ -49,9 +50,9 @@ export function ProductCard({ product }: { product: SerializedProduct }) {
         className="group block overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)] transition hover:border-[var(--color-text)]"
       >
         <div className="relative aspect-square overflow-hidden bg-[var(--color-bg)]">
+          <PromoBadge product={product} />
           {activeImage ? (
-            <Image
-              key={activeImage}
+            <ProductImage
               src={activeImage}
               alt={product.name}
               fill
@@ -114,9 +115,7 @@ export function ProductCard({ product }: { product: SerializedProduct }) {
             {product.name}
           </h3>
           <div className="mt-1.5 flex items-center gap-2">
-            <span className="text-sm text-[var(--color-text)]">
-              {formatPrice(product.basePrice)}
-            </span>
+            <ProductPrice product={product} className="text-sm text-[var(--color-text)]" />
           </div>
 
           <button

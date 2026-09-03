@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { ShoppingBag, Plus, Store, ClipboardList, MessageSquare, MessageCircle, Users, Menu, X, FolderTree, Search } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { ShoppingBag, PackagePlus, Store, ClipboardList, MessageSquare, MessageCircle, Users, Menu, X, FolderTree, Search } from "lucide-react";
 import { LogoutButton } from "./LogoutButton";
 import { LogoImage } from "@/components/store/LogoImage";
+import { LanguageSelector } from "@/components/store/LanguageSelector";
 import { markAllContactsRead } from "@/actions/contactActions";
 
 export function AdminShell({
@@ -20,6 +22,7 @@ export function AdminShell({
   unreadSocialCount?: number;
 }) {
   const pathname = usePathname();
+  const t = useTranslations("Admin");
 
   // admin/layout.tsx (the parent of this component) stays mounted across client-side
   // navigations within /admin/*, so its server-fetched unreadContactsCount prop never
@@ -47,57 +50,57 @@ export function AdminShell({
       href: "/admin/orders",
       active: pathname.startsWith("/admin/orders"),
       icon: ClipboardList,
-      label: "Orders",
+      label: t("Orders"),
     },
     {
       href: "/admin/products",
       active: pathname.startsWith("/admin/products") && pathname !== "/admin/products/new",
       icon: ShoppingBag,
-      label: "Products",
+      label: t("Products"),
     },
     {
       href: "/admin/products/new",
       active: pathname === "/admin/products/new",
-      icon: Plus,
-      label: "Add Shoe",
+      icon: PackagePlus,
+      label: t("AddShoe"),
     },
     {
       href: "/admin/categories",
       active: pathname.startsWith("/admin/categories"),
       icon: FolderTree,
-      label: "Categories",
+      label: t("Categories"),
     },
     {
       href: "/admin/contacts",
       active: pathname.startsWith("/admin/contacts"),
       icon: MessageSquare,
-      label: "Contacts",
+      label: t("Contacts"),
       badge: unreadCount > 0 ? unreadCount : undefined,
     },
     {
       href: "/admin/social",
       active: pathname.startsWith("/admin/social"),
       icon: MessageCircle,
-      label: "Social Media",
+      label: t("SocialMedia"),
       badge: unreadSocialCount > 0 ? unreadSocialCount : undefined,
     },
     {
       href: "/admin/store",
       active: pathname === "/admin/store",
       icon: Store,
-      label: "Store",
+      label: t("Store"),
     },
     {
       href: "/admin/seo",
       active: pathname.startsWith("/admin/seo"),
       icon: Search,
-      label: "SEO",
+      label: t("SEO"),
     },
     {
       href: "/admin/team",
       active: pathname.startsWith("/admin/team"),
       icon: Users,
-      label: "Team",
+      label: t("Team"),
     },
   ];
 
@@ -112,23 +115,25 @@ export function AdminShell({
             </Link>
             <span className="hidden text-[var(--color-border)] sm:inline">|</span>
             <span className="hidden text-sm font-semibold text-[var(--color-text)] sm:inline">
-              Admin Panel
+              {t("Panel")}
             </span>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/"
-              className="text-xs text-[var(--color-muted)] transition hover:text-[var(--color-text)]"
+              className="hidden text-xs text-[var(--color-muted)] transition hover:text-[var(--color-text)] sm:inline"
             >
-              ← View Store
+              ← {t("ViewStore")}
             </Link>
+            <span className="hidden text-[var(--color-border)] sm:inline">|</span>
+            <LanguageSelector />
             <span className="text-[var(--color-border)]">|</span>
             <LogoutButton />
             <button
               type="button"
               onClick={() => setMobileNavOpen((v) => !v)}
               aria-expanded={mobileNavOpen}
-              aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
+              aria-label={mobileNavOpen ? t("CloseMenu") : t("OpenMenu")}
               className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--color-border)] text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] lg:hidden"
             >
               {mobileNavOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}

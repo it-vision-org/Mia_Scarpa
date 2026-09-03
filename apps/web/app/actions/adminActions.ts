@@ -56,7 +56,26 @@ function productToAdminDetail(
     seoDescription: p.seoDescription ?? null,
     seoKeywords: p.seoKeywords ?? null,
     ogImage: p.ogImage ?? null,
+    promoActive: p.promoActive ?? false,
+    promoPriceCents: p.promoPrice != null ? Math.round(Number(p.promoPrice) * 100) : null,
+    promoLabel: p.promoLabel ?? null,
+    promoImage: p.promoImage ?? null,
+    promoStartsAt: p.promoStartsAt ? new Date(p.promoStartsAt).toISOString() : null,
+    promoEndsAt: p.promoEndsAt ? new Date(p.promoEndsAt).toISOString() : null,
     brandName: p.category?.name ?? null,
+  };
+}
+
+// Shared promo columns for create/update.
+function promoData(data: ProductInput) {
+  return {
+    promoActive: data.promoActive,
+    promoPrice:
+      data.promoActive && data.promoPriceCents != null ? data.promoPriceCents / 100 : null,
+    promoLabel: data.promoLabel?.trim() || null,
+    promoImage: data.promoImage?.trim() || null,
+    promoStartsAt: data.promoStartsAt ? new Date(data.promoStartsAt) : null,
+    promoEndsAt: data.promoEndsAt ? new Date(data.promoEndsAt) : null,
   };
 }
 
@@ -120,6 +139,7 @@ export async function createProduct(
         isFeatured: data.isFeatured,
         gender: data.gender,
         categoryId: data.categoryId,
+        ...promoData(data),
         seoTitle: data.seoTitle?.trim() || null,
         seoDescription: data.seoDescription?.trim() || null,
         seoKeywords: data.seoKeywords?.trim() || null,
@@ -145,43 +165,121 @@ export async function updateProduct(
   id: string,
   data: ProductInput,
 ): Promise<ActionResult> {
+  const norm = (s: string) => s.trim().toLowerCase();
+
   try {
     const basePrice = data.priceCents / 100;
 
-    // Delete existing images and colors (colors cascade to images and sizes)
-    await db.productImage.deleteMany({ where: { productId: id } });
-    await db.productColor.deleteMany({ where: { productId: id } });
+    const scalarData = {
+      name: data.name,
+      basePrice,
+      isPublished: data.isPublished,
+      isFeatured: data.isFeatured,
+      gender: data.gender,
+      categoryId: data.categoryId,
+      ...promoData(data),
+      seoTitle: data.seoTitle?.trim() || null,
+      seoDescription: data.seoDescription?.trim() || null,
+      seoKeywords: data.seoKeywords?.trim() || null,
+      ogImage: data.ogImage?.trim() || null,
+    };
 
-    const colorsData = data.colorImages.map((c, colorIdx) => ({
-      name: c.name,
-      hex: c.hex,
-      order: colorIdx,
-      images: {
-        create: c.imageUrls.map((url, imgIdx) => ({ url, order: imgIdx })),
-      },
-      sizes: {
-        create: c.sizes.map((s) => ({ size: s.size, stock: s.stock })),
-      },
-    }));
-
-    await db.product.update({
-      where: { id },
-      data: {
-        name: data.name,
-        basePrice,
-        isPublished: data.isPublished,
-        isFeatured: data.isFeatured,
-        gender: data.gender,
-        categoryId: data.categoryId,
-        seoTitle: data.seoTitle?.trim() || null,
-        seoDescription: data.seoDescription?.trim() || null,
-        seoKeywords: data.seoKeywords?.trim() || null,
-        ogImage: data.ogImage?.trim() || null,
-        images: {
-          create: data.images.map((url, idx) => ({ url, order: idx })),
+    await db.$transaction(async (tx) => {
+      // main product photos + scalar fields — neither is referenced by orders,
+      // so a clean rebuild is always safe
+      await tx.productImage.deleteMany({ where: { productId: id } });
+      await tx.product.update({
+        where: { id },
+        data: {
+          ...scalarData,
+          images: { create: data.images.map((url, idx) => ({ url, order: idx })) },
         },
-        colors: { create: colorsData },
-      },
+      });
+
+      // existing colours + sizes, and which sizes are locked by an order
+      const existingColors = await tx.productColor.findMany({
+        where: { productId: id },
+        select: {
+          id: true,
+          name: true,
+          sizes: {
+            select: { id: true, size: true, _count: { select: { orderItems: true } } },
+          },
+        },
+      });
+      const orderedSizeIds = new Set<string>();
+      for (const c of existingColors)
+        for (const s of c.sizes) if (s._count.orderItems > 0) orderedSizeIds.add(s.id);
+
+      const existingByName = new Map(existingColors.map((c) => [norm(c.name), c]));
+      const incomingNames = new Set(data.colorImages.map((c) => norm(c.name)));
+
+      // ── colours the admin removed ──
+      for (const c of existingColors) {
+        if (incomingNames.has(norm(c.name))) continue;
+        if (c.sizes.some((s) => orderedSizeIds.has(s.id))) {
+          // an order still points at this colour → keep the rows, just hide it
+          await tx.productColor.update({ where: { id: c.id }, data: { isActive: false } });
+          await tx.productColorSize.updateMany({ where: { colorId: c.id }, data: { stock: 0 } });
+        } else {
+          await tx.productColor.delete({ where: { id: c.id } }); // cascades sizes + images
+        }
+      }
+
+      // ── colours the admin kept or added ──
+      let order = 0;
+      for (const c of data.colorImages) {
+        const existing = existingByName.get(norm(c.name));
+
+        if (!existing) {
+          await tx.productColor.create({
+            data: {
+              productId: id,
+              name: c.name,
+              hex: c.hex,
+              order,
+              isActive: true,
+              images: { create: c.imageUrls.map((url, i) => ({ url, order: i })) },
+              sizes: { create: c.sizes.map((s) => ({ size: s.size, stock: s.stock })) },
+            },
+          });
+        } else {
+          await tx.productColor.update({
+            where: { id: existing.id },
+            data: { name: c.name, hex: c.hex, order, isActive: true },
+          });
+          // colour photos are never referenced by orders — safe to rebuild
+          await tx.productColorImage.deleteMany({ where: { colorId: existing.id } });
+          if (c.imageUrls.length > 0) {
+            await tx.productColorImage.createMany({
+              data: c.imageUrls.map((url, i) => ({ colorId: existing.id, url, order: i })),
+            });
+          }
+
+          const existingSizes = new Map(existing.sizes.map((s) => [s.size, s]));
+          const incomingSizes = new Set(c.sizes.map((s) => s.size));
+
+          for (const s of existing.sizes) {
+            if (incomingSizes.has(s.size)) continue;
+            if (orderedSizeIds.has(s.id)) {
+              await tx.productColorSize.update({ where: { id: s.id }, data: { stock: 0 } });
+            } else {
+              await tx.productColorSize.delete({ where: { id: s.id } });
+            }
+          }
+          for (const s of c.sizes) {
+            const ex = existingSizes.get(s.size);
+            if (ex) {
+              await tx.productColorSize.update({ where: { id: ex.id }, data: { stock: s.stock } });
+            } else {
+              await tx.productColorSize.create({
+                data: { colorId: existing.id, size: s.size, stock: s.stock },
+              });
+            }
+          }
+        }
+        order += 1;
+      }
     });
 
     revalidatePath("/");

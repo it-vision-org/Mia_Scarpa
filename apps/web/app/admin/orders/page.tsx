@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 import { OrdersFilters } from "@/components/admin/OrdersFilters";
 import { StatCardsSkeleton, TableSkeleton, Skeleton } from "@/components/admin/Skeleton";
 import { OrdersContent } from "./OrdersContent";
@@ -13,12 +14,13 @@ type SearchParams = Promise<{
   period?: string;
 }>;
 
-export default function AdminOrdersPage({ searchParams }: { searchParams: SearchParams }) {
+export default async function AdminOrdersPage({ searchParams }: { searchParams: SearchParams }) {
+  const t = await getTranslations("Admin");
   return (
     <div className="space-y-6">
       {/* Header — renders instantly, independent of the DB fetch below */}
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
-        <h1 className="text-2xl font-bold text-[var(--color-text)]">Orders</h1>
+        <h1 className="text-2xl font-bold text-[var(--color-text)]">{t("OrdersTitle")}</h1>
       </div>
 
       {/* Filters */}

@@ -36,12 +36,16 @@ export function ProductGallery({ colors, productName, mainImages = [], selectedC
       {/* Main image */}
       <div className="relative aspect-square overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)]">
         {mainSrc ? (
-          <img
-            key={mainSrc}
-            src={mainSrc}
-            alt={selectedColor ? `${productName} — ${selectedColor.name}` : productName}
-            className="h-full w-full object-cover"
-          />
+          <>
+            {/* shimmer sits behind — the image paints over it once decoded */}
+            <span aria-hidden className="img-shimmer absolute inset-0 block" />
+            <img
+              key={mainSrc}
+              src={mainSrc}
+              alt={selectedColor ? `${productName} — ${selectedColor.name}` : productName}
+              className="relative h-full w-full object-cover"
+            />
+          </>
         ) : (
           <div className="flex h-full items-center justify-center text-sm text-[var(--color-muted)]">
             No photo

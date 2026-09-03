@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Skeleton } from "@/components/admin/Skeleton";
 import { OrderDetailContent } from "./OrderDetailContent";
 
@@ -44,6 +45,7 @@ function OrderDetailSkeleton() {
 
 export default async function OrderDetailPage({ params }: Props) {
   const { publicId } = await params;
+  const t = await getTranslations("Admin");
 
   return (
     <div className="space-y-6">
@@ -54,13 +56,13 @@ export default async function OrderDetailPage({ params }: Props) {
           className="flex items-center gap-1.5 text-sm text-[var(--color-muted)] transition hover:text-[var(--color-text)]"
         >
           <ArrowLeft size={15} />
-          Orders
+          {t("OrdersTitle")}
         </Link>
         <span className="text-[var(--color-border)]">/</span>
         <span className="font-mono text-sm font-bold text-[var(--color-text)] break-all">{publicId}</span>
       </div>
 
-      <h1 className="text-2xl font-bold text-[var(--color-text)]">Order {publicId}</h1>
+      <h1 className="text-2xl font-bold text-[var(--color-text)]">{t("OrderTitle", { id: publicId })}</h1>
 
       <Suspense fallback={<OrderDetailSkeleton />}>
         <OrderDetailContent publicId={publicId} />

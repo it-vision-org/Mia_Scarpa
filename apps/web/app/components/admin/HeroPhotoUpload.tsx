@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Loader2, CheckCircle2, ImageIcon } from "lucide-react";
 import { saveHeroSettings } from "@/actions/storeSettingsActions";
+import { useTranslations } from "next-intl";
 import Uploader from "./Uploader";
 
 type Props = {
@@ -11,6 +12,7 @@ type Props = {
 };
 
 export function HeroPhotoUpload({ initialImageUrl, onUploaded }: Props) {
+  const t = useTranslations("Admin");
   const [imageUrl, setImageUrl] = useState(initialImageUrl);
   const [imgFailed, setImgFailed] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -30,7 +32,7 @@ export function HeroPhotoUpload({ initialImageUrl, onUploaded }: Props) {
         setUploadSuccess(true);
         onUploaded?.(uploaded);
       } else {
-        setUploadError(result.error ?? "Failed to save photo");
+        setUploadError(result.error ?? t("FailedToSavePhoto"));
       }
     });
   }
@@ -74,7 +76,7 @@ export function HeroPhotoUpload({ initialImageUrl, onUploaded }: Props) {
 
       <Uploader
         endpoint="storeImage"
-        buttonText={imageUrl ? "Upload New Photo" : "Upload Photo"}
+        buttonText={imageUrl ? t("UploadNewPhoto") : t("UploadPhoto")}
         handleUploadComplete={handleUploadComplete}
       />
       <p className="text-xs text-[var(--color-muted)]">

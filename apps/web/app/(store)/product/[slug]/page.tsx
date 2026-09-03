@@ -121,6 +121,13 @@ export default async function ProductPage({
         productSlug={product.slug}
         productName={product.name}
         basePrice={product.basePrice}
+        promo={{
+          live: product.promoLive,
+          effectivePrice: product.effectivePrice,
+          image: product.promoImage,
+          label: product.promoLabel,
+          percent: product.promoPercent,
+        }}
         description={product.description}
         categoryName={product.category?.name}
         colors={product.colors}

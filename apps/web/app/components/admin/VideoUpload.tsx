@@ -3,9 +3,11 @@
 import { useState, useTransition } from "react";
 import { Loader2, CheckCircle2, Video } from "lucide-react";
 import { saveVideoSettings } from "@/actions/storeSettingsActions";
+import { useTranslations } from "next-intl";
 import Uploader from "./Uploader";
 
 export function VideoUpload({ initialUrl }: { initialUrl: string | null }) {
+  const t = useTranslations("Admin");
   const [url, setUrl] = useState(initialUrl);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -22,7 +24,7 @@ export function VideoUpload({ initialUrl }: { initialUrl: string | null }) {
         setUrl(uploaded);
         setSuccess(true);
       } else {
-        setError(result.error ?? "Failed to save video");
+        setError(result.error ?? t("FailedToSave"));
       }
     });
   }
@@ -62,7 +64,7 @@ export function VideoUpload({ initialUrl }: { initialUrl: string | null }) {
 
       <Uploader
         endpoint="storeVideo"
-        buttonText={url ? "Replace Video" : "Upload Video"}
+        buttonText={url ? t("UploadNewPhoto") : t("UploadPhoto")}
         handleUploadComplete={handleUploadComplete}
       />
       <p className="text-xs text-[var(--color-muted)]">

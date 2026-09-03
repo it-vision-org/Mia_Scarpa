@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { saveFooterSettings } from "@/actions/storeSettingsActions";
 import type { FooterCtaText } from "@/types";
 import { Field, SaveButton, inp } from "./HeroTextEditor";
+import { useTranslations } from "next-intl";
 
 export function FooterCtaEditor({
   initial,
@@ -12,6 +13,7 @@ export function FooterCtaEditor({
   initial: FooterCtaText;
   onPreviewChange?: (v: FooterCtaText) => void;
 }) {
+  const t = useTranslations("Admin");
   const [form, setForm] = useState(initial);
   const [pending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
@@ -33,21 +35,21 @@ export function FooterCtaEditor({
         footerCtaBtn: form.btn,
       });
       if (res.success) setSaved(true);
-      else setError(res.error ?? "Failed to save");
+      else setError(res.error ?? t("FailedToSave"));
     });
   }
 
   return (
     <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Title">
+        <Field label={t("FieldTitle")}>
           <input value={form.title} onChange={(e) => set("title", e.target.value)} className={inp} />
         </Field>
-        <Field label="Button text">
+        <Field label={t("FieldButtonText")}>
           <input value={form.btn} onChange={(e) => set("btn", e.target.value)} className={inp} />
         </Field>
       </div>
-      <Field label="Description">
+      <Field label={t("FieldDescription")}>
         <textarea rows={2} value={form.desc} onChange={(e) => set("desc", e.target.value)} className={inp} />
       </Field>
       {error && <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">{error}</p>}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function AutoPlayVideo({
   src,
@@ -14,6 +14,7 @@ export function AutoPlayVideo({
   className?: string;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -43,9 +44,17 @@ export function AutoPlayVideo({
       poster={poster}
       muted
       loop
+      autoPlay
       playsInline
+      preload="auto"
       controls={controls}
-      className={className ?? "h-full w-full object-cover"}
+      onLoadedData={() => setReady(true)}
+      onCanPlay={() => setReady(true)}
+      onPlaying={() => setReady(true)}
+      // hidden only until the first frame is decodable, then snaps in quickly
+      className={`${className ?? "h-full w-full object-cover"} transition-opacity duration-200 ${
+        ready ? "opacity-100" : "opacity-0"
+      }`}
     />
   );
 }
