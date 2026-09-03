@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Plus, X, Loader2, Link as LinkIcon, Upload, Copy, Images } from "lucide-react";
 
 import { createProduct, updateProduct } from "@/actions/adminActions";
@@ -204,6 +205,7 @@ export function ProductForm({
   categoryTree?: CategoryNode[];
 }) {
   const router = useRouter();
+  const t = useTranslations("Admin");
   const [, startTransition] = useTransition();
 
   const [name, setName]     = useState(initialData?.name ?? "");
@@ -212,6 +214,20 @@ export function ProductForm({
   const [categoryId, setCategoryId] = useState<string>(initialData?.categoryId ?? "");
   const [isPublished, setIsPublished] = useState(initialData?.isPublished ?? true);
   const [isFeatured, setIsFeatured]   = useState(initialData?.isFeatured ?? false);
+
+  // ── Promotion ──
+  const [promoActive, setPromoActive] = useState(initialData?.promoActive ?? false);
+  const [promoPrice, setPromoPrice]   = useState(
+    initialData?.promoPriceCents != null ? String(initialData.promoPriceCents / 100) : "",
+  );
+  const [promoLabel, setPromoLabel]   = useState(initialData?.promoLabel ?? "");
+  const [promoImage, setPromoImage]   = useState(initialData?.promoImage ?? "");
+  const [promoStartsAt, setPromoStartsAt] = useState(
+    initialData?.promoStartsAt ? initialData.promoStartsAt.slice(0, 10) : "",
+  );
+  const [promoEndsAt, setPromoEndsAt] = useState(
+    initialData?.promoEndsAt ? initialData.promoEndsAt.slice(0, 10) : "",
+  );
   const [submitting, setSubmitting]   = useState(false);
   const [uploading, setUploading]     = useState(false);
   const [error, setError]             = useState("");
@@ -263,6 +279,24 @@ export function ProductForm({
     }
   }
 
+  const promoFileRef = useRef<HTMLInputElement>(null);
+  async function handlePromoFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setError("");
+    try {
+      // uploaded straight to the promo slot — never added to the product's photos
+      const url = await uploadToImgbb(file);
+      setPromoImage(url);
+    } catch {
+      setError("Image upload failed. Check IMGBB_API_KEY in .env.local");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  }
+
   const [colorRows, setColorRows] = useState<ColorRow[]>(
     initialData?.colorImages.map((c) => ({
       id: uid(),
@@ -280,7 +314,7 @@ export function ProductForm({
   // ── Reuse-existing-image picker ──────────────────────────────────────────
   // "main" targets the main product photos list, "seo" the SEO OG image override,
   // any other value is a color row id.
-  const [pickerTarget, setPickerTarget] = useState<"main" | "seo" | string | null>(null);
+  const [pickerTarget, setPickerTarget] = useState<"main" | "seo" | "promo" | string | null>(null);
 
   const allUploadedImages = useMemo(() => {
     const seen = new Set<string>();
@@ -299,13 +333,17 @@ export function ProductForm({
       ? mainImages
       : pickerTarget === "seo"
         ? (seoFields.ogImage ? [seoFields.ogImage] : [])
-        : (colorRows.find((r) => r.id === pickerTarget)?.imageUrls ?? []);
+        : pickerTarget === "promo"
+          ? (promoImage ? [promoImage] : [])
+          : (colorRows.find((r) => r.id === pickerTarget)?.imageUrls ?? []);
 
   function handlePickerConfirm(urls: string[]) {
     if (pickerTarget === "main") {
       setMainImages((prev) => [...prev, ...urls.filter((u) => !prev.includes(u))]);
     } else if (pickerTarget === "seo") {
       setSeoFields((prev) => ({ ...prev, ogImage: urls[0] ?? prev.ogImage }));
+    } else if (pickerTarget === "promo") {
+      if (urls[0]) setPromoImage(urls[0]);
     } else if (pickerTarget) {
       const targetId = pickerTarget;
       setColorRows((prev) =>
@@ -422,6 +460,15 @@ export function ProductForm({
       seoDescription: seoFields.seoDescription.trim() || undefined,
       seoKeywords: seoFields.seoKeywords.trim() || undefined,
       ogImage: seoFields.ogImage.trim() || undefined,
+      promoActive,
+      promoPriceCents:
+        promoActive && promoPrice.trim() !== "" && !isNaN(parseFloat(promoPrice))
+          ? Math.round(parseFloat(promoPrice) * 100)
+          : null,
+      promoLabel: promoLabel.trim() || null,
+      promoImage: promoImage.trim() || null,
+      promoStartsAt: promoStartsAt ? new Date(promoStartsAt).toISOString() : null,
+      promoEndsAt: promoEndsAt ? new Date(promoEndsAt).toISOString() : null,
     };
 
     startTransition(async () => {
@@ -455,6 +502,95 @@ export function ProductForm({
       <Field label="Base Price (DT)">
         <input type="number" min="0" step="0.001" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="e.g. 89.900" className={inp} />
       </Field>
+
+      {/* ── Promotion / Sale ── */}
+      <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] p-4 space-y-4">
+        <label className="flex items-center justify-between gap-3">
+          <span className="text-sm font-bold text-[var(--color-text)]">🏷️ {t("PromoSection")}</span>
+          <input
+            type="checkbox"
+            checked={promoActive}
+            onChange={(e) => setPromoActive(e.target.checked)}
+            className="h-5 w-9 shrink-0 cursor-pointer appearance-none rounded-full bg-[var(--color-border)] transition checked:bg-[var(--color-accent)] relative before:absolute before:top-0.5 before:left-0.5 before:h-4 before:w-4 before:rounded-full before:bg-white before:transition checked:before:translate-x-4"
+          />
+        </label>
+
+        {promoActive && (
+          <div className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={`${t("PromoPrice")} (DT)`}>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.001"
+                  value={promoPrice}
+                  onChange={(e) => setPromoPrice(e.target.value)}
+                  placeholder="e.g. 59.900"
+                  className={inp}
+                />
+              </Field>
+              <Field label={t("PromoLabel")}>
+                <input
+                  value={promoLabel}
+                  onChange={(e) => setPromoLabel(e.target.value)}
+                  placeholder={t("PromoLabelPh")}
+                  className={inp}
+                />
+              </Field>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t("PromoStart")}>
+                <input type="date" value={promoStartsAt} onChange={(e) => setPromoStartsAt(e.target.value)} className={inp} />
+              </Field>
+              <Field label={t("PromoEnd")}>
+                <input type="date" value={promoEndsAt} onChange={(e) => setPromoEndsAt(e.target.value)} className={inp} />
+              </Field>
+            </div>
+
+            <Field label={t("PromoImage")}>
+              <div className="flex items-center gap-3">
+                {promoImage ? (
+                  <img src={promoImage} alt="" className="h-14 w-14 rounded-lg border border-[var(--color-border)] object-cover" />
+                ) : (
+                  <div className="flex h-14 w-14 items-center justify-center rounded-lg border border-dashed border-[var(--color-border)] text-[10px] text-[var(--color-muted)]">
+                    {t("PromoDefault")}
+                  </div>
+                )}
+                <input
+                  value={promoImage}
+                  onChange={(e) => setPromoImage(e.target.value)}
+                  placeholder={t("PhImageUrl")}
+                  className={`${inp} flex-1`}
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  ref={promoFileRef}
+                  onChange={handlePromoFileUpload}
+                />
+                <button
+                  type="button"
+                  disabled={uploading}
+                  onClick={() => promoFileRef.current?.click()}
+                  title={t("PromoImportPhoto")}
+                  className="shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-[var(--color-border)] bg-white px-3 py-3 text-xs font-semibold text-[var(--color-text)] hover:bg-[var(--color-bg)] transition disabled:opacity-40"
+                >
+                  {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                  <span className="hidden sm:inline">{t("PromoImportPhoto")}</span>
+                </button>
+                {promoImage && (
+                  <button type="button" onClick={() => setPromoImage("")} className="shrink-0 text-[var(--color-muted)] hover:text-red-500" title={t("Remove")}>
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-[var(--color-muted)]">{t("PromoImageHint")}</p>
+            </Field>
+          </div>
+        )}
+      </div>
 
       {/* Gender + Category */}
       <div className="grid gap-4 sm:grid-cols-2">
@@ -770,7 +906,7 @@ export function ProductForm({
       <ImagePickerModal
         images={allUploadedImages}
         alreadySelected={pickerAlreadySelected}
-        mode={pickerTarget === "seo" ? "single" : "multi"}
+        mode={pickerTarget === "seo" || pickerTarget === "promo" ? "single" : "multi"}
         onConfirm={handlePickerConfirm}
         onClose={() => setPickerTarget(null)}
       />

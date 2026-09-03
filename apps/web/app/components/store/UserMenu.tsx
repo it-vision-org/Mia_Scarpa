@@ -17,17 +17,6 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
-const AVATAR_COLORS = [
-  "bg-violet-500", "bg-blue-500", "bg-emerald-500",
-  "bg-amber-500",  "bg-rose-500",  "bg-indigo-500",
-];
-
-function avatarColor(name: string) {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
-}
-
 const ADMIN_ROLES = new Set(["ADMIN", "SUPER_ADMIN"]);
 
 export function UserMenu({ name, email, role }: Props) {
@@ -52,7 +41,6 @@ export function UserMenu({ name, email, role }: Props) {
   }
 
   const initials = getInitials(name);
-  const color = avatarColor(name);
 
   return (
     <div ref={ref} className="relative">
@@ -61,11 +49,11 @@ export function UserMenu({ name, email, role }: Props) {
         className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition hover:bg-[var(--color-bg)]"
       >
         <span className="relative">
-          <span className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white ${color}`}>
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-accent)] text-xs font-bold text-white">
             {initials}
           </span>
           {ADMIN_ROLES.has(role) && (
-            <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[var(--color-accent)] ring-2 ring-white">
+            <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[var(--color-text)] ring-2 ring-white">
               <LayoutDashboard size={8} className="text-white" />
             </span>
           )}

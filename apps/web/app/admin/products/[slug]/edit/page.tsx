@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 import { Skeleton } from "@/components/admin/Skeleton";
 import { EditProductContent } from "./EditProductContent";
@@ -22,6 +23,7 @@ export default async function EditProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const t = await getTranslations("Admin");
 
   return (
     <div>
@@ -30,12 +32,10 @@ export default async function EditProductPage({
         className="mb-6 inline-flex items-center gap-1 text-sm text-[var(--color-muted)] hover:text-[var(--color-text)]"
       >
         <ChevronLeft className="h-4 w-4" />
-        Back to products
+        {t("BackToProducts")}
       </Link>
-      <h1 className="mb-1 text-2xl font-bold text-[var(--color-text)]">Edit Shoe</h1>
-      <p className="mb-8 text-sm text-[var(--color-muted)]">
-        Update the details below and click &quot;Save Changes&quot;.
-      </p>
+      <h1 className="mb-1 text-2xl font-bold text-[var(--color-text)]">{t("EditShoeTitle")}</h1>
+      <p className="mb-8 text-sm text-[var(--color-muted)]">{t("AddShoeDesc")}</p>
 
       <Suspense fallback={<ProductFormSkeleton />}>
         <EditProductContent slug={slug} />

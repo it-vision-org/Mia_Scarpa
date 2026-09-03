@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 
+import { getTranslations } from "next-intl/server";
 import { getCurrentUser } from "@/lib/session";
 import { Skeleton } from "@/components/admin/Skeleton";
 import { TeamMemberEditContent } from "./TeamMemberEditContent";
@@ -26,6 +27,7 @@ export default async function EditTeamMemberPage({
   const { id } = await params;
   const user = await getCurrentUser();
   if (user?.role !== "SUPER_ADMIN") notFound();
+  const t = await getTranslations("Admin");
 
   return (
     <div className="max-w-lg">
@@ -34,9 +36,9 @@ export default async function EditTeamMemberPage({
         className="mb-6 inline-flex items-center gap-1 text-sm text-[var(--color-muted)] hover:text-[var(--color-text)]"
       >
         <ChevronLeft className="h-4 w-4" />
-        Back to team
+        {t("BackToTeam")}
       </Link>
-      <h1 className="mb-1 text-2xl font-bold text-[var(--color-text)]">Edit Team Member</h1>
+      <h1 className="mb-1 text-2xl font-bold text-[var(--color-text)]">{t("EditTeamMemberTitle")}</h1>
 
       <Suspense fallback={<EditFormSkeleton />}>
         <TeamMemberEditContent id={id} currentUserId={user.id} />

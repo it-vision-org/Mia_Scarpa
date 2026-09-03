@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 import { Skeleton } from "@/components/admin/Skeleton";
 import { StoreSettingsContent } from "./StoreSettingsContent";
 
@@ -21,16 +22,14 @@ function StoreSettingsSkeleton() {
   );
 }
 
-export default function StoreSettingsPage() {
+export default async function StoreSettingsPage() {
+  const t = await getTranslations("Admin");
   return (
     <div>
       {/* header — renders instantly, independent of the DB fetch below */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[var(--color-text)]">Store Settings</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted)]">
-          Edit your store&apos;s content, colors, and media. The preview on the right
-          updates live as you type — click <strong>Save Changes</strong> to publish.
-        </p>
+        <h1 className="text-2xl font-bold text-[var(--color-text)]">{t("StoreTitle")}</h1>
+        <p className="mt-1 text-sm text-[var(--color-muted)]">{t("StoreDesc")}</p>
       </div>
 
       <Suspense fallback={<StoreSettingsSkeleton />}>

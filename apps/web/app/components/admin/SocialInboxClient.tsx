@@ -6,6 +6,7 @@ import {
   getConversations,
   getMessages,
   sendMessengerMessage,
+  sendWhatsAppMessage,
   type SocialConversationSummary,
   type SocialMessageItem,
 } from "@/actions/socialActions";
@@ -20,6 +21,13 @@ const TABS: { key: Tab; label: string; icon: typeof MessageCircle }[] = [
   { key: "INSTAGRAM", label: "Instagram", icon: Instagram },
   { key: "WHATSAPP", label: "WhatsApp", icon: Phone },
 ];
+
+const COMING_SOON: Tab[] = ["INSTAGRAM"];
+const TAB_DEFAULT_NAME: Record<Tab, string> = {
+  MESSENGER: "Messenger user",
+  INSTAGRAM: "Instagram user",
+  WHATSAPP: "WhatsApp user",
+};
 
 function relativeTime(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -46,6 +54,7 @@ export function SocialInboxClient({
   const [tab, setTab] = useState<Tab>("MESSENGER");
   const [conversations, setConversations] = useState(initialConversations);
   const [selectedId, setSelectedId] = useState<string | null>(initialConversations[0]?.id ?? null);
+  const isReady = !COMING_SOON.includes(tab);
   const [messages, setMessages] = useState<SocialMessageItem[]>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [replyText, setReplyText] = useState("");
@@ -53,8 +62,8 @@ export function SocialInboxClient({
   const [sending, startSending] = useTransition();
   const threadEndRef = useRef<HTMLDivElement>(null);
 
-  async function refreshConversations() {
-    const res = await getConversations("MESSENGER");
+  async function refreshConversations(forTab: Tab = tab) {
+    const res = await getConversations(forTab);
     if (res.success) setConversations(res.data ?? []);
   }
 
@@ -70,12 +79,36 @@ export function SocialInboxClient({
     if (showSpinner) setMessagesLoading(false);
   }
 
+  // switch platform — load that inbox fresh
+  useEffect(() => {
+    setSelectedId(null);
+    setMessages([]);
+    setSendError("");
+    if (!isReady) {
+      setConversations([]);
+      return;
+    }
+    let cancelled = false;
+    getConversations(tab).then((res) => {
+      if (!cancelled && res.success) {
+        const list = res.data ?? [];
+        setConversations(list);
+        setSelectedId(list[0]?.id ?? null);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab]);
+
   // conversation list polling
   useEffect(() => {
-    if (tab !== "MESSENGER") return;
-    const id = setInterval(refreshConversations, CONVERSATIONS_POLL_MS);
+    if (!isReady) return;
+    const id = setInterval(() => refreshConversations(tab), CONVERSATIONS_POLL_MS);
     return () => clearInterval(id);
-  }, [tab]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, isReady]);
 
   // open thread — load + poll
   useEffect(() => {
@@ -102,12 +135,13 @@ export function SocialInboxClient({
     const text = replyText.trim();
     if (!text || !selectedId) return;
     setSendError("");
+    const send = tab === "WHATSAPP" ? sendWhatsAppMessage : sendMessengerMessage;
     startSending(async () => {
-      const res = await sendMessengerMessage(selectedId, text);
+      const res = await send(selectedId, text);
       if (res.success) {
         setReplyText("");
         await loadMessages(selectedId, false);
-        await refreshConversations();
+        await refreshConversations(tab);
       } else {
         setSendError(res.error ?? "Failed to send message");
       }
@@ -137,18 +171,12 @@ export function SocialInboxClient({
         ))}
       </div>
 
-      {tab !== "MESSENGER" ? (
+      {!isReady ? (
         <div className="flex flex-col items-center justify-center gap-2 py-24 text-center">
-          {tab === "INSTAGRAM" ? (
-            <Instagram className="h-8 w-8 text-[var(--color-muted)]" />
-          ) : (
-            <Phone className="h-8 w-8 text-[var(--color-muted)]" />
-          )}
-          <p className="font-semibold text-[var(--color-text)]">
-            {tab === "INSTAGRAM" ? "Instagram" : "WhatsApp"} — coming soon
-          </p>
+          <Instagram className="h-8 w-8 text-[var(--color-muted)]" />
+          <p className="font-semibold text-[var(--color-text)]">Instagram — coming soon</p>
           <p className="max-w-xs text-sm text-[var(--color-muted)]">
-            This inbox will work the same way as Messenger once it's connected.
+            This inbox will work the same way as Messenger once it&apos;s connected.
           </p>
         </div>
       ) : (
@@ -157,7 +185,7 @@ export function SocialInboxClient({
           <div className="max-h-[560px] overflow-y-auto border-b border-[var(--color-border)] md:border-b-0 md:border-r">
             {conversations.length === 0 ? (
               <div className="px-5 py-10 text-center text-sm text-[var(--color-muted)]">
-                No conversations yet. Messages sent to your Page will show up here.
+                No conversations yet. New messages will show up here.
               </div>
             ) : (
               conversations.map((c) => (
@@ -175,7 +203,7 @@ export function SocialInboxClient({
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <p className="truncate text-sm font-semibold text-[var(--color-text)]">
-                        {c.customerName ?? "Messenger user"}
+                        {c.customerName ?? TAB_DEFAULT_NAME[tab]}
                       </p>
                       <span className="shrink-0 text-[11px] text-[var(--color-muted)]">
                         {relativeTime(c.lastMessageAt)}
@@ -207,7 +235,7 @@ export function SocialInboxClient({
               <>
                 <div className="border-b border-[var(--color-border)] px-5 py-3">
                   <p className="text-sm font-semibold text-[var(--color-text)]">
-                    {selected.customerName ?? "Messenger user"}
+                    {selected.customerName ?? TAB_DEFAULT_NAME[tab]}
                   </p>
                 </div>
 

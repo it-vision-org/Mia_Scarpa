@@ -1,9 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import { ArrowRight } from "lucide-react";
+import { getTranslations } from "next-intl/server";
+import { ArrowRight, Phone, Mail, MapPin } from "lucide-react";
 
 import { getBaseUrl } from "@/lib/seo";
+import { getContactInfo } from "@/actions/storeConfigActions";
 import { getFeaturedProducts, getProductsByIds } from "@/actions/productActions";
 import { ProductGrid } from "@/components/store/ProductGrid";
 import { ProductTile } from "@/components/store/ProductTile";
@@ -29,10 +31,17 @@ export async function generateMetadata(): Promise<Metadata> {
   return { alternates: { canonical: `${baseUrl}/` } };
 }
 
+function telHref(phone: string): string | null {
+  const digits = phone.replace(/[^\d+]/g, "");
+  return digits.replace(/\D/g, "").length >= 6 ? `tel:${digits}` : null;
+}
+
 export default async function HomePage() {
-  const [featured, settingsResult] = await Promise.all([
+  const [featured, settingsResult, contact, tFooter] = await Promise.all([
     getFeaturedProducts(),
     getStoreSettings(),
+    getContactInfo(),
+    getTranslations("Footer"),
   ]);
   const products = featured.success ? (featured.data ?? []) : [];
   const settings = settingsResult.success ? settingsResult.data : null;
@@ -53,6 +62,8 @@ export default async function HomePage() {
     desc: settings?.footerCtaDesc ?? DEFAULT_FOOTER_CTA.desc,
     btn: settings?.footerCtaBtn ?? DEFAULT_FOOTER_CTA.btn,
   };
+
+  const phoneHref = telHref(contact.phone);
 
   const collection = {
     label: settings?.collectionLabel ?? DEFAULT_COLLECTION.label,
@@ -259,12 +270,57 @@ export default async function HomePage() {
         <Reveal className="relative mx-auto max-w-xl px-6 text-center">
           <h2 className="font-display text-3xl text-white md:text-5xl">{footerCta.title}</h2>
           <p className="mt-4 text-white/60">{footerCta.desc}</p>
-          <Link
-            href="/shop"
-            className="mt-8 inline-flex items-center gap-2 bg-white px-10 py-4 text-xs font-semibold uppercase tracking-widest text-[var(--color-green-dark)] transition hover:bg-white/90"
-          >
-            {footerCta.btn} <ArrowRight className="h-4 w-4" />
-          </Link>
+          <div className="mt-8 flex justify-center">
+            <Link
+              href="/shop"
+              className="inline-flex items-center gap-2 bg-white px-10 py-4 text-xs font-semibold uppercase tracking-widest text-[var(--color-green-dark)] transition hover:bg-white/90"
+            >
+              {footerCta.btn} <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="mx-auto mt-12 flex flex-col items-center gap-6 border-t border-white/15 pt-10 text-lg text-white/75 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:text-xl">
+            <div className="flex flex-col items-center gap-4 sm:items-start">
+              {phoneHref ? (
+                <a href={phoneHref} className="inline-flex items-center gap-3 transition hover:text-white">
+                  <Phone className="h-5 w-5 shrink-0" />
+                  {contact.phone}
+                </a>
+              ) : (
+                <span className="inline-flex items-center gap-3">
+                  <Phone className="h-5 w-5 shrink-0" />
+                  {contact.phone}
+                </span>
+              )}
+              {contact.email && (
+                <a
+                  href={`mailto:${contact.email}`}
+                  className="inline-flex items-center gap-3 transition hover:text-white"
+                >
+                  <Mail className="h-5 w-5 shrink-0" />
+                  {contact.email}
+                </a>
+              )}
+              <span className="inline-flex items-center gap-3">
+                <MapPin className="h-5 w-5 shrink-0" />
+                {contact.location}
+              </span>
+            </div>
+
+            <div className="flex shrink-0 flex-col items-center gap-4 sm:flex-row sm:gap-6">
+              <span
+                aria-hidden
+                className="h-px w-16 bg-white/15 sm:h-12 sm:w-px"
+              />
+              <Link
+                href="/contact"
+                className="group inline-flex items-center gap-2.5 border border-transparent px-6 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-white/80 transition-all duration-300 ease-out hover:border-white/40 hover:bg-white/10 hover:text-white"
+              >
+                {tFooter("GetInTouch")}
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 ease-out group-hover:translate-x-1.5" />
+              </Link>
+            </div>
+          </div>
         </Reveal>
       </section>
     </main>

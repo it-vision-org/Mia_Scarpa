@@ -2,37 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { Globe } from "lucide-react";
 import { changeLocaleAction } from "@/actions/localeAction";
 
 type Language = {
   code: string;
   name: string;
   nativeName: string;
-  countryCode: string;
 };
 
 const LANGUAGES: Language[] = [
-  { code: "en", name: "English", nativeName: "English", countryCode: "us" },
-  { code: "fr", name: "French",  nativeName: "Français", countryCode: "fr" },
-  { code: "ar", name: "Arabic",  nativeName: "العربية",  countryCode: "tn" },
+  { code: "fr", name: "French",  nativeName: "Français" },
+  { code: "en", name: "English", nativeName: "English" },
+  { code: "ar", name: "Arabic",  nativeName: "العربية" },
 ];
-
-const CDN_SIZES = [20, 40, 80, 160, 320];
-function cdnWidth(displaySize: number) {
-  return CDN_SIZES.find((w) => w >= displaySize * 2) ?? 80;
-}
-
-function FlagImg({ countryCode, size = 24 }: { countryCode: string; size?: number }) {
-  return (
-    <img
-      src={`https://flagcdn.com/w${cdnWidth(size)}/${countryCode}.png`}
-      width={size}
-      height={Math.round(size * 0.67)}
-      alt={countryCode.toUpperCase()}
-      className="rounded-sm object-cover shadow-sm"
-    />
-  );
-}
 
 export function LanguageSelector() {
   const activeLocale = useLocale();
@@ -69,7 +52,7 @@ export function LanguageSelector() {
         aria-label="Select language"
         aria-expanded={isOpen}
       >
-        <FlagImg countryCode={selected.countryCode} size={20} />
+        <Globe className="h-4 w-4" />
         <span className="hidden sm:block uppercase tracking-wide text-xs">{selected.code}</span>
       </button>
 
@@ -94,8 +77,8 @@ export function LanguageSelector() {
                       : "hover:bg-[var(--color-bg)]"
                   }`}
                 >
-                  <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] overflow-hidden">
-                    <FlagImg countryCode={lang.countryCode} size={36} />
+                  <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)]">
+                    <Globe className={`h-4 w-4 ${isSelected ? "text-[var(--color-accent)]" : "text-[var(--color-muted)]"}`} />
                   </span>
                   <div className="flex-1">
                     <p className={`text-sm font-semibold ${isSelected ? "text-[var(--color-accent)]" : "text-[var(--color-text)]"}`}>

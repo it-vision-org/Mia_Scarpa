@@ -5,6 +5,7 @@ import { Mail, Phone, MapPin, Clock } from "lucide-react";
 import { saveContactInfo } from "@/actions/storeConfigActions";
 import type { ContactInfo } from "@/types";
 import { Field, SaveButton, inp } from "./HeroTextEditor";
+import { useTranslations } from "next-intl";
 
 export function ContactInfoEditor({
   initial,
@@ -13,6 +14,7 @@ export function ContactInfoEditor({
   initial: ContactInfo;
   onPreviewChange?: (info: ContactInfo) => void;
 }) {
+  const t = useTranslations("Admin");
   const [form, setForm] = useState(initial);
   const [pending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
@@ -39,14 +41,14 @@ export function ContactInfoEditor({
         responseTime: form.responseTime.trim() || "Within 24 hours",
       });
       if (res.success) setSaved(true);
-      else setError(res.error ?? "Failed to save");
+      else setError(res.error ?? t("FailedToSave"));
     });
   }
 
   return (
     <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Email">
+        <Field label={t("FieldEmail")}>
           <input
             type="email"
             value={form.email}
@@ -55,7 +57,7 @@ export function ContactInfoEditor({
             className={inp}
           />
         </Field>
-        <Field label="Phone">
+        <Field label={t("FieldPhone")}>
           <input
             type="tel"
             value={form.phone}
@@ -64,7 +66,7 @@ export function ContactInfoEditor({
             className={inp}
           />
         </Field>
-        <Field label="Location">
+        <Field label={t("FieldLocation")}>
           <input
             value={form.location}
             onChange={(e) => set("location", e.target.value)}
@@ -72,7 +74,7 @@ export function ContactInfoEditor({
             className={inp}
           />
         </Field>
-        <Field label="Response time">
+        <Field label={t("FieldResponseTime")}>
           <input
             value={form.responseTime}
             onChange={(e) => set("responseTime", e.target.value)}

@@ -4,6 +4,7 @@ import { UserCircle } from "lucide-react";
 import { LogoImage } from "./LogoImage";
 import { CartIcon } from "./CartIcon";
 import { CartDrawer } from "./CartDrawer";
+import { NavSearch } from "./NavSearch";
 import { NavLinks } from "./NavLinks";
 import { MobileNavMenu } from "./MobileNavMenu";
 import { UserMenu } from "./UserMenu";
@@ -29,22 +30,24 @@ export async function StoreHeader() {
     <>
       <CartDrawer />
       <header className="sticky top-0 z-40 bg-[var(--color-bg)]/95 backdrop-blur-xl border-b border-[var(--color-border)]">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-4 sm:gap-4 sm:px-6">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
 
-          {/* Logo */}
-          <Link href="/" className="shrink-0 transition-opacity hover:opacity-70">
-            <LogoImage height={34} src={logoUrl} />
-          </Link>
-
-          {/* Nav — center */}
-          <div className="hidden sm:flex">
-            <Suspense fallback={null}>
-              <NavLinks menCategoryTree={menCategoryTree} womenCategoryTree={womenCategoryTree} />
-            </Suspense>
+          {/* Left: logo + nav */}
+          <div className="flex items-center gap-10 lg:gap-16">
+            <Link href="/" className="shrink-0 transition-opacity hover:opacity-70">
+              <LogoImage height={34} src={logoUrl} />
+            </Link>
+            <div className="hidden sm:flex">
+              <Suspense fallback={null}>
+                <NavLinks menCategoryTree={menCategoryTree} womenCategoryTree={womenCategoryTree} />
+              </Suspense>
+            </div>
           </div>
 
-          {/* Right actions */}
+          {/* Right: search, language, cart, profile */}
           <div className="flex items-center gap-2 sm:gap-3">
+            <NavSearch />
+
             <LanguageSelector />
 
             <CartIcon />

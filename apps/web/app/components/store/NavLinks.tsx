@@ -167,13 +167,22 @@ export function NavLinks({
     { href: "/shop?gender=women", label: t("Women"), categories: womenCategoryTree },
   ];
   const OTHER_LINKS = [
-    { href: "/about", label: t("About") },
     { href: "/contact", label: t("Contact") },
   ];
 
   if (vertical) {
     return (
       <div className="flex flex-col gap-1">
+        <Link
+          href="/"
+          className={`px-4 py-3 text-sm font-semibold uppercase tracking-widest transition-colors duration-150 ${
+            isActive(pathname, gender, "/")
+              ? "text-[var(--color-text)]"
+              : "text-[var(--color-muted)] hover:text-[var(--color-text)]"
+          }`}
+        >
+          {t("Home")}
+        </Link>
         {GENDER_LINKS.map(({ href, label, categories }) => (
           <VerticalGenderItem
             key={href}
@@ -201,7 +210,17 @@ export function NavLinks({
   }
 
   return (
-    <div className="flex items-center gap-8">
+    <div className="flex items-center gap-10 lg:gap-12">
+      <Link
+        href="/"
+        className={`${linkClass} ${
+          isActive(pathname, gender, "/")
+            ? "text-[var(--color-text)] after:w-full"
+            : "text-[var(--color-muted)] after:w-0 hover:text-[var(--color-text)] hover:after:w-full"
+        }`}
+      >
+        {t("Home")}
+      </Link>
       {GENDER_LINKS.map(({ href, label, categories }) => (
         <GenderMenuItem
           key={href}

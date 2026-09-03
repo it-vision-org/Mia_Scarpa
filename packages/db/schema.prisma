@@ -101,17 +101,25 @@ model Category {
 }
 
 model Product {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
-  slug        String   @unique
-  description String?  @db.Text
-  basePrice   Decimal  @db.Decimal(10, 3)
-  isPublished Boolean  @default(false)
-  isFeatured  Boolean  @default(false)
-  gender      Gender   @default(MEN)
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  slug        String  @unique
+  description String? @db.Text
+  basePrice   Decimal @db.Decimal(10, 3)
+  isPublished Boolean @default(false)
+  isFeatured  Boolean @default(false)
+
+  // ── Promotion / sale ──────────────────────────────────────────────────────
+  promoActive   Boolean   @default(false)
+  promoPrice    Decimal?  @db.Decimal(10, 3)
+  promoLabel    String?
+  promoImage    String?
+  promoStartsAt DateTime?
+  promoEndsAt   DateTime?
+  gender        Gender    @default(MEN)
+  order         Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
@@ -301,6 +309,8 @@ model StoreSettings {
   contactPhone        String? @default("+216 XX XXX XXX")
   contactLocation     String? @default("Tunisia")
   contactResponseTime String? @default("Within 24 hours")
+  contactCoverImage   String?
+  promoBadgeImage     String?
 
   // ── SEO & Référencement ──────────────────────────────────────────────────
   orgName               String? @default("Mia Scarpa")

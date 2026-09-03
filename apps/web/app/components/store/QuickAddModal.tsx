@@ -28,7 +28,9 @@ export function QuickAddModal({
   const canAdd = !needsSize && !outOfStock && selectedVariant != null;
   const maxQty = availableStock ?? 99;
   const previewImage = selectedColor?.images[0]?.url ?? product.primaryImage;
-  const displayPrice = selectedVariant?.priceOverride ?? product.basePrice;
+  const displayPrice =
+    selectedVariant?.priceOverride ??
+    (product.promoLive ? product.effectivePrice : product.basePrice);
 
   function selectColor(color: SerializedProductColor) {
     setSelectedColor(color);
@@ -74,7 +76,21 @@ export function QuickAddModal({
             )}
             <div className="min-w-0">
               <p className="truncate font-semibold text-[var(--color-text)]">{product.name}</p>
-              <p className="text-sm font-bold text-[var(--color-text)]">{formatPrice(displayPrice)}</p>
+              <p className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 text-sm font-bold text-[var(--color-text)]">
+                {product.promoLive && !selectedVariant?.priceOverride && (
+                  <span className="font-normal text-[var(--color-muted)] line-through">
+                    {formatPrice(product.basePrice)}
+                  </span>
+                )}
+                <span className={product.promoLive && !selectedVariant?.priceOverride ? "text-[var(--color-promo)]" : undefined}>
+                  {formatPrice(displayPrice)}
+                </span>
+                {product.promoLive && !selectedVariant?.priceOverride && (
+                  <span className="rounded bg-[var(--color-promo)]/10 px-1.5 py-0.5 text-[11px] font-bold uppercase leading-none text-[var(--color-promo)]">
+                    {product.promoLabel?.trim() || `-${product.promoPercent}%`}
+                  </span>
+                )}
+              </p>
             </div>
           </div>
           <button

@@ -63,6 +63,8 @@ function serialize(s: any, usps: any[]): SerializedStoreSettings {
     contactPhone: s.contactPhone,
     contactLocation: s.contactLocation,
     contactResponseTime: s.contactResponseTime,
+    contactCoverImage: s.contactCoverImage,
+    promoBadgeImage: s.promoBadgeImage,
     usps: usps.map((u) => ({ id: u.id, label: u.label, desc: u.desc, order: u.order })),
     homepageFeaturedProductIds: s.homepageFeaturedProductIds ?? [],
     orgName: s.orgName,
@@ -188,6 +190,37 @@ export async function saveShopCoverSettings(data: {
     return { success: true };
   } catch (error) {
     console.error("[STORE SETTINGS] saveShopCover error:", error);
+    return { success: false, error: "Failed to save" };
+  }
+}
+
+export async function saveContactCoverSettings(data: {
+  contactCoverImage?: string | null;
+}): Promise<ActionResult> {
+  try {
+    const settings = await getOrCreate();
+    await db.storeSettings.update({ where: { id: settings.id }, data });
+    revalidatePath("/contact");
+    revalidatePath("/admin", "layout");
+    return { success: true };
+  } catch (error) {
+    console.error("[STORE SETTINGS] saveContactCover error:", error);
+    return { success: false, error: "Failed to save" };
+  }
+}
+
+export async function savePromoBadgeImage(
+  promoBadgeImage: string | null,
+): Promise<ActionResult> {
+  try {
+    const settings = await getOrCreate();
+    await db.storeSettings.update({ where: { id: settings.id }, data: { promoBadgeImage } });
+    revalidatePath("/", "layout");
+    revalidatePath("/shop");
+    revalidatePath("/admin", "layout");
+    return { success: true };
+  } catch (error) {
+    console.error("[STORE SETTINGS] savePromoBadge error:", error);
     return { success: false, error: "Failed to save" };
   }
 }

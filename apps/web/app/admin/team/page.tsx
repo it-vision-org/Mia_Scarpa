@@ -1,12 +1,14 @@
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 import { Skeleton, CardListSkeleton } from "@/components/admin/Skeleton";
 import { TeamContent } from "./TeamContent";
 
-export default function TeamPage() {
+export default async function TeamPage() {
+  const t = await getTranslations("Admin");
   return (
     <div className="space-y-6">
       {/* header — renders instantly, independent of the DB fetch below */}
-      <h1 className="text-2xl font-bold text-[var(--color-text)]">Team</h1>
+      <h1 className="text-2xl font-bold text-[var(--color-text)]">{t("TeamTitle")}</h1>
 
       <Suspense
         fallback={

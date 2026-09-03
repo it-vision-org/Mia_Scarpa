@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Uploader from "./Uploader";
 import { saveLogoUrl } from "@/actions/storeSettingsActions";
 
@@ -12,6 +13,7 @@ export function LogoUpload({
   initialUrl: string | null;
   onUploaded?: (url: string) => void;
 }) {
+  const t = useTranslations("Admin");
   const [url, setUrl] = useState(initialUrl);
   const [imgFailed, setImgFailed] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -75,7 +77,7 @@ export function LogoUpload({
         )}
         <Uploader
           endpoint="storeImage"
-          buttonText={url ? "Replace Logo" : "Upload Logo"}
+          buttonText={url ? t("UploadNewPhoto") : t("UploadPhoto")}
           handleUploadComplete={handleUploadComplete}
         />
         <p className="text-xs text-[var(--color-muted)]">

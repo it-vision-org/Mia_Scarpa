@@ -21,17 +21,16 @@ export function NewsletterForm({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim() && !phone.trim()) {
-      setError("Enter an email or phone number");
+    if (!phone.trim()) {
+      setError("Enter a phone number");
       return;
     }
     setError("");
     startTransition(async () => {
       const res = await submitContact({
         name: "Newsletter signup",
-        email: email.trim() || "no-email@provided.local",
-        phone: phone.trim() || undefined,
-        subject: "Newsletter / callback request",
+        email: email.trim() || undefined,
+        phone: phone.trim(),
         message: "Requested to be added to the mailing list / called back.",
       });
       if (res.success) {
@@ -56,19 +55,12 @@ export function NewsletterForm({
     <form onSubmit={handleSubmit} className="mt-4 space-y-2">
       <div className="flex border-b border-[var(--color-text)]">
         <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder={emailPlaceholder}
-          className="min-w-0 flex-1 bg-transparent py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-muted)] focus:outline-none"
-        />
-      </div>
-      <div className="flex border-b border-[var(--color-border)]">
-        <input
           type="tel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           placeholder={phonePlaceholder}
+          required
+          aria-required="true"
           className="min-w-0 flex-1 bg-transparent py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-muted)] focus:outline-none"
         />
         <button
@@ -79,6 +71,15 @@ export function NewsletterForm({
           {pending && <Loader2 className="h-3 w-3 animate-spin" />}
           {submitLabel}
         </button>
+      </div>
+      <div className="flex border-b border-[var(--color-border)]">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder={emailPlaceholder}
+          className="min-w-0 flex-1 bg-transparent py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-muted)] focus:outline-none"
+        />
       </div>
       {error && <p className="text-xs text-red-600">{error}</p>}
     </form>

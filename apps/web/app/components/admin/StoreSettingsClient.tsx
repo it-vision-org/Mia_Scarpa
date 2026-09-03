@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { RotateCcw, Loader2, Play } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { StoreColors } from "@/lib/store-config";
 import type {
   HeroText,
@@ -22,6 +23,8 @@ import { DeliveryFeeEditor, DeliveryFeeMiniPreview } from "./DeliveryFeeEditor";
 import { ContactInfoEditor, ContactInfoMiniPreview } from "./ContactInfoEditor";
 import { HeroPhotoUpload } from "./HeroPhotoUpload";
 import { ShopCoverUpload } from "./ShopCoverUpload";
+import { ContactCoverUpload } from "./ContactCoverUpload";
+import { PromoBadgeUpload } from "./PromoBadgeUpload";
 import { FeaturedPhotoUpload } from "./FeaturedPhotoUpload";
 import { EditorialBlockEditor } from "./EditorialBlockEditor";
 import { HomepageFeaturedPicker } from "./HomepageFeaturedPicker";
@@ -39,6 +42,8 @@ type StoreMedia = {
   featuredImage: string | null;
   editorialImage1: string | null;
   editorialImage2: string | null;
+  contactCoverImage: string | null;
+  promoBadgeImage: string | null;
 };
 
 // ── Reset bar ──────────────────────────────────────────────────────────────
@@ -351,6 +356,7 @@ export function StoreSettingsClient({
   contactInfo: ContactInfo;
   media: StoreMedia;
 }) {
+  const t = useTranslations("Admin");
   const [heroPreview, setHeroPreview]         = useState(hero);
   const [footerPreview, setFooterPreview]     = useState(footerCta);
   const [collectionPreview, setCollectionPreview] = useState(collection);
@@ -369,13 +375,15 @@ export function StoreSettingsClient({
   const [editorialImage1Url, setEditorialImage1Url] = useState(media.editorialImage1);
   const [editorial2Preview, setEditorial2Preview] = useState(editorial2);
   const [editorialImage2Url, setEditorialImage2Url] = useState(media.editorialImage2);
+  const [contactCoverUrl, setContactCoverUrl] = useState(media.contactCoverImage);
+  const [promoBadgeUrl, setPromoBadgeUrl] = useState(media.promoBadgeImage);
 
   return (
     <div className="space-y-8">
       {/* reset bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--color-border)] bg-white px-5 py-4 shadow-sm">
         <div>
-          <p className="text-sm font-semibold text-[var(--color-text)]">Reset store content</p>
+          <p className="text-sm font-semibold text-[var(--color-text)]">{t("ResetStoreContent")}</p>
           <p className="text-xs text-[var(--color-muted)]">
             Restores all text and colors to their original defaults. Photos and videos are kept.
           </p>
@@ -385,7 +393,7 @@ export function StoreSettingsClient({
 
       {/* Logo */}
       <EditRow
-        title="🖼️ Store Logo"
+        title={t("SecStoreLogo")}
         desc="Shown in the navbar and admin header. Replaces the FLEX text."
         editor={<LogoUpload initialUrl={media.logoUrl} onUploaded={setLogoUrl} />}
         preview={<LogoMiniPreview url={logoUrl} />}
@@ -393,7 +401,7 @@ export function StoreSettingsClient({
 
       {/* Hero text */}
       <EditRow
-        title="🎯 Hero Section — Text"
+        title={t("SecStoreHeroText")}
         desc="The main banner at the top of your homepage."
         editor={<HeroTextEditor initial={hero} onPreviewChange={setHeroPreview} />}
         preview={<HeroMiniPreview hero={heroPreview} colors={colorPreview} heroImageUrl={heroImageUrl} />}
@@ -401,7 +409,7 @@ export function StoreSettingsClient({
 
       {/* Hero photo — preview reuses HeroMiniPreview so photo updates appear there */}
       <EditRow
-        title="🖼️ Hero Section — Photo"
+        title={t("SecStoreHeroPhoto")}
         desc="The background photo used when no video is set. Updates the hero preview above."
         editor={
           <HeroPhotoUpload
@@ -414,7 +422,7 @@ export function StoreSettingsClient({
 
       {/* Shop cover photos — one per gender, shown on /shop */}
       <EditRow
-        title="🏬 Shop Cover Photos"
+        title={t("SecStoreShopCovers")}
         desc="The banner photo at the top of the shop page. Each one shows only when that filter is active — falls back to the hero photo if left empty."
         editor={
           <ShopCoverUpload
@@ -452,7 +460,7 @@ export function StoreSettingsClient({
 
       {/* Video file */}
       <EditRow
-        title="🎬 Hero Background Video"
+        title={t("SecStoreHeroVideo")}
         desc="Plays full-screen behind the Explore button at the top of the homepage. Takes priority over the hero photo when set."
         editor={<VideoUpload initialUrl={media.videoUrl} />}
         preview={<VideoMiniPreview colors={colorPreview} />}
@@ -460,7 +468,7 @@ export function StoreSettingsClient({
 
       {/* Featured Section photo */}
       <EditRow
-        title="🖼️ Featured Section — Photo"
+        title={t("SecStoreFeaturedPhoto")}
         desc="The photo shown next to your featured products, right below the hero. Falls back to the hero photo if left empty."
         editor={
           <FeaturedPhotoUpload
@@ -484,7 +492,7 @@ export function StoreSettingsClient({
 
       {/* USP bar */}
       <EditRow
-        title="✨ USP Bar — Text"
+        title={t("SecStoreUsp")}
         desc="The feature highlights shown just below the hero banner."
         editor={<UspEditor initial={usps} onPreviewChange={setUspsPreview} />}
         preview={<UspMiniPreview usps={uspsPreview} colors={colorPreview} />}
@@ -492,7 +500,7 @@ export function StoreSettingsClient({
 
       {/* Editorial section — block 1 */}
       <EditRow
-        title="📷 Editorial Section — Block 1"
+        title={t("SecStoreEditorial1")}
         desc='The first "story" block shown below the USP bar (photo + label/title/description). Falls back to a featured product photo if left empty.'
         editor={
           <EditorialBlockEditor
@@ -508,7 +516,7 @@ export function StoreSettingsClient({
 
       {/* Editorial section — block 2 */}
       <EditRow
-        title="📷 Editorial Section — Block 2"
+        title={t("SecStoreEditorial2")}
         desc="The second story block, right after Block 1. Falls back to a featured product photo if left empty."
         editor={
           <EditorialBlockEditor
@@ -524,7 +532,7 @@ export function StoreSettingsClient({
 
       {/* Collection section text */}
       <EditRow
-        title="📦 Collection Section — Text"
+        title={t("SecStoreCollection")}
         desc="Label, title, and description shown above your featured products."
         editor={<CollectionTextEditor initial={collection} onPreviewChange={setCollectionPreview} />}
         preview={<CollectionMiniPreview collection={collectionPreview} colors={colorPreview} />}
@@ -532,7 +540,7 @@ export function StoreSettingsClient({
 
       {/* Footer CTA */}
       <EditRow
-        title="📢 Footer Call-to-Action"
+        title={t("SecStoreFooterCta")}
         desc="The green banner at the very bottom of the homepage."
         editor={<FooterCtaEditor initial={footerCta} onPreviewChange={setFooterPreview} />}
         preview={<FooterMiniPreview footerCta={footerPreview} colors={colorPreview} />}
@@ -540,7 +548,7 @@ export function StoreSettingsClient({
 
       {/* Colors */}
       <EditRow
-        title="🎨 Brand Colors"
+        title={t("SecStoreColors")}
         desc="Pick colors for the entire site. The preview updates instantly."
         editor={<ColorEditor initial={colors} onPreviewChange={setColorPreview} />}
         preview={<ColorMiniPreview colors={colorPreview} />}
@@ -548,7 +556,7 @@ export function StoreSettingsClient({
 
       {/* Delivery fee */}
       <EditRow
-        title="🚚 Delivery Fee"
+        title={t("SecStoreDeliveryFee")}
         desc="Flat fee added to every order's total at checkout."
         editor={<DeliveryFeeEditor initialCents={deliveryFeeCents} onPreviewChange={setDeliveryFeePreview} />}
         preview={<DeliveryFeeMiniPreview cents={deliveryFeePreview} />}
@@ -556,10 +564,56 @@ export function StoreSettingsClient({
 
       {/* Contact info */}
       <EditRow
-        title="📞 Contact Info"
+        title={t("SecStoreContactInfo")}
         desc="Email, phone, and location shown on the public Contact page."
         editor={<ContactInfoEditor initial={contactInfo} onPreviewChange={setContactPreview} />}
         preview={<ContactInfoMiniPreview info={contactPreview} />}
+      />
+
+      {/* Contact cover photo */}
+      <EditRow
+        title={t("SecStoreContactCover")}
+        desc="The banner photo behind the title at the top of the public Contact page. A plain color banner is shown if left empty."
+        editor={
+          <ContactCoverUpload
+            initialImageUrl={media.contactCoverImage}
+            onUploaded={setContactCoverUrl}
+          />
+        }
+        preview={
+          <div className="overflow-hidden rounded-xl border border-[var(--color-border)]">
+            <div className="relative bg-[var(--color-green-dark)]" style={{ aspectRatio: "16/9" }}>
+              {contactCoverUrl && (
+                <img src={contactCoverUrl} alt="" className="h-full w-full object-cover" />
+              )}
+              <div className="absolute inset-0 bg-black/40" />
+              <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold uppercase tracking-wide text-white drop-shadow">
+                Contact
+              </span>
+            </div>
+          </div>
+        }
+      />
+
+      {/* Default promotion image */}
+      <EditRow
+        title={t("SecStorePromoBadge")}
+        desc="Shown on discounted products in the shop when a product doesn't have its own promo image. A transparent PNG works best."
+        editor={
+          <PromoBadgeUpload
+            initialImageUrl={media.promoBadgeImage}
+            onUploaded={setPromoBadgeUrl}
+          />
+        }
+        preview={
+          <div className="flex h-32 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]">
+            {promoBadgeUrl ? (
+              <img src={promoBadgeUrl} alt="" className="max-h-full max-w-full object-contain p-3" />
+            ) : (
+              <span className="rounded bg-red-600 px-2 py-0.5 text-xs font-bold text-white">-30%</span>
+            )}
+          </div>
+        }
       />
 
       {/* ── Full-page scrollable preview ── */}
@@ -567,7 +621,7 @@ export function StoreSettingsClient({
         <div className="mb-3 flex items-center gap-3">
           <div className="h-px flex-1 bg-[var(--color-border)]" />
           <p className="text-xs font-bold uppercase tracking-widest text-[var(--color-muted)]">
-            Full Page Preview
+            {t("FullPagePreview")}
           </p>
           <div className="h-px flex-1 bg-[var(--color-border)]" />
         </div>

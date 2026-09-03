@@ -65,7 +65,7 @@ export function StorePreview({
             <span className="font-display text-[11px] text-[var(--color-text)]">Mia Scarpa</span>
           )}
           <div className="flex gap-2.5">
-            {["Men", "Women", "About Us", "Contact"].map((l) => (
+            {["Men", "Women", "Contact"].map((l) => (
               <span key={l} className="text-[7px] font-semibold uppercase tracking-wider text-gray-400">{l}</span>
             ))}
           </div>

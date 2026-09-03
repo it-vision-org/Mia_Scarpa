@@ -56,7 +56,26 @@ function productToAdminDetail(
     seoDescription: p.seoDescription ?? null,
     seoKeywords: p.seoKeywords ?? null,
     ogImage: p.ogImage ?? null,
+    promoActive: p.promoActive ?? false,
+    promoPriceCents: p.promoPrice != null ? Math.round(Number(p.promoPrice) * 100) : null,
+    promoLabel: p.promoLabel ?? null,
+    promoImage: p.promoImage ?? null,
+    promoStartsAt: p.promoStartsAt ? new Date(p.promoStartsAt).toISOString() : null,
+    promoEndsAt: p.promoEndsAt ? new Date(p.promoEndsAt).toISOString() : null,
     brandName: p.category?.name ?? null,
+  };
+}
+
+// Shared promo columns for create/update.
+function promoData(data: ProductInput) {
+  return {
+    promoActive: data.promoActive,
+    promoPrice:
+      data.promoActive && data.promoPriceCents != null ? data.promoPriceCents / 100 : null,
+    promoLabel: data.promoLabel?.trim() || null,
+    promoImage: data.promoImage?.trim() || null,
+    promoStartsAt: data.promoStartsAt ? new Date(data.promoStartsAt) : null,
+    promoEndsAt: data.promoEndsAt ? new Date(data.promoEndsAt) : null,
   };
 }
 
@@ -120,6 +139,7 @@ export async function createProduct(
         isFeatured: data.isFeatured,
         gender: data.gender,
         categoryId: data.categoryId,
+        ...promoData(data),
         seoTitle: data.seoTitle?.trim() || null,
         seoDescription: data.seoDescription?.trim() || null,
         seoKeywords: data.seoKeywords?.trim() || null,
@@ -173,6 +193,7 @@ export async function updateProduct(
         isFeatured: data.isFeatured,
         gender: data.gender,
         categoryId: data.categoryId,
+        ...promoData(data),
         seoTitle: data.seoTitle?.trim() || null,
         seoDescription: data.seoDescription?.trim() || null,
         seoKeywords: data.seoKeywords?.trim() || null,

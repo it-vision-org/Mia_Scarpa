@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   ArrowUp,
   ArrowDown,
@@ -144,6 +145,7 @@ export function OrdersTable({
   totalCount: number;
   storeInfo: ContactInfo;
 }) {
+  const t = useTranslations("Admin");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -332,29 +334,29 @@ export function OrdersTable({
                   />
                 </th>
                 <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
-                  Order
+                  {t("ColOrder")}
                 </th>
                 <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
                   <button type="button" onClick={() => handleSort("customerName")} className="inline-flex items-center gap-1 hover:text-[var(--color-text)]">
-                    Customer <SortIcon field="customerName" />
+                    {t("ColCustomer")} <SortIcon field="customerName" />
                   </button>
                 </th>
                 <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
-                  Items
+                  {t("ColItems")}
                 </th>
                 <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
                   <button type="button" onClick={() => handleSort("total")} className="inline-flex items-center gap-1 hover:text-[var(--color-text)]">
-                    Total <SortIcon field="total" />
+                    {t("FieldTotal")} <SortIcon field="total" />
                   </button>
                 </th>
                 <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
                   <button type="button" onClick={() => handleSort("status")} className="inline-flex items-center gap-1 hover:text-[var(--color-text)]">
-                    Status <SortIcon field="status" />
+                    {t("ColStatus")} <SortIcon field="status" />
                   </button>
                 </th>
                 <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
                   <button type="button" onClick={() => handleSort("createdAt")} className="inline-flex items-center gap-1 hover:text-[var(--color-text)]">
-                    Date <SortIcon field="createdAt" />
+                    {t("ColDate")} <SortIcon field="createdAt" />
                   </button>
                 </th>
               </tr>
