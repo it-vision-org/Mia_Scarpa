@@ -1,14 +1,16 @@
 "use client";
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 const PERIODS = [
-  { value: "today", label: "Today" },
-  { value: "7d", label: "Last 7 days" },
-  { value: "30d", label: "Last 30 days" },
+  { value: "today", labelKey: "PeriodToday" },
+  { value: "7d", labelKey: "Period7d" },
+  { value: "30d", labelKey: "Period30d" },
 ] as const;
 
 export function StatsPeriodToggle() {
+  const t = useTranslations("Admin");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -34,7 +36,7 @@ export function StatsPeriodToggle() {
               : "text-[var(--color-muted)] hover:text-[var(--color-text)]"
           }`}
         >
-          {p.label}
+          {t(p.labelKey)}
         </button>
       ))}
     </div>

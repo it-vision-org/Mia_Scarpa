@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Plus, Minus, Trash2, Pencil, Loader2, Package } from "lucide-react";
 
@@ -27,6 +28,7 @@ function VariantEditor({
   isPending: boolean;
   onChanged: () => void;
 }) {
+  const t = useTranslations("Admin");
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [colors, setColors] = useState<SerializedProductColor[] | null>(null);
@@ -49,7 +51,7 @@ function VariantEditor({
       setColors(loaded);
       setPendingColor(loaded.find((c) => c.name === item.colorName) ?? loaded[0] ?? null);
     } else {
-      setError(res.error ?? "Failed to load options");
+      setError(res.error ?? t("FailedLoadOptions"));
     }
   }
 
@@ -72,13 +74,13 @@ function VariantEditor({
         disabled={isPending}
         className="inline-flex items-center gap-1 text-xs text-[var(--color-muted)] transition hover:text-[var(--color-text)] disabled:opacity-40"
       >
-        <Pencil className="h-3 w-3" /> {open ? "Close" : "Change"}
+        <Pencil className="h-3 w-3" /> {open ? t("Close") : t("Change")}
       </button>
       {open && (
         <div className="mt-2 space-y-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-3">
           {loading && (
             <div className="flex items-center gap-2 text-xs text-[var(--color-muted)]">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading…
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t("Loading")}
             </div>
           )}
           {error && <p className="text-xs text-red-600">{error}</p>}
@@ -147,6 +149,7 @@ export function OrderEditableSection({
   discountAmount: number;
   total: number;
 }) {
+  const t = useTranslations("Admin");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [removeConfirmId, setRemoveConfirmId] = useState<string | null>(null);
@@ -186,19 +189,19 @@ export function OrderEditableSection({
       startTransition(async () => {
         const res = await updateOrderDiscount(orderId, { type: null, value: null });
         if (res.success) router.refresh();
-        else setDiscountError(res.error ?? "Failed to update discount");
+        else setDiscountError(res.error ?? t("FailedUpdateDiscount"));
       });
       return;
     }
     const value = parseFloat(discountValueInput);
     if (isNaN(value) || value <= 0) {
-      setDiscountError("Enter a valid amount");
+      setDiscountError(t("EnterValidAmount"));
       return;
     }
     startTransition(async () => {
       const res = await updateOrderDiscount(orderId, { type: discountTypeInput, value });
       if (res.success) router.refresh();
-      else setDiscountError(res.error ?? "Failed to update discount");
+      else setDiscountError(res.error ?? t("FailedUpdateDiscount"));
     });
   }
 
@@ -211,7 +214,7 @@ export function OrderEditableSection({
         <div className="flex items-center justify-between border-b border-[var(--color-border)] px-5 py-3.5">
           <h2 className="flex items-center gap-2 text-sm font-semibold text-[var(--color-text)]">
             <Package size={15} />
-            Items ({items.length})
+            {t("SecItemsCount", { count: items.length })}
           </h2>
           <button
             type="button"
@@ -219,7 +222,7 @@ export function OrderEditableSection({
             disabled={isPending}
             className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-white px-2.5 py-1.5 text-xs font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-bg)] disabled:opacity-40"
           >
-            <Plus className="h-3.5 w-3.5" /> Add Product
+            <Plus className="h-3.5 w-3.5" /> {t("AddProduct")}
           </button>
         </div>
         <ul className="divide-y divide-[var(--color-border)]">
@@ -236,8 +239,8 @@ export function OrderEditableSection({
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold text-[var(--color-text)]">{item.productName}</p>
                 <p className="mt-0.5 text-xs text-[var(--color-muted)]">
-                  {item.size && `Size: ${item.size}`}
-                  {item.colorName && ` · Color: ${item.colorName}`}
+                  {item.size && t("LabelSizeVal", { value: item.size })}
+                  {item.colorName && ` · ${t("LabelColorVal", { value: item.colorName })}`}
                 </p>
 
                 <div className="mt-2 flex flex-wrap items-center gap-3">
@@ -268,7 +271,7 @@ export function OrderEditableSection({
                   <button
                     type="button"
                     disabled={isPending || !canRemove}
-                    title={canRemove ? "Remove" : "Cancel the order instead"}
+                    title={canRemove ? t("Remove") : t("RemoveItemInstead")}
                     onClick={() => setRemoveConfirmId(item.id)}
                     className="text-[var(--color-muted)] transition hover:text-red-500 disabled:opacity-30"
                   >
@@ -280,7 +283,7 @@ export function OrderEditableSection({
               <div className="shrink-0 text-right">
                 <p className="font-bold text-[var(--color-text)]">{formatPrice(item.totalPrice)}</p>
                 {item.quantity > 1 && (
-                  <p className="text-xs text-[var(--color-muted)]">{formatPrice(item.unitPrice)} each</p>
+                  <p className="text-xs text-[var(--color-muted)]">{t("PriceEach", { price: formatPrice(item.unitPrice) })}</p>
                 )}
               </div>
             </li>
@@ -289,7 +292,7 @@ export function OrderEditableSection({
 
         {/* Discount editor */}
         <div className="space-y-2 border-t border-[var(--color-border)] px-5 py-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">Discount</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">{t("FieldDiscount")}</p>
           {discountError && <p className="text-xs text-red-600">{discountError}</p>}
           <div className="flex flex-wrap items-center gap-2">
             <select
@@ -297,9 +300,9 @@ export function OrderEditableSection({
               onChange={(e) => setDiscountTypeInput(e.target.value as DiscountType | "NONE")}
               className="rounded-lg border border-[var(--color-border)] bg-white px-2.5 py-1.5 text-xs font-semibold text-[var(--color-text)] outline-none"
             >
-              <option value="NONE">None</option>
-              <option value="PERCENTAGE">Percentage (%)</option>
-              <option value="FIXED">Fixed amount (TND)</option>
+              <option value="NONE">{t("DiscountNone")}</option>
+              <option value="PERCENTAGE">{t("DiscountPercentage")}</option>
+              <option value="FIXED">{t("DiscountFixed")}</option>
             </select>
             {discountTypeInput !== "NONE" && (
               <input
@@ -308,7 +311,7 @@ export function OrderEditableSection({
                 step="0.001"
                 value={discountValueInput}
                 onChange={(e) => setDiscountValueInput(e.target.value)}
-                placeholder={discountTypeInput === "PERCENTAGE" ? "e.g. 10" : "e.g. 20.000"}
+                placeholder={discountTypeInput === "PERCENTAGE" ? t("PhDiscountPct") : t("PhDiscountFixed")}
                 className="w-28 rounded-lg border border-[var(--color-border)] bg-white px-2.5 py-1.5 text-xs text-[var(--color-text)] outline-none focus:border-[var(--color-accent)]"
               />
             )}
@@ -318,30 +321,30 @@ export function OrderEditableSection({
               onClick={handleApplyDiscount}
               className="rounded-lg bg-[var(--color-accent)] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-[var(--color-green-mid)] disabled:opacity-60"
             >
-              Apply
+              {t("Apply")}
             </button>
           </div>
         </div>
 
         <div className="space-y-2 border-t border-[var(--color-border)] bg-[var(--color-bg)] px-5 py-4">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-[var(--color-muted)]">Subtotal</span>
+            <span className="text-[var(--color-muted)]">{t("FieldSubtotal")}</span>
             <span className="font-semibold text-[var(--color-text)]">{formatPrice(subtotal)}</span>
           </div>
           {discountAmount > 0 && (
             <div className="flex items-center justify-between text-sm">
-              <span className="text-[var(--color-muted)]">Discount</span>
+              <span className="text-[var(--color-muted)]">{t("FieldDiscount")}</span>
               <span className="font-semibold text-red-600">−{formatPrice(discountAmount)}</span>
             </div>
           )}
           <div className="flex items-center justify-between text-sm">
-            <span className="text-[var(--color-muted)]">Delivery fee</span>
+            <span className="text-[var(--color-muted)]">{t("FieldDeliveryFee")}</span>
             <span className="font-semibold text-[var(--color-text)]">
-              {shippingCost === 0 ? "Free" : formatPrice(shippingCost)}
+              {shippingCost === 0 ? t("Free") : formatPrice(shippingCost)}
             </span>
           </div>
           <div className="flex items-center justify-between border-t border-[var(--color-border)] pt-2">
-            <span className="text-sm font-semibold text-[var(--color-text)]">Total</span>
+            <span className="text-sm font-semibold text-[var(--color-text)]">{t("FieldTotal")}</span>
             <span className="text-lg font-bold text-[var(--color-text)]">{formatPrice(total)}</span>
           </div>
         </div>
@@ -349,8 +352,12 @@ export function OrderEditableSection({
 
       {removingItem && (
         <ConfirmDialog
-          title="Remove this item?"
-          message={`"${removingItem.productName}" (${removingItem.size}, ${removingItem.colorName}) will be removed from the order and its stock restored.`}
+          title={t("RemoveItemTitle")}
+          message={t("RemoveItemMessage", {
+            name: removingItem.productName,
+            size: removingItem.size ?? "",
+            color: removingItem.colorName ?? "",
+          })}
           isPending={isPending}
           onConfirm={() => handleRemove(removingItem.id)}
           onCancel={() => setRemoveConfirmId(null)}

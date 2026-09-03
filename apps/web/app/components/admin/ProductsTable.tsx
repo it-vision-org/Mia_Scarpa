@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Plus, Trash2, Eye, EyeOff, Star, Pencil, X } from "lucide-react";
 
 import {
@@ -26,6 +27,7 @@ function thumbnailUrl(product: Row): string | null {
 }
 
 export function ProductsTable({ products: initial }: { products: Row[] }) {
+  const t = useTranslations("Admin");
   const [products, setProducts] = useState(initial);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [isPending, startTransition] = useTransition();
@@ -201,7 +203,7 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
       <button
         type="button"
         onClick={() => startEdit(product, "name")}
-        title="Click to edit"
+        title={t("TipClickToEdit")}
         className="group flex items-center gap-1.5 text-left font-semibold text-[var(--color-text)]"
       >
         <span className="truncate">{product.name}</span>
@@ -234,7 +236,7 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
       <button
         type="button"
         onClick={() => startEdit(product, "price")}
-        title="Click to edit"
+        title={t("TipClickToEdit")}
         className="group flex items-center gap-1.5"
       >
         {formatPrice(product.priceCents / 100)}
@@ -282,11 +284,11 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
             product.isPublished ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
           }`}
         >
-          {product.isPublished ? "Published" : "Draft"}
+          {product.isPublished ? t("StatePublished") : t("StateDraft")}
         </span>
         {product.isFeatured && (
           <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
-            Featured
+            {t("StateFeatured")}
           </span>
         )}
       </div>
@@ -298,7 +300,7 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
       <>
         <Link
           href={`/admin/products/${product.slug}/edit`}
-          title="Edit shoe"
+          title={t("TipEditShoe")}
           className="rounded-lg p-1.5 text-[var(--color-muted)] transition hover:bg-[var(--color-bg)] hover:text-[var(--color-accent)]"
         >
           <Pencil className="h-4 w-4" />
@@ -308,7 +310,7 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
           type="button"
           disabled={isPending}
           onClick={() => handleTogglePublished(product)}
-          title={product.isPublished ? "Unpublish" : "Publish"}
+          title={product.isPublished ? t("TipUnpublish") : t("TipPublish")}
           className="rounded-lg p-1.5 text-[var(--color-muted)] transition hover:bg-[var(--color-bg)] hover:text-[var(--color-text)] disabled:opacity-40"
         >
           {product.isPublished ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
@@ -318,7 +320,7 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
           type="button"
           disabled={isPending}
           onClick={() => handleToggleFeatured(product)}
-          title={product.isFeatured ? "Remove from featured" : "Mark as featured"}
+          title={product.isFeatured ? t("TipRemoveFeatured") : t("TipMarkFeatured")}
           className={`rounded-lg p-1.5 transition hover:bg-[var(--color-bg)] disabled:opacity-40 ${
             product.isFeatured
               ? "text-amber-500 hover:text-amber-600"
@@ -332,7 +334,7 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
           type="button"
           disabled={isPending}
           onClick={() => setDeleteConfirmId(product.id)}
-          title="Delete shoe"
+          title={t("TipDeleteShoe")}
           className="rounded-lg p-1.5 text-[var(--color-muted)] transition hover:bg-red-50 hover:text-red-600 disabled:opacity-40"
         >
           <Trash2 className="h-4 w-4" />
@@ -349,13 +351,13 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
           </svg>
         </div>
-        <p className="font-semibold text-[var(--color-text)]">No shoes yet</p>
-        <p className="mt-1 text-sm text-[var(--color-muted)]">Add your first shoe to get started.</p>
+        <p className="font-semibold text-[var(--color-text)]">{t("NoShoesYet")}</p>
+        <p className="mt-1 text-sm text-[var(--color-muted)]">{t("NoShoesYetDesc")}</p>
         <Link
           href="/admin/products/new"
           className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-white"
         >
-          <Plus className="h-4 w-4" /> Add Shoe
+          <Plus className="h-4 w-4" /> {t("AddShoe")}
         </Link>
       </div>
     );
@@ -367,7 +369,7 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
       {selected.size > 0 && (
         <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--color-accent)]/30 bg-[var(--color-accent)]/5 px-4 py-3">
           <span className="text-sm font-semibold text-[var(--color-text)]">
-            {selected.size} selected
+            {t("NSelected", { count: selected.size })}
           </span>
           <div className="ml-auto flex flex-wrap items-center gap-2">
             <button
@@ -376,7 +378,7 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
               onClick={() => handleBulkSetPublished(true)}
               className="rounded-lg border border-[var(--color-border)] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-bg)] disabled:opacity-40"
             >
-              Publish
+              {t("TipPublish")}
             </button>
             <button
               type="button"
@@ -384,7 +386,7 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
               onClick={() => handleBulkSetPublished(false)}
               className="rounded-lg border border-[var(--color-border)] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-bg)] disabled:opacity-40"
             >
-              Unpublish
+              {t("TipUnpublish")}
             </button>
             <button
               type="button"
@@ -392,7 +394,7 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
               onClick={() => handleBulkSetFeatured(true)}
               className="rounded-lg border border-[var(--color-border)] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-bg)] disabled:opacity-40"
             >
-              Feature
+              {t("BulkFeature")}
             </button>
             <button
               type="button"
@@ -400,7 +402,7 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
               onClick={() => handleBulkSetFeatured(false)}
               className="rounded-lg border border-[var(--color-border)] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-bg)] disabled:opacity-40"
             >
-              Unfeature
+              {t("BulkUnfeature")}
             </button>
             <button
               type="button"
@@ -408,13 +410,13 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
               onClick={() => setBulkDeleteConfirm(true)}
               className="rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-40"
             >
-              Delete
+              {t("Delete")}
             </button>
             <button
               type="button"
               onClick={() => setSelected(new Set())}
               className="rounded-lg p-1.5 text-[var(--color-muted)] transition hover:bg-white hover:text-[var(--color-text)]"
-              title="Clear selection"
+              title={t("TipClearSelection")}
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -436,11 +438,11 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
                     className="h-4 w-4 rounded accent-[var(--color-accent)]"
                   />
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">Shoe</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">Price</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">Colors</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">Status</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">Actions</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">{t("ColShoe")}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">{t("ColPrice")}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">{t("ColColors")}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">{t("ColStatus")}</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">{t("ColActions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--color-border)]">
@@ -526,8 +528,8 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
 
       {deletingProduct && (
         <ConfirmDialog
-          title="Delete this shoe?"
-          message={`"${deletingProduct.name}" will be permanently removed from the store.`}
+          title={t("DeleteShoeTitle")}
+          message={t("DeleteShoeMessage", { name: deletingProduct.name })}
           isPending={isPending}
           onConfirm={() => handleDelete(deletingProduct.id)}
           onCancel={() => setDeleteConfirmId(null)}
@@ -536,8 +538,8 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
 
       {bulkDeleteConfirm && (
         <ConfirmDialog
-          title={`Delete ${selected.size} shoe${selected.size !== 1 ? "s" : ""}?`}
-          message="This will permanently remove the selected shoes from the store."
+          title={t("DeleteNShoesTitle", { count: selected.size })}
+          message={t("DeleteNShoesMessage")}
           isPending={isPending}
           onConfirm={handleBulkDelete}
           onCancel={() => setBulkDeleteConfirm(false)}

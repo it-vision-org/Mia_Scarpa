@@ -4,6 +4,7 @@ import { formatPrice } from "@/lib/utils";
 import { OrdersTable } from "@/components/admin/OrdersTable";
 import { ShoppingBag, DollarSign, Clock, Truck } from "lucide-react";
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 import { StatsPeriodToggle } from "@/components/admin/StatsPeriodToggle";
 
 type SearchParams = Promise<{
@@ -42,8 +43,15 @@ function StatCard({
 
 export async function OrdersContent({ searchParams }: { searchParams: SearchParams }) {
   const { status, q, page, pageSize, sortBy, sortDir, period } = await searchParams;
+  const t = await getTranslations("Admin");
 
   const validPeriod = period === "7d" || period === "30d" ? period : "today";
+  const periodLabel =
+    validPeriod === "today"
+      ? t("PeriodTodayLower")
+      : validPeriod === "7d"
+        ? t("Period7dLower")
+        : t("Period30dLower");
 
   const [ordersResult, statsResult, contactInfo] = await Promise.all([
     getOrders({
@@ -67,8 +75,7 @@ export async function OrdersContent({ searchParams }: { searchParams: SearchPara
     <>
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
         <p className="-mt-2 text-sm text-[var(--color-muted)]">
-          {stats?.total ?? 0} order{(stats?.total ?? 0) !== 1 ? "s" : ""}{" "}
-          {validPeriod === "today" ? "today" : validPeriod === "7d" ? "in the last 7 days" : "in the last 30 days"}
+          {t("OrdersSummary", { count: stats?.total ?? 0, period: periodLabel })}
         </p>
         <Suspense>
           <StatsPeriodToggle />
@@ -79,25 +86,25 @@ export async function OrdersContent({ searchParams }: { searchParams: SearchPara
       {stats && (
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 print:hidden">
           <StatCard
-            label="Total Orders"
+            label={t("StatTotalOrders")}
             value={String(stats.total)}
             icon={ShoppingBag}
             color="bg-[var(--color-bg)] text-[var(--color-text)]"
           />
           <StatCard
-            label="Total Revenue"
+            label={t("StatTotalRevenue")}
             value={formatPrice(stats.totalRevenue)}
             icon={DollarSign}
             color="bg-emerald-50 text-emerald-700"
           />
           <StatCard
-            label="Pending"
+            label={t("StatusPending")}
             value={String(stats.byStatus["PENDING"] ?? 0)}
             icon={Clock}
             color="bg-amber-50 text-amber-700"
           />
           <StatCard
-            label="In Transit"
+            label={t("StatInTransit")}
             value={String(
               (stats.byStatus["CONFIRMED"] ?? 0) + (stats.byStatus["SHIPPED"] ?? 0),
             )}
@@ -110,9 +117,7 @@ export async function OrdersContent({ searchParams }: { searchParams: SearchPara
       {/* Table */}
       {orders.length === 0 ? (
         <div className="rounded-2xl border border-[var(--color-border)] bg-white p-16 text-center text-[var(--color-muted)] print:hidden">
-          {activeStatus !== "ALL" || q
-            ? "No orders match your filters."
-            : "No orders yet. Orders will appear here when customers check out."}
+          {activeStatus !== "ALL" || q ? t("NoOrdersMatch") : t("NoOrdersYet")}
         </div>
       ) : (
         <OrdersTable orders={orders} totalCount={totalCount} storeInfo={contactInfo} />

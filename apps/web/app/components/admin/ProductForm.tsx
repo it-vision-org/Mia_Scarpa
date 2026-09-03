@@ -127,10 +127,11 @@ function SizesEditor({
   onStockChange: (size: string, stock: number) => void;
   onRemoveSize: (size: string) => void;
 }) {
+  const t = useTranslations("Admin");
   return (
     <div className="space-y-2">
       <p className="text-xs font-semibold text-[var(--color-muted)] uppercase tracking-wide">
-        Sizes &amp; Stock
+        {t("SecSizesStock")}
       </p>
 
       {sizes.length > 0 && (
@@ -177,7 +178,7 @@ function SizesEditor({
               onAddSize();
             }
           }}
-          placeholder="Size (e.g. 39, 40, 41…) then Enter"
+          placeholder={t("PhSize")}
           className={`${inp} min-w-0 py-2 text-xs flex-1`}
         />
         <button
@@ -186,11 +187,11 @@ function SizesEditor({
           disabled={!sizeInput.trim()}
           className="shrink-0 rounded-xl border border-[var(--color-border)] bg-white px-3 py-2 text-xs font-semibold text-[var(--color-text)] hover:bg-[var(--color-bg)] transition disabled:opacity-40"
         >
-          Add
+          {t("Add")}
         </button>
       </div>
       {sizes.length === 0 && (
-        <p className="text-xs text-amber-600">⚠ Add at least one size with stock to make this color available.</p>
+        <p className="text-xs text-amber-600">{t("SizeWarnEmpty")}</p>
       )}
     </div>
   );
@@ -272,7 +273,7 @@ export function ProductForm({
       const url = await uploadToImgbb(file);
       setMainImages((prev) => [...prev, url]);
     } catch {
-      setError("Image upload failed. Check IMGBB_API_KEY in .env.local");
+      setError(t("ErrImageUpload"));
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -290,7 +291,7 @@ export function ProductForm({
       const url = await uploadToImgbb(file);
       setPromoImage(url);
     } catch {
-      setError("Image upload failed. Check IMGBB_API_KEY in .env.local");
+      setError(t("ErrImageUpload"));
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -383,7 +384,7 @@ export function ProductForm({
         prev.map((r) => (r.id === rowId ? { ...r, imageUrls: [...r.imageUrls, url] } : r)),
       );
     } catch {
-      setError("Image upload failed. Check IMGBB_API_KEY in .env.local");
+      setError(t("ErrImageUpload"));
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -433,11 +434,11 @@ export function ProductForm({
   // ── Submit ───────────────────────────────────────────────────────────────
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) { setError("Shoe name is required."); return; }
-    if (colorRows.length === 0) { setError("Add at least one color."); return; }
+    if (!name.trim()) { setError(t("ErrNameRequired")); return; }
+    if (colorRows.length === 0) { setError(t("ErrNoColor")); return; }
 
     const priceNum = price.trim() === "" ? 0 : parseFloat(price);
-    if (isNaN(priceNum) || priceNum < 0) { setError("Enter a valid price."); return; }
+    if (isNaN(priceNum) || priceNum < 0) { setError(t("ErrInvalidPrice")); return; }
 
     setSubmitting(true);
     setError("");
@@ -476,11 +477,11 @@ export function ProductForm({
         const result = initialData
           ? await updateProduct(initialData.id, input)
           : await createProduct(input);
-        if (!result.success) { setError(result.error ?? "Something went wrong."); setSubmitting(false); return; }
+        if (!result.success) { setError(result.error ?? t("ErrGeneric")); setSubmitting(false); return; }
         router.push("/admin/products");
         router.refresh();
       } catch {
-        setError("Something went wrong.");
+        setError(t("ErrGeneric"));
         setSubmitting(false);
       }
     });
@@ -494,13 +495,13 @@ export function ProductForm({
       )}
 
       {/* Name */}
-      <Field label="Shoe Name *">
-        <input value={name} onChange={(e) => setName(e.target.value)} required placeholder="e.g. Flex Runner Pro" className={inp} />
+      <Field label={t("FieldProductRef")}>
+        <input value={name} onChange={(e) => setName(e.target.value)} required placeholder={t("PhProductName")} className={inp} />
       </Field>
 
       {/* Price */}
-      <Field label="Base Price (DT)">
-        <input type="number" min="0" step="0.001" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="e.g. 89.900" className={inp} />
+      <Field label={t("FieldBasePrice")}>
+        <input type="number" min="0" step="0.001" value={price} onChange={(e) => setPrice(e.target.value)} placeholder={t("PhPriceExample")} className={inp} />
       </Field>
 
       {/* ── Promotion / Sale ── */}
@@ -525,7 +526,7 @@ export function ProductForm({
                   step="0.001"
                   value={promoPrice}
                   onChange={(e) => setPromoPrice(e.target.value)}
-                  placeholder="e.g. 59.900"
+                  placeholder={t("PhPriceExample")}
                   className={inp}
                 />
               </Field>
@@ -594,24 +595,24 @@ export function ProductForm({
 
       {/* Gender + Category */}
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Gender *">
+        <Field label={t("FieldGender")}>
           <select value={gender} onChange={(e) => handleGenderChange(e.target.value as Gender)} className={inp}>
-            <option value="MEN">Men</option>
-            <option value="WOMEN">Women</option>
+            <option value="MEN">{t("OptMen")}</option>
+            <option value="WOMEN">{t("OptWomen")}</option>
           </select>
         </Field>
-        <Field label="Category">
+        <Field label={t("FieldCategory")}>
           <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className={inp}>
-            <option value="">No category</option>
+            <option value="">{t("OptNoCategory")}</option>
             {flatCategories.map((c) => (
               <option key={c.id} value={c.id}>{c.label}</option>
             ))}
           </select>
           {flatCategories.length === 0 && (
             <p className="text-xs text-[var(--color-muted)]">
-              No categories yet — create some in{" "}
+              {t("NoCategoriesHint")}
               <a href="/admin/categories" className="underline hover:text-[var(--color-accent)]">
-                Categories
+                {t("Categories")}
               </a>
               .
             </p>
@@ -622,9 +623,9 @@ export function ProductForm({
       {/* Main Product Photos */}
       <div className="rounded-2xl border border-[var(--color-border)] bg-white p-5 space-y-3">
         <div>
-          <p className="text-sm font-bold text-[var(--color-text)]">Main Product Photos</p>
+          <p className="text-sm font-bold text-[var(--color-text)]">{t("SecMainPhotos")}</p>
           <p className="text-xs text-[var(--color-muted)] mt-0.5">
-            Shown on product cards and as the default gallery before a color is selected. Add multiple photos.
+            {t("MainPhotosHint")}
           </p>
         </div>
 
@@ -635,7 +636,7 @@ export function ProductForm({
               value={mainUrlInput}
               onChange={(e) => setMainUrlInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addMainUrl(); } }}
-              placeholder="Paste image URL…"
+              placeholder={t("PhImageUrl")}
               className={`${inp} py-2 pl-8 text-xs`}
             />
           </div>
@@ -644,9 +645,7 @@ export function ProductForm({
             onClick={addMainUrl}
             disabled={!mainUrlInput.trim() || uploading}
             className="shrink-0 rounded-xl border border-[var(--color-border)] bg-white px-3 py-2 text-xs font-semibold hover:bg-[var(--color-bg)] transition disabled:opacity-40"
-          >
-            Add
-          </button>
+          >{t("Add")}</button>
           <input
             type="file"
             accept="image/*"
@@ -658,7 +657,7 @@ export function ProductForm({
             type="button"
             disabled={uploading}
             onClick={() => mainFileRef.current?.click()}
-            title="Upload from device"
+            title={t("TipUploadFromDevice")}
             className="shrink-0 inline-flex items-center gap-1 rounded-xl border border-[var(--color-border)] bg-white px-2.5 py-2 text-xs font-semibold hover:bg-[var(--color-bg)] transition disabled:opacity-40"
           >
             {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
@@ -667,7 +666,7 @@ export function ProductForm({
             type="button"
             disabled={uploading || allUploadedImages.length === 0}
             onClick={() => setPickerTarget("main")}
-            title="Choose from already uploaded images"
+            title={t("TipChooseUploaded")}
             className="shrink-0 inline-flex items-center gap-1 rounded-xl border border-[var(--color-border)] bg-white px-2.5 py-2 text-xs font-semibold hover:bg-[var(--color-bg)] transition disabled:opacity-40"
           >
             <Images className="h-3.5 w-3.5" />
@@ -689,7 +688,7 @@ export function ProductForm({
                 />
                 {pi === 0 && (
                   <span className="absolute left-1 top-1 rounded bg-[var(--color-accent)] px-1 text-[8px] font-bold text-white">
-                    Card
+                    {t("BadgeCard")}
                   </span>
                 )}
                 <button
@@ -708,9 +707,9 @@ export function ProductForm({
       {/* Colors */}
       <div className="space-y-3">
         <div>
-          <p className="text-sm font-bold text-[var(--color-text)]">Colors, Photos &amp; Sizes</p>
+          <p className="text-sm font-bold text-[var(--color-text)]">{t("SecColorsPhotosSizes")}</p>
           <p className="text-xs text-[var(--color-muted)] mt-0.5">
-            Each color has its own photos and size/stock table. Stock 0 = sold out.
+            {t("ColorsHint")}
           </p>
         </div>
 
@@ -734,7 +733,7 @@ export function ProductForm({
                   const detectedHex = nameToHex(n);
                   updateColor(row.id, { name: n, ...(detectedHex ? { hex: detectedHex } : {}) });
                 }}
-                placeholder="Color name (e.g. Noir, Camel, Bordeaux…)"
+                placeholder={t("PhColorName")}
                 className={`${inp} min-w-0 flex-1`}
               />
               <button
@@ -748,7 +747,7 @@ export function ProductForm({
 
             {/* Photos */}
             <div className="space-y-2">
-              <p className="text-xs font-semibold text-[var(--color-muted)] uppercase tracking-wide">Photos</p>
+              <p className="text-xs font-semibold text-[var(--color-muted)] uppercase tracking-wide">{t("LabelPhotos")}</p>
               <div className="flex gap-2">
                 <div className="relative min-w-0 flex-1">
                   <LinkIcon className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--color-muted)]" />
@@ -756,7 +755,7 @@ export function ProductForm({
                     value={row.urlInput}
                     onChange={(e) => updateColor(row.id, { urlInput: e.target.value })}
                     onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addColorUrl(row.id); } }}
-                    placeholder="Paste image URL…"
+                    placeholder={t("PhImageUrl")}
                     className={`${inp} py-2 pl-8 text-xs`}
                   />
                 </div>
@@ -765,9 +764,7 @@ export function ProductForm({
                   onClick={() => addColorUrl(row.id)}
                   disabled={!row.urlInput.trim() || uploading}
                   className="shrink-0 rounded-xl border border-[var(--color-border)] bg-white px-3 py-2 text-xs font-semibold hover:bg-[var(--color-bg)] transition disabled:opacity-40"
-                >
-                  Add
-                </button>
+                >{t("Add")}</button>
                 <input
                   type="file"
                   accept="image/*"
@@ -779,7 +776,7 @@ export function ProductForm({
                   type="button"
                   disabled={uploading}
                   onClick={() => colorFileRefs.current.get(row.id)?.click()}
-                  title="Upload from device"
+                  title={t("TipUploadFromDevice")}
                   className="shrink-0 inline-flex items-center gap-1 rounded-xl border border-[var(--color-border)] bg-white px-2.5 py-2 text-xs font-semibold hover:bg-[var(--color-bg)] transition disabled:opacity-40"
                 >
                   {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
@@ -788,7 +785,7 @@ export function ProductForm({
                   type="button"
                   disabled={uploading || allUploadedImages.length === 0}
                   onClick={() => setPickerTarget(row.id)}
-                  title="Choose from already uploaded images"
+                  title={t("TipChooseUploaded")}
                   className="shrink-0 inline-flex items-center gap-1 rounded-xl border border-[var(--color-border)] bg-white px-2.5 py-2 text-xs font-semibold hover:bg-[var(--color-bg)] transition disabled:opacity-40"
                 >
                   <Images className="h-3.5 w-3.5" />
@@ -802,7 +799,7 @@ export function ProductForm({
                         onError={(e) => { (e.currentTarget as HTMLImageElement).src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='64' height='64' fill='%23e5e7eb'/%3E%3C/svg%3E"; }}
                       />
                       {pi === 0 && (
-                        <span className="absolute left-1 top-1 rounded bg-[var(--color-accent)] px-1 text-[8px] font-bold text-white">Main</span>
+                        <span className="absolute left-1 top-1 rounded bg-[var(--color-accent)] px-1 text-[8px] font-bold text-white">{t("BadgeMain")}</span>
                       )}
                       <button
                         type="button"
@@ -829,7 +826,7 @@ export function ProductForm({
                   className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-1.5 text-xs font-semibold text-[var(--color-muted)] hover:text-[var(--color-text)] transition"
                 >
                   <Copy className="h-3 w-3" />
-                  Copy sizes from first color
+                  {t("CopySizesFromFirst")}
                 </button>
               )}
               <SizesEditor
@@ -849,7 +846,7 @@ export function ProductForm({
           onClick={() => setColorRows((prev) => [...prev, { id: uid(), name: "", hex: "#888888", imageUrls: [], urlInput: "", sizes: [], sizeInput: "" }])}
           className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-3 text-sm font-medium text-[var(--color-muted)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
         >
-          <Plus className="h-4 w-4" /> Add Color
+          <Plus className="h-4 w-4" /> {t("AddColor")}
         </button>
       </div>
 
@@ -871,18 +868,18 @@ export function ProductForm({
             }),
           }))
         }
-        entityLabel="chaussure"
+        entityLabel="produit"
       />
 
       {/* Visibility */}
       <div className="rounded-xl border border-[var(--color-border)] bg-white p-5 space-y-3">
         <label className="flex cursor-pointer items-center gap-3">
           <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="h-4 w-4 rounded accent-[var(--color-accent)]" />
-          <span className="text-sm font-medium text-[var(--color-text)]">Published — visible to store visitors</span>
+          <span className="text-sm font-medium text-[var(--color-text)]">{t("VisibilityPublished")}</span>
         </label>
         <label className="flex cursor-pointer items-center gap-3">
           <input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} className="h-4 w-4 rounded accent-[var(--color-accent)]" />
-          <span className="text-sm font-medium text-[var(--color-text)]">Featured — shown on the homepage</span>
+          <span className="text-sm font-medium text-[var(--color-text)]">{t("VisibilityFeatured")}</span>
         </label>
       </div>
 
@@ -894,10 +891,10 @@ export function ProductForm({
           className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[var(--color-green-mid)] disabled:opacity-60 active:scale-95"
         >
           {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-          {initialData ? "Save Changes" : "Add Shoe"}
+          {initialData ? t("SaveChanges") : t("AddShoe")}
         </button>
         <a href="/admin/products" className="rounded-xl border border-[var(--color-border)] bg-white px-6 py-3 text-sm font-semibold text-[var(--color-text)] hover:bg-[var(--color-bg)] transition">
-          Cancel
+          {t("Cancel")}
         </a>
       </div>
     </form>

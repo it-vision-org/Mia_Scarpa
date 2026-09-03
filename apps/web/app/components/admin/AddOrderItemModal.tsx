@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Search, Loader2, X, Minus, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { getPublishedProducts } from "@/actions/productActions";
 import { formatPrice } from "@/lib/utils";
 import type { SerializedProduct, SerializedProductColor } from "@/types";
@@ -13,6 +14,7 @@ export function AddOrderItemModal({
   onAdd: (variantId: string, quantity: number) => void;
   onClose: () => void;
 }) {
+  const t = useTranslations("Admin");
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<SerializedProduct[]>([]);
@@ -60,7 +62,7 @@ export function AddOrderItemModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-[var(--color-border)] px-5 py-4">
-          <p className="text-sm font-bold text-[var(--color-text)]">Add Product</p>
+          <p className="text-sm font-bold text-[var(--color-text)]">{t("AddProduct")}</p>
           <button
             type="button"
             onClick={onClose}
@@ -79,13 +81,13 @@ export function AddOrderItemModal({
                   autoFocus
                   value={query}
                   onChange={(e) => handleSearch(e.target.value)}
-                  placeholder="Search products…"
+                  placeholder={t("PhSearchProducts")}
                   className="w-full rounded-xl border border-[var(--color-border)] bg-white py-2.5 pl-9 pr-3 text-sm text-[var(--color-text)] outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20"
                 />
               </div>
               {loading && (
                 <div className="flex items-center gap-2 text-xs text-[var(--color-muted)]">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Searching…
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t("Searching")}
                 </div>
               )}
               <div className="space-y-1.5">
@@ -117,13 +119,13 @@ export function AddOrderItemModal({
                 onClick={() => setSelectedProduct(null)}
                 className="text-xs text-[var(--color-muted)] transition hover:text-[var(--color-text)]"
               >
-                ← Back to search
+                {t("BackToSearch")}
               </button>
               <p className="font-semibold text-[var(--color-text)]">{selectedProduct.name}</p>
 
               {selectedProduct.colors.length > 0 && (
                 <div>
-                  <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">Color</p>
+                  <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">{t("LabelColor")}</p>
                   <div className="flex flex-wrap gap-2">
                     {selectedProduct.colors.map((c) => (
                       <button
@@ -143,7 +145,7 @@ export function AddOrderItemModal({
 
               {selectedColor && selectedColor.sizes.length > 0 && (
                 <div>
-                  <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">Size</p>
+                  <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">{t("LabelSize")}</p>
                   <div className="flex flex-wrap gap-1.5">
                     {selectedColor.sizes.map((s) => (
                       <button
@@ -168,7 +170,7 @@ export function AddOrderItemModal({
 
               {selectedVariant && (
                 <div className="flex items-center gap-3">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">Qty</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">{t("LabelQty")}</p>
                   <div className="inline-flex items-center rounded-xl border border-[var(--color-border)] bg-white">
                     <button
                       type="button"
@@ -187,7 +189,7 @@ export function AddOrderItemModal({
                       <Plus className="h-3 w-3" />
                     </button>
                   </div>
-                  <span className="text-xs text-[var(--color-muted)]">{selectedVariant.stock} in stock</span>
+                  <span className="text-xs text-[var(--color-muted)]">{t("NInStock", { count: selectedVariant.stock })}</span>
                 </div>
               )}
             </>
@@ -201,7 +203,7 @@ export function AddOrderItemModal({
               onClick={onClose}
               className="rounded-xl border border-[var(--color-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-bg)]"
             >
-              Cancel
+              {t("Cancel")}
             </button>
             <button
               type="button"
@@ -209,7 +211,7 @@ export function AddOrderItemModal({
               onClick={handleAdd}
               className="rounded-xl bg-[var(--color-accent)] px-4 py-2 text-sm font-bold text-white transition hover:bg-[var(--color-green-mid)] disabled:opacity-40"
             >
-              Add to Order
+              {t("AddToOrder")}
             </button>
           </div>
         )}

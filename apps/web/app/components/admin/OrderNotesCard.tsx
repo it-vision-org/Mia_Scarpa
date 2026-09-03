@@ -2,9 +2,11 @@
 
 import { useState, useTransition } from "react";
 import { Pencil, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { updateOrderNotes } from "@/actions/orderActions";
 
 export function OrderNotesCard({ orderId, initialNotes }: { orderId: string; initialNotes: string | null }) {
+  const t = useTranslations("Admin");
   const [notes, setNotes] = useState(initialNotes ?? "");
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(notes);
@@ -27,7 +29,7 @@ export function OrderNotesCard({ orderId, initialNotes }: { orderId: string; ini
   return (
     <div className="rounded-2xl border border-[var(--color-border)] bg-white p-5">
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-[var(--color-text)]">Notes</h2>
+        <h2 className="text-sm font-semibold text-[var(--color-text)]">{t("FieldNotes")}</h2>
         {!editing && (
           <button
             type="button"
@@ -47,7 +49,7 @@ export function OrderNotesCard({ orderId, initialNotes }: { orderId: string; ini
             rows={3}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            placeholder="Add a note about this order…"
+            placeholder={t("PhOrderNote")}
             className="w-full rounded-xl border border-[var(--color-border)] bg-white px-3 py-2 text-sm text-[var(--color-text)] outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20"
           />
           <div className="flex items-center gap-2">
@@ -56,19 +58,19 @@ export function OrderNotesCard({ orderId, initialNotes }: { orderId: string; ini
               onClick={save}
               className="rounded-lg bg-[var(--color-accent)] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-[var(--color-green-mid)]"
             >
-              Save
+              {t("Save")}
             </button>
             <button
               type="button"
               onClick={() => setEditing(false)}
               className="rounded-lg border border-[var(--color-border)] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-bg)]"
             >
-              Cancel
+              {t("Cancel")}
             </button>
           </div>
         </div>
       ) : (
-        <p className="text-sm text-[var(--color-muted)]">{notes || "No notes from customer"}</p>
+        <p className="text-sm text-[var(--color-muted)]">{notes || t("NoNotesFromCustomer")}</p>
       )}
     </div>
   );

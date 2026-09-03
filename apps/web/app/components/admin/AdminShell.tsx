@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { ShoppingBag, Plus, Store, ClipboardList, MessageSquare, MessageCircle, Users, Menu, X, FolderTree, Search } from "lucide-react";
+import { ShoppingBag, PackagePlus, Store, ClipboardList, MessageSquare, MessageCircle, Users, Menu, X, FolderTree, Search } from "lucide-react";
 import { LogoutButton } from "./LogoutButton";
 import { LogoImage } from "@/components/store/LogoImage";
 import { LanguageSelector } from "@/components/store/LanguageSelector";
@@ -61,7 +61,7 @@ export function AdminShell({
     {
       href: "/admin/products/new",
       active: pathname === "/admin/products/new",
-      icon: Plus,
+      icon: PackagePlus,
       label: t("AddShoe"),
     },
     {

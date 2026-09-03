@@ -10,12 +10,14 @@ import { OrderStatusBadge } from "@/components/admin/OrderStatusBadge";
 import { OrderNotesCard } from "@/components/admin/OrderNotesCard";
 import { OrderEditableSection } from "@/components/admin/OrderEditableSection";
 import { ChevronLeft, ChevronRight, User, MapPin, Phone, Mail, Users } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 export async function OrderDetailContent({ publicId }: { publicId: string }) {
   const result = await getOrderByNumber(publicId);
   if (!result.success || !result.data) notFound();
 
   const order = result.data;
+  const t = await getTranslations("Admin");
 
   const [navResult, customerOrderCount] = await Promise.all([
     getOrderNavigation(order.createdAt),
@@ -30,7 +32,7 @@ export async function OrderDetailContent({ publicId }: { publicId: string }) {
           <Link
             href={nav?.prevOrderNumber ? `/admin/orders/${nav.prevOrderNumber}` : "#"}
             aria-disabled={!nav?.prevOrderNumber}
-            title="Older order"
+            title={t("OlderOrder")}
             className={`flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--color-border)] transition ${
               nav?.prevOrderNumber
                 ? "text-[var(--color-text)] hover:bg-[var(--color-bg)]"
@@ -40,22 +42,22 @@ export async function OrderDetailContent({ publicId }: { publicId: string }) {
             <ChevronLeft className="h-4 w-4" />
           </Link>
           <p className="text-sm text-[var(--color-muted)]">
-            Placed on{" "}
-            {new Date(order.createdAt).toLocaleDateString("fr-TN", {
-              day: "2-digit",
-              month: "long",
-              year: "numeric",
-            })}{" "}
-            at{" "}
-            {new Date(order.createdAt).toLocaleTimeString("fr-TN", {
-              hour: "2-digit",
-              minute: "2-digit",
+            {t("PlacedOnAt", {
+              date: new Date(order.createdAt).toLocaleDateString("fr-TN", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+              }),
+              time: new Date(order.createdAt).toLocaleTimeString("fr-TN", {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
             })}
           </p>
           <Link
             href={nav?.nextOrderNumber ? `/admin/orders/${nav.nextOrderNumber}` : "#"}
             aria-disabled={!nav?.nextOrderNumber}
-            title="Newer order"
+            title={t("NewerOrder")}
             className={`flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--color-border)] transition ${
               nav?.nextOrderNumber
                 ? "text-[var(--color-text)] hover:bg-[var(--color-bg)]"
@@ -90,16 +92,16 @@ export async function OrderDetailContent({ publicId }: { publicId: string }) {
           <div className="rounded-2xl border border-[var(--color-border)] bg-white p-5">
             <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[var(--color-text)]">
               <User size={15} />
-              Customer
+              {t("SecCustomer")}
             </h2>
             <dl className="space-y-3 text-sm">
               <div>
-                <dt className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">Name</dt>
+                <dt className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">{t("FieldFullName")}</dt>
                 <dd className="mt-0.5 font-semibold text-[var(--color-text)]">{order.customerName}</dd>
               </div>
               {order.customerEmail && (
                 <div>
-                  <dt className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">Email</dt>
+                  <dt className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">{t("FieldEmail")}</dt>
                   <dd className="mt-0.5 flex items-center gap-1.5 text-[var(--color-text)]">
                     <Mail size={13} className="text-[var(--color-muted)]" />
                     <a href={`mailto:${order.customerEmail}`} className="hover:underline">{order.customerEmail}</a>
@@ -107,21 +109,21 @@ export async function OrderDetailContent({ publicId }: { publicId: string }) {
                 </div>
               )}
               <div>
-                <dt className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">Phone</dt>
+                <dt className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">{t("FieldPhone")}</dt>
                 <dd className="mt-0.5 flex items-center gap-1.5 text-[var(--color-text)]">
                   <Phone size={13} className="text-[var(--color-muted)]" />
                   <a href={`tel:${order.customerPhone}`} className="hover:underline">{order.customerPhone}</a>
                 </dd>
               </div>
               <div>
-                <dt className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">Order History</dt>
+                <dt className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">{t("OrderHistoryLabel")}</dt>
                 <dd className="mt-0.5">
                   <Link
                     href={`/admin/orders?q=${encodeURIComponent(order.customerPhone)}`}
                     className="inline-flex items-center gap-1.5 font-semibold text-[var(--color-accent)] hover:underline"
                   >
                     <Users size={13} />
-                    {customerOrderCount} order{customerOrderCount !== 1 ? "s" : ""} from this customer
+                    {t("OrdersFromCustomer", { count: customerOrderCount })}
                   </Link>
                 </dd>
               </div>
@@ -132,7 +134,7 @@ export async function OrderDetailContent({ publicId }: { publicId: string }) {
             <div className="rounded-2xl border border-[var(--color-border)] bg-white p-5">
               <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[var(--color-text)]">
                 <MapPin size={15} />
-                Delivery Address
+                {t("SecDeliveryAddress")}
               </h2>
               <address className="not-italic text-sm text-[var(--color-text)]">
                 {order.address && <p>{order.address}</p>}
@@ -143,19 +145,19 @@ export async function OrderDetailContent({ publicId }: { publicId: string }) {
 
           <div className="rounded-2xl border border-[var(--color-border)] bg-white p-5">
             <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
-              Order Info
+              {t("SecOrderInfo")}
             </h2>
             <dl className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <dt className="text-[var(--color-muted)]">Order #</dt>
+                <dt className="text-[var(--color-muted)]">{t("FieldOrderHash")}</dt>
                 <dd className="font-mono text-xs font-bold text-[var(--color-text)]">{order.orderNumber}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-[var(--color-muted)]">Items</dt>
+                <dt className="text-[var(--color-muted)]">{t("FieldItemsCount")}</dt>
                 <dd className="text-[var(--color-text)]">{order.items.length}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-[var(--color-muted)]">Last updated</dt>
+                <dt className="text-[var(--color-muted)]">{t("FieldLastUpdated")}</dt>
                 <dd className="text-[var(--color-text)]">
                   {new Date(order.updatedAt).toLocaleDateString("fr-TN", {
                     day: "2-digit",
