@@ -141,12 +141,11 @@ export default async function HomePage() {
       {homepageFeatured.length > 0 && (
         <section className="bg-white">
           <div className="w-full">
-            <div className="grid grid-cols-1 gap-1 lg:grid-cols-2">
-              {/* left: image — on lg it stretches to match however tall the
-                  product grid on the right naturally comes out (square tiles,
-                  so that's driven by content, not a fixed box) */}
+            <div className="grid grid-cols-1 gap-1 lg:grid-cols-2 lg:items-center">
+              {/* left: always a square box — admins can just upload a square
+                  photo and it fills the frame with no crop surprises */}
               <Reveal>
-                <div className="relative h-[280px] w-full overflow-hidden bg-[var(--color-bg)] sm:h-[360px] lg:h-full">
+                <div className="relative aspect-square w-full overflow-hidden bg-[var(--color-bg)]">
                   {featuredImage && (
                     <Image
                       src={featuredImage}
@@ -198,7 +197,7 @@ export default async function HomePage() {
           {editorial1.image && (
             <Reveal>
               <div className="grid grid-cols-1 items-center lg:grid-cols-2">
-                <div className="relative aspect-[4/5] w-full overflow-hidden bg-[var(--color-bg)] lg:aspect-auto lg:h-[720px]">
+                <div className="relative aspect-square w-full overflow-hidden bg-[var(--color-bg)]">
                   <Image
                     src={editorial1.image}
                     alt={editorial1.title}
@@ -232,7 +231,7 @@ export default async function HomePage() {
                   </h2>
                   <p className="mt-5 max-w-md text-base text-[var(--color-muted)]">{editorial2.desc}</p>
                 </div>
-                <div className="order-1 relative aspect-[4/5] w-full overflow-hidden bg-[var(--color-bg)] lg:order-2 lg:aspect-auto lg:h-[720px]">
+                <div className="order-1 relative aspect-square w-full overflow-hidden bg-[var(--color-bg)] lg:order-2">
                   <Image
                     src={editorial2.image}
                     alt={editorial2.title}
