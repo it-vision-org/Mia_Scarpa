@@ -28,11 +28,16 @@
   "Checkout": {
     "Title": "إتمام الشراء",
     "YourInfo": "بياناتك",
-    "FullName": "الاسم الكامل *",
+    "RequiredNote": "تشير العلامات النجمية (*) إلى الحقول المطلوبة.",
+    "Optional": "اختياري",
+    "FullName": "الاسم الكامل",
     "Email": "البريد الإلكتروني",
     "Phone": "الهاتف",
     "Address": "العنوان",
     "City": "المدينة",
+    "SelectCity": "اختر مدينة",
+    "SavedAddresses": "العناوين المحفوظة",
+    "AutoFilled": "تم التعبئة تلقائيًا",
     "PlaceOrder": "تأكيد الطلب",
     "OrderSummary": "ملخص الطلب",
     "Subtotal": "المجموع الفرعي",
@@ -41,6 +46,8 @@
     "Total": "المجموع",
     "Size": "المقاس",
     "ErrorNameRequired": "الرجاء إدخال اسمك الكامل.",
+    "ErrorPhoneRequired": "الرجاء إدخال رقم هاتفك.",
+    "ErrorAddressRequired": "الرجاء إدخال عنوانك.",
     "ErrorGeneral": "حدث خطأ. الرجاء المحاولة مرة أخرى."
   },
   "Account": {

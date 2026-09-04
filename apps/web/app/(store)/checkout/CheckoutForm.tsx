@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Sparkles, MapPin } from "lucide-react";
+import { Loader2, MapPin } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCart } from "@/cart-context";
 import { formatPrice } from "@/lib/utils";
@@ -11,6 +11,7 @@ import { getDeliveryFee } from "@/actions/storeSettingsActions";
 import type { PastAddress } from "@/actions/customerAuthActions";
 import { TUNISIA_CITIES } from "@/lib/tunisia-cities";
 import { CheckoutSuccessModal } from "@/components/store/CheckoutSuccessModal";
+import { FloatField, FloatSelect } from "@/components/store/FloatField";
 
 type Prefill = {
   name: string;
@@ -47,21 +48,12 @@ export function CheckoutForm({ prefill }: { prefill: Prefill }) {
     pastAddresses[0] ? `${pastAddresses[0].address}|${pastAddresses[0].city}` : null,
   );
 
-  const [autoFilled, setAutoFilled] = useState({
-    name: !!prefill?.name,
-    email: !!prefill?.email,
-    phone: !!prefill?.phone,
-    address: !!prefill?.address,
-    city: !!prefill?.city,
-  });
-
   const [addressDropdownOpen, setAddressDropdownOpen] = useState(false);
 
   function applyPastAddress(p: PastAddress) {
     setAddress(p.address);
     setCity(p.city);
     setSelectedAddressKey(`${p.address}|${p.city}`);
-    setAutoFilled((v) => ({ ...v, address: true, city: true }));
     setAddressDropdownOpen(false);
   }
 
@@ -81,11 +73,11 @@ export function CheckoutForm({ prefill }: { prefill: Prefill }) {
       return;
     }
     if (!phone.trim()) {
-      setError(t("ErrorPhoneRequired") || "Phone is required");
+      setError(t("ErrorPhoneRequired"));
       return;
     }
     if (!address.trim()) {
-      setError(t("ErrorAddressRequired") || "Address is required");
+      setError(t("ErrorAddressRequired"));
       return;
     }
     setSubmitting(true);
@@ -121,6 +113,8 @@ export function CheckoutForm({ prefill }: { prefill: Prefill }) {
     });
   }
 
+  const cityOptions = city && !TUNISIA_CITIES.includes(city) ? [city, ...TUNISIA_CITIES] : TUNISIA_CITIES;
+
   return (
     <>
       {modal && (
@@ -130,112 +124,100 @@ export function CheckoutForm({ prefill }: { prefill: Prefill }) {
           prefill={{ name, email, phone }}
         />
       )}
-      <main className="mx-auto max-w-4xl px-6 py-10">
-        <h1 className="text-2xl font-bold text-[var(--color-text)]">{t("Title")}</h1>
+      <main className="mx-auto max-w-5xl px-6 py-10 lg:py-14">
+        <div className="mb-8">
+          <h1 className="text-lg font-bold uppercase tracking-wide text-[var(--color-text)]">
+            {t("Title")}
+          </h1>
+          <p className="mt-1 text-sm text-[var(--color-muted)]">{t("RequiredNote")}</p>
+        </div>
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-5">
+        <div className="grid gap-10 lg:grid-cols-5">
           {/* Customer form */}
-          <form onSubmit={handleSubmit} className="space-y-5 lg:col-span-3">
-            <div className="rounded-2xl border border-[var(--color-border)] bg-white p-6 space-y-4">
-              <h2 className="font-bold text-[var(--color-text)]">{t("YourInfo")}</h2>
+          <form onSubmit={handleSubmit} className="space-y-4 lg:col-span-3">
+            {error && (
+              <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {error}
+              </div>
+            )}
 
-              {error && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                  {error}
+            <FloatField
+              label={t("FullName")}
+              required
+              value={name}
+              onChange={setName}
+              autoComplete="name"
+            />
+
+            <FloatField
+              label={`${t("Email")} (${t("Optional")})`}
+              type="email"
+              value={email}
+              onChange={setEmail}
+              autoComplete="email"
+            />
+
+            <FloatField
+              label={t("Phone")}
+              required
+              type="tel"
+              value={phone}
+              onChange={setPhone}
+              autoComplete="tel"
+            />
+
+            <div className="relative">
+              <FloatField
+                label={t("Address")}
+                required
+                value={address}
+                onChange={(v) => { setAddress(v); setSelectedAddressKey(null); }}
+                onFocus={() => setAddressDropdownOpen(true)}
+                onClick={() => setAddressDropdownOpen(true)}
+                onBlur={() => setTimeout(() => setAddressDropdownOpen(false), 100)}
+                autoComplete="off"
+              />
+              {addressDropdownOpen && pastAddresses.length > 0 && (
+                <div className="absolute z-10 mt-1 w-full border border-[var(--color-border)] bg-white shadow-lg">
+                  <p className="flex items-center gap-1.5 border-b border-[var(--color-border)] px-3 py-2 text-xs font-semibold text-[var(--color-muted)]">
+                    <MapPin className="h-3 w-3" />
+                    {t("SavedAddresses")}
+                  </p>
+                  {pastAddresses.map((p) => {
+                    const key = `${p.address}|${p.city}`;
+                    const selected = selectedAddressKey === key;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => applyPastAddress(p)}
+                        className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm transition ${
+                          selected ? "bg-blue-50 text-blue-900" : "text-[var(--color-text)] hover:bg-[var(--color-bg)]"
+                        }`}
+                      >
+                        <span className="truncate">{p.address}</span>
+                        {p.city && <span className="shrink-0 text-xs text-[var(--color-muted)]">{p.city}</span>}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
-
-              <Field label={t("FullName")} autoFilled={autoFilled.name}>
-                <input
-                  required
-                  value={name}
-                  onChange={(e) => { setName(e.target.value); setAutoFilled((v) => ({ ...v, name: false })); }}
-                  placeholder="Your full name"
-                  className={fieldClass(autoFilled.name)}
-                />
-              </Field>
-
-              <Field label={t("Email")} autoFilled={autoFilled.email}>
-                <input
-                  type="email"
-                  disabled={!!prefill}
-                  value={email}
-                  onChange={(e) => { setEmail(e.target.value); setAutoFilled((v) => ({ ...v, email: false })); }}
-                  placeholder="you@example.com"
-                  className={fieldClass(autoFilled.email)}
-                />
-              </Field>
-
-              <Field label={t("Phone")} autoFilled={autoFilled.phone}>
-                <input
-                  type="tel"
-                  required
-                  value={phone}
-                  onChange={(e) => { setPhone(e.target.value); setAutoFilled((v) => ({ ...v, phone: false })); }}
-                  placeholder="+216 XX XXX XXX"
-                  className={fieldClass(autoFilled.phone)}
-                />
-              </Field>
-
-              <Field label={t("Address")} autoFilled={autoFilled.address}>
-                <div className="relative">
-                  <input
-                    required
-                    value={address}
-                    onChange={(e) => { setAddress(e.target.value); setAutoFilled((v) => ({ ...v, address: false })); setSelectedAddressKey(null); }}
-                    onFocus={() => setAddressDropdownOpen(true)}
-                    onClick={() => setAddressDropdownOpen(true)}
-                    onBlur={() => setTimeout(() => setAddressDropdownOpen(false), 100)}
-                    placeholder="Street address"
-                    className={fieldClass(autoFilled.address)}
-                    autoComplete="off"
-                  />
-                  {addressDropdownOpen && pastAddresses.length > 0 && (
-                    <div className="absolute z-10 mt-1 w-full overflow-hidden rounded-xl border border-[var(--color-border)] bg-white shadow-lg">
-                      <p className="flex items-center gap-1.5 border-b border-[var(--color-border)] px-3 py-2 text-xs font-semibold text-[var(--color-muted)]">
-                        <MapPin className="h-3 w-3" />
-                        Saved addresses
-                      </p>
-                      {pastAddresses.map((p) => {
-                        const key = `${p.address}|${p.city}`;
-                        const selected = selectedAddressKey === key;
-                        return (
-                          <button
-                            key={key}
-                            type="button"
-                            onMouseDown={(e) => e.preventDefault()}
-                            onClick={() => applyPastAddress(p)}
-                            className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm transition ${
-                              selected ? "bg-blue-50 text-blue-900" : "text-[var(--color-text)] hover:bg-[var(--color-bg)]"
-                            }`}
-                          >
-                            <span className="truncate">{p.address}</span>
-                            {p.city && <span className="shrink-0 text-xs text-[var(--color-muted)]">{p.city}</span>}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              </Field>
-
-              <Field label={t("City")} autoFilled={autoFilled.city}>
-                <select
-                  value={city}
-                  onChange={(e) => { setCity(e.target.value); setAutoFilled((v) => ({ ...v, city: false })); setSelectedAddressKey(null); }}
-                  className={fieldClass(autoFilled.city)}
-                >
-                  <option value="">Select a city</option>
-                  {city && !TUNISIA_CITIES.includes(city) && <option value={city}>{city}</option>}
-                  {TUNISIA_CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </Field>
             </div>
+
+            <FloatSelect
+              label={t("City")}
+              required
+              value={city}
+              onChange={(v) => { setCity(v); setSelectedAddressKey(null); }}
+              options={cityOptions}
+              placeholder={t("SelectCity")}
+            />
 
             <button
               type="submit"
               disabled={submitting}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-accent)] py-4 text-sm font-bold text-white shadow-sm transition hover:bg-[var(--color-green-mid)] disabled:opacity-60 active:scale-95"
+              className="mt-2 inline-flex w-full items-center justify-center gap-2 border-2 border-[var(--color-text)] py-4 text-sm font-bold uppercase tracking-widest text-[var(--color-text)] transition hover:bg-[var(--color-text)] hover:text-white disabled:opacity-60"
             >
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {t("PlaceOrder")}
@@ -244,24 +226,26 @@ export function CheckoutForm({ prefill }: { prefill: Prefill }) {
 
           {/* Order summary */}
           <div className="lg:col-span-2">
-            <div className="sticky top-24 rounded-2xl border border-[var(--color-border)] bg-white p-6 space-y-4">
-              <h2 className="font-bold text-[var(--color-text)]">{t("OrderSummary")}</h2>
+            <div className="sticky top-24 space-y-4">
+              <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--color-text)]">
+                {t("OrderSummary")}
+              </h2>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {items.map((item) => (
                   <div key={item.id} className="flex items-center gap-3">
                     {item.image ? (
-                      <img src={item.image} alt={item.productName} className="h-12 w-10 flex-shrink-0 rounded-lg object-cover" />
+                      <img src={item.image} alt={item.productName} className="h-16 w-14 flex-shrink-0 object-cover" />
                     ) : (
-                      <div className="h-12 w-10 flex-shrink-0 rounded-lg bg-[var(--color-border)]" />
+                      <div className="h-16 w-14 flex-shrink-0 bg-[var(--color-border)]" />
                     )}
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-[var(--color-text)]">{item.productName}</p>
                       <p className="text-xs text-[var(--color-muted)]">
                         {[item.size && `${t("Size")} ${item.size}`, item.colorName].filter(Boolean).join(" · ")}
                       </p>
                     </div>
-                    <div className="text-right shrink-0">
+                    <div className="shrink-0 text-right">
                       <p className="text-sm font-semibold text-[var(--color-text)]">
                         {formatPrice(item.unitPrice * item.quantity)}
                       </p>
@@ -271,7 +255,7 @@ export function CheckoutForm({ prefill }: { prefill: Prefill }) {
                 ))}
               </div>
 
-              <div className="space-y-2 border-t border-[var(--color-border)] pt-3 text-sm">
+              <div className="space-y-2 border-t border-[var(--color-border)] pt-4 text-sm">
                 <div className="flex justify-between">
                   <span className="text-[var(--color-muted)]">{t("Subtotal")}</span>
                   <span className="font-semibold text-[var(--color-text)]">{formatPrice(total)}</span>
@@ -284,7 +268,7 @@ export function CheckoutForm({ prefill }: { prefill: Prefill }) {
                 </div>
               </div>
 
-              <div className="border-t border-[var(--color-border)] pt-3 flex justify-between">
+              <div className="flex justify-between border-t border-[var(--color-border)] pt-4">
                 <span className="font-bold text-[var(--color-text)]">{t("Total")}</span>
                 <span className="font-bold text-[var(--color-text)]">{formatPrice(total + deliveryFee)}</span>
               </div>
@@ -294,37 +278,4 @@ export function CheckoutForm({ prefill }: { prefill: Prefill }) {
       </main>
     </>
   );
-}
-
-function Field({
-  label,
-  children,
-  autoFilled,
-}: {
-  label: string;
-  children: React.ReactNode;
-  autoFilled?: boolean;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <label className="flex items-center gap-1.5 text-sm font-bold text-[var(--color-text)]">
-        {label}
-        {autoFilled && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700">
-            <Sparkles className="h-2.5 w-2.5" />
-            Auto-filled
-          </span>
-        )}
-      </label>
-      {children}
-    </div>
-  );
-}
-
-const inp =
-  "w-full rounded-xl border border-[var(--color-border)] bg-white px-4 py-3 text-sm text-[var(--color-text)] placeholder:text-[var(--color-muted)] outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition disabled:cursor-not-allowed disabled:bg-[var(--color-bg)] disabled:text-[var(--color-muted)]";
-
-function fieldClass(autoFilled: boolean): string {
-  if (!autoFilled) return inp;
-  return `${inp} border-blue-300 bg-blue-50`;
 }

@@ -19,20 +19,18 @@ export default async function SuccessPage({ searchParams }: { searchParams: Sear
   const orderRef = order?.orderNumber ?? ref;
 
   return (
-    <main className="mx-auto max-w-xl px-6 py-16 space-y-6">
+    <main className="mx-auto max-w-xl px-6 py-16 lg:py-20 space-y-8">
       {/* Hero */}
-      <div className="text-center space-y-3">
+      <div className="space-y-3 text-center">
         <div className="flex justify-center">
-          <div className="rounded-full bg-emerald-50 p-4">
-            <CheckCircle2 className="h-14 w-14 text-emerald-500" />
-          </div>
+          <CheckCircle2 className="h-12 w-12 text-emerald-500" />
         </div>
-        <h1 className="text-3xl font-bold text-[var(--color-text)]">Order Placed!</h1>
-        <p className="text-[var(--color-muted)]">
+        <h1 className="text-lg font-bold uppercase tracking-wide text-[var(--color-text)]">Order Placed!</h1>
+        <p className="text-sm text-[var(--color-muted)]">
           Thanks {displayName.split(" ")[0]}! We&apos;ll contact you shortly to confirm your order and arrange delivery.
         </p>
         {orderRef && (
-          <div className="inline-block rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2">
+          <div className="inline-block border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2">
             <p className="text-xs text-[var(--color-muted)]">
               Order reference:{" "}
               <span className="font-mono font-bold text-[var(--color-text)]">{orderRef}</span>
@@ -43,8 +41,8 @@ export default async function SuccessPage({ searchParams }: { searchParams: Sear
 
       {/* Order items */}
       {order && order.items.length > 0 && (
-        <div className="rounded-2xl border border-[var(--color-border)] bg-white overflow-hidden">
-          <div className="border-b border-[var(--color-border)] px-5 py-3.5 flex items-center gap-2">
+        <div className="border border-[var(--color-border)]">
+          <div className="flex items-center gap-2 border-b border-[var(--color-border)] px-5 py-3.5">
             <Package size={15} className="text-[var(--color-muted)]" />
             <span className="text-sm font-semibold text-[var(--color-text)]">
               Your order ({order.items.length} item{order.items.length !== 1 ? "s" : ""})
@@ -54,11 +52,11 @@ export default async function SuccessPage({ searchParams }: { searchParams: Sear
             {order.items.map((item) => (
               <li key={item.id} className="flex items-center gap-4 px-5 py-4">
                 {item.productImage ? (
-                  <div className="relative h-14 w-12 shrink-0 overflow-hidden rounded-xl border border-[var(--color-border)]">
+                  <div className="relative h-14 w-12 shrink-0 overflow-hidden border border-[var(--color-border)]">
                     <Image src={item.productImage} alt={item.productName} fill className="object-cover" sizes="48px" />
                   </div>
                 ) : (
-                  <div className="h-14 w-12 shrink-0 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]" />
+                  <div className="h-14 w-12 shrink-0 border border-[var(--color-border)] bg-[var(--color-bg)]" />
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-[var(--color-text)]">{item.productName}</p>
@@ -68,7 +66,7 @@ export default async function SuccessPage({ searchParams }: { searchParams: Sear
                       .join(" · ")}
                   </p>
                 </div>
-                <p className="text-sm font-bold text-[var(--color-text)] shrink-0">
+                <p className="shrink-0 text-sm font-bold text-[var(--color-text)]">
                   {formatPrice(item.totalPrice)}
                 </p>
               </li>
@@ -95,11 +93,9 @@ export default async function SuccessPage({ searchParams }: { searchParams: Sear
 
       {/* Account CTA — differs for logged-in vs. guest customers */}
       {user ? (
-        <div className="rounded-2xl border-2 border-dashed border-[var(--color-accent)]/40 bg-[var(--color-accent)]/5 p-6 text-center space-y-3">
+        <div className="space-y-3 border-2 border-dashed border-[var(--color-accent)]/40 bg-[var(--color-accent)]/5 p-6 text-center">
           <div className="flex justify-center">
-            <div className="rounded-full bg-[var(--color-accent)]/10 p-2.5">
-              <ClipboardList size={20} className="text-[var(--color-accent)]" />
-            </div>
+            <ClipboardList size={22} className="text-[var(--color-accent)]" />
           </div>
           <div>
             <p className="font-bold text-[var(--color-text)]">Track this order</p>
@@ -109,18 +105,16 @@ export default async function SuccessPage({ searchParams }: { searchParams: Sear
           </div>
           <Link
             href="/account"
-            className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[var(--color-green-mid)]"
+            className="inline-flex items-center gap-2 border-2 border-[var(--color-text)] px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-[var(--color-text)] transition hover:bg-[var(--color-text)] hover:text-white"
           >
             <ClipboardList size={15} />
             View My Orders
           </Link>
         </div>
       ) : (
-        <div className="rounded-2xl border-2 border-dashed border-[var(--color-accent)]/40 bg-[var(--color-accent)]/5 p-6 text-center space-y-3">
+        <div className="space-y-3 border-2 border-dashed border-[var(--color-accent)]/40 bg-[var(--color-accent)]/5 p-6 text-center">
           <div className="flex justify-center">
-            <div className="rounded-full bg-[var(--color-accent)]/10 p-2.5">
-              <UserPlus size={20} className="text-[var(--color-accent)]" />
-            </div>
+            <UserPlus size={22} className="text-[var(--color-accent)]" />
           </div>
           <div>
             <p className="font-bold text-[var(--color-text)]">Track your order anytime</p>
@@ -130,7 +124,7 @@ export default async function SuccessPage({ searchParams }: { searchParams: Sear
           </div>
           <Link
             href={`/account/register${email ? `?email=${encodeURIComponent(email)}` : ""}`}
-            className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[var(--color-green-mid)]"
+            className="inline-flex items-center gap-2 border-2 border-[var(--color-text)] px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-[var(--color-text)] transition hover:bg-[var(--color-text)] hover:text-white"
           >
             <UserPlus size={15} />
             Create Account
@@ -148,13 +142,13 @@ export default async function SuccessPage({ searchParams }: { searchParams: Sear
       <div className="flex justify-center gap-3">
         <Link
           href="/shop"
-          className="rounded-xl border border-[var(--color-border)] px-5 py-2.5 text-sm font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-bg)]"
+          className="border border-[var(--color-border)] px-5 py-2.5 text-sm font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-bg)]"
         >
           Continue Shopping
         </Link>
         <Link
           href="/"
-          className="rounded-xl border border-[var(--color-border)] px-5 py-2.5 text-sm font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-bg)]"
+          className="border border-[var(--color-border)] px-5 py-2.5 text-sm font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-bg)]"
         >
           Go Home
         </Link>

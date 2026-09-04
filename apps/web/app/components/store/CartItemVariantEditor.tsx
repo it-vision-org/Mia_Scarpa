@@ -66,7 +66,7 @@ export function CartItemVariantEditor({ item }: { item: CartItem }) {
       </button>
 
       {open && (
-        <div className="mt-2 space-y-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-3">
+        <div className="mt-2 space-y-3 border border-[var(--color-border)] bg-[var(--color-bg)] p-3">
           {loading && (
             <div className="flex items-center gap-2 text-xs text-[var(--color-muted)]">
               <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading options…
@@ -86,7 +86,7 @@ export function CartItemVariantEditor({ item }: { item: CartItem }) {
                     type="button"
                     onClick={() => setPendingColor(c)}
                     title={c.name}
-                    className={`h-6 w-6 rounded-full border-2 transition-transform ${
+                    className={`h-6 w-6 border-2 transition-transform ${
                       pendingColor?.id === c.id
                         ? "border-[var(--color-accent)] scale-110"
                         : "border-transparent hover:scale-105 hover:border-[var(--color-border)]"
@@ -113,7 +113,7 @@ export function CartItemVariantEditor({ item }: { item: CartItem }) {
                       type="button"
                       disabled={isOut}
                       onClick={() => applySize(s.size)}
-                      className={`rounded-lg border px-2.5 py-1 text-xs font-medium transition ${
+                      className={`border px-2.5 py-1 text-xs font-medium transition ${
                         isOut
                           ? "cursor-not-allowed border-red-200 bg-red-50 text-red-400 line-through"
                           : isCurrent
