@@ -22,6 +22,7 @@ import {
 type SearchParams = Promise<{
   category?: string;
   gender?: string;
+  promo?: string;
   search?: string;
   size?: string;
   color?: string;
@@ -53,6 +54,13 @@ export async function generateMetadata({
     title = `Chaussures ${label}`;
     description = `Découvrez la collection Mia Scarpa pour ${label} : cuir, sneakers, bottines et mocassins. Livraison rapide partout en Tunisie.`;
     canonical = `${baseUrl}/shop?gender=${params.gender}`;
+  }
+
+  if (params.promo === "1" || params.promo === "true") {
+    title = "Promotions";
+    description =
+      "Toutes les chaussures Mia Scarpa actuellement en promotion : profitez des réductions avant qu'elles ne s'arrêtent.";
+    canonical = `${baseUrl}/shop?promo=1`;
   }
 
   if (params.category) {
@@ -103,6 +111,7 @@ export default async function ShopPage({
     params.gender === "men" || params.gender === "women" || params.gender === "enfant"
       ? params.gender
       : undefined;
+  const promoOnly = params.promo === "1" || params.promo === "true";
 
   const parsePrice = (v?: string) => {
     const n = v != null ? Number(v) : NaN;
@@ -122,8 +131,9 @@ export default async function ShopPage({
         color: params.color,
         minPrice,
         maxPrice,
+        promoOnly,
       }),
-      getShopFacets({ gender }),
+      getShopFacets({ gender, promoOnly }),
       getCategoryTree("MEN"),
       getCategoryTree("WOMEN"),
       getCategoryTree("ENFANT"),
@@ -156,7 +166,15 @@ export default async function ShopPage({
         ? (settings?.womenCoverImage ?? settings?.heroImage ?? null)
         : (settings?.shopCoverImage ?? settings?.heroImage ?? null);
 
-  const title = gender === "men" ? "Men" : gender === "women" ? "Women" : gender === "enfant" ? "Kids" : "Shop";
+  const title = promoOnly
+    ? "Promotions"
+    : gender === "men"
+      ? "Men"
+      : gender === "women"
+        ? "Women"
+        : gender === "enfant"
+          ? "Kids"
+          : "Shop";
 
   const baseUrl = await getBaseUrl();
   const breadcrumbItems = [
@@ -165,6 +183,7 @@ export default async function ShopPage({
     ...(gender === "men" ? [{ name: "Homme", url: `${baseUrl}/shop?gender=men` }] : []),
     ...(gender === "women" ? [{ name: "Femme", url: `${baseUrl}/shop?gender=women` }] : []),
     ...(gender === "enfant" ? [{ name: "Enfant", url: `${baseUrl}/shop?gender=enfant` }] : []),
+    ...(promoOnly ? [{ name: "Promotions", url: `${baseUrl}/shop?promo=1` }] : []),
   ];
 
   return (
@@ -203,6 +222,7 @@ export default async function ShopPage({
               current={{
                 category: params.category,
                 gender,
+                promo: params.promo,
                 search: params.search,
                 size: params.size,
                 color: params.color,

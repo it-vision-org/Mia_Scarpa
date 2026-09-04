@@ -161,7 +161,10 @@ export function NavLinks({
   enfantCategoryTree?: CategoryNode[];
 }) {
   const pathname = usePathname();
-  const gender = useSearchParams().get("gender");
+  const searchParams = useSearchParams();
+  const gender = searchParams.get("gender");
+  const promo = searchParams.get("promo");
+  const promoActive = pathname === "/shop" && (promo === "1" || promo === "true");
   const t = useTranslations("Nav");
 
   const GENDER_LINKS = [
@@ -195,6 +198,14 @@ export function NavLinks({
             categories={categories}
           />
         ))}
+        <Link
+          href="/shop?promo=1"
+          className={`px-4 py-3 text-sm font-semibold uppercase tracking-widest text-[var(--color-promo)] transition-colors duration-150 ${
+            promoActive ? "underline underline-offset-4" : ""
+          }`}
+        >
+          {t("Promotions")}
+        </Link>
         {OTHER_LINKS.map(({ href, label }) => (
           <Link
             key={href}
@@ -233,6 +244,12 @@ export function NavLinks({
           categories={categories}
         />
       ))}
+      <Link
+        href="/shop?promo=1"
+        className={`${linkClass} text-[var(--color-promo)] ${promoActive ? "after:w-full" : "after:w-0 hover:after:w-full"}`}
+      >
+        {t("Promotions")}
+      </Link>
       {OTHER_LINKS.map(({ href, label }) => {
         const active = isActive(pathname, gender, href);
         return (

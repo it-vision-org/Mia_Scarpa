@@ -5,6 +5,7 @@
     "Men": "Homme",
     "Women": "Femme",
     "Enfant": "Enfant",
+    "Promotions": "Promotions",
     "Contact": "Contact",
     "Cart": "Panier",
     "SignIn": "Connexion",
@@ -211,6 +212,8 @@
     "Women": "Femme",
     "Enfant": "Enfant",
     "Search": "Recherche",
+    "Promotions": "Promotions",
+    "OnSaleOnly": "En promotion",
     "ClearFilters": "Effacer les filtres"
   },
   "Admin": {

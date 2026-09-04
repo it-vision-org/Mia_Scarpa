@@ -126,6 +126,8 @@ export async function getPublishedProducts(filters?: {
   color?: string;
   minPrice?: number;
   maxPrice?: number;
+  /** Only products with a live promotion right now — the "Promotions" nav link. */
+  promoOnly?: boolean;
 }): Promise<ActionResult<SerializedProduct[]>> {
   try {
     const search = filters?.search?.trim();
@@ -196,6 +198,10 @@ export async function getPublishedProducts(filters?: {
         isPublished: true,
         ...(filters?.categorySlug ? { category: { slug: filters.categorySlug } } : {}),
         ...(filters?.gender ? { gender: filters.gender.toUpperCase() as "MEN" | "WOMEN" | "ENFANT" } : {}),
+        // narrow at the DB level; the exact "is it live right now" check (date
+        // window + price actually below base) happens below via isPromoLive,
+        // the same helper the storefront itself trusts.
+        ...(filters?.promoOnly ? { promoActive: true, promoPrice: { not: null } } : {}),
         ...(Object.keys(priceWhere).length ? { basePrice: priceWhere } : {}),
         ...(facetAND.length ? { AND: facetAND } : {}),
         ...(searchOR ? { OR: searchOR } : {}),
@@ -203,7 +209,9 @@ export async function getPublishedProducts(filters?: {
       orderBy: [{ isFeatured: "desc" }, { order: "asc" }, { createdAt: "desc" }],
       include: PRODUCT_INCLUDE,
     });
-    return { success: true, data: products.map(serializeProduct) };
+    const serialized = products.map(serializeProduct);
+    const data = filters?.promoOnly ? serialized.filter((p) => p.promoLive) : serialized;
+    return { success: true, data };
   } catch (error) {
     console.error("[PRODUCTS] list error:", error);
     return { success: false, error: "Failed to load products" };
@@ -218,18 +226,25 @@ export type ShopFacets = {
 };
 
 // Distinct sizes / colours and the price span across the published catalogue
-// (optionally scoped to a gender) — powers the shop sidebar filters.
+// (optionally scoped to a gender and/or to live promotions) — powers the shop
+// sidebar filters.
 export async function getShopFacets(opts?: {
   gender?: "men" | "women" | "enfant";
+  promoOnly?: boolean;
 }): Promise<ActionResult<ShopFacets>> {
   try {
     const rows = await db.product.findMany({
       where: {
         isPublished: true,
         ...(opts?.gender ? { gender: opts.gender.toUpperCase() as "MEN" | "WOMEN" | "ENFANT" } : {}),
+        ...(opts?.promoOnly ? { promoActive: true, promoPrice: { not: null } } : {}),
       },
       select: {
         basePrice: true,
+        promoActive: true,
+        promoPrice: true,
+        promoStartsAt: true,
+        promoEndsAt: true,
         colors: {
           where: { isActive: true },
           select: { name: true, hex: true, sizes: { select: { size: true } } },
@@ -237,12 +252,24 @@ export async function getShopFacets(opts?: {
       },
     });
 
+    const scopedRows = opts?.promoOnly
+      ? rows.filter((p) =>
+          isPromoLive({
+            basePrice: Number(p.basePrice),
+            promoActive: p.promoActive,
+            promoPrice: p.promoPrice != null ? Number(p.promoPrice) : null,
+            promoStartsAt: p.promoStartsAt,
+            promoEndsAt: p.promoEndsAt,
+          }),
+        )
+      : rows;
+
     const sizeSet = new Set<string>();
     const colorMap = new Map<string, string | null>();
     let min = Infinity;
     let max = 0;
 
-    for (const p of rows) {
+    for (const p of scopedRows) {
       const price = Number(p.basePrice);
       if (price < min) min = price;
       if (price > max) max = price;

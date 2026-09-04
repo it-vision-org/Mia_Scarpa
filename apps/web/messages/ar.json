@@ -5,6 +5,7 @@
     "Men": "رجال",
     "Women": "نساء",
     "Enfant": "أطفال",
+    "Promotions": "التخفيضات",
     "Contact": "اتصل بنا",
     "Cart": "السلة",
     "SignIn": "تسجيل الدخول",
@@ -211,6 +212,8 @@
     "Women": "نساء",
     "Enfant": "أطفال",
     "Search": "بحث",
+    "Promotions": "التخفيضات",
+    "OnSaleOnly": "التخفيضات",
     "ClearFilters": "مسح الفلاتر"
   },
   "Admin": {
