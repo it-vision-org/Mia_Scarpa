@@ -35,6 +35,7 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
   const [editing, setEditing] = useState<{ id: string; field: "name" | "price" } | null>(null);
   const [draft, setDraft] = useState("");
+  const [error, setError] = useState("");
 
   const allSelected = products.length > 0 && selected.size === products.length;
 
@@ -129,9 +130,10 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
   }
 
   function handleDelete(id: string) {
-    setDeleteConfirmId(null);
+    setError("");
     startTransition(async () => {
       const res = await deleteProduct(id);
+      setDeleteConfirmId(null);
       if (res.success) {
         setProducts((prev) => prev.filter((p) => p.id !== id));
         setSelected((prev) => {
@@ -139,19 +141,37 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
           next.delete(id);
           return next;
         });
+      } else {
+        setError(res.error ?? t("ErrGeneric"));
       }
     });
   }
 
   function handleBulkDelete() {
-    setBulkDeleteConfirm(false);
+    setError("");
     const ids = Array.from(selected);
     startTransition(async () => {
       const res = await bulkDeleteProducts(ids);
-      if (res.success) {
-        setProducts((prev) => prev.filter((p) => !selected.has(p.id)));
-        setSelected(new Set());
+      setBulkDeleteConfirm(false);
+
+      if (!res.success) {
+        setError(res.error ?? t("ErrGeneric"));
+        return;
       }
+
+      // Some selected products may have existing orders and be skipped — remove
+      // only the ones that were actually deleted, keep the rest selected, and
+      // surface why they're still there.
+      const deletedIds = new Set(res.data?.deletedIds ?? []);
+      if (deletedIds.size > 0) {
+        setProducts((prev) => prev.filter((p) => !deletedIds.has(p.id)));
+        setSelected((prev) => {
+          const next = new Set(prev);
+          for (const id of deletedIds) next.delete(id);
+          return next;
+        });
+      }
+      if (res.error) setError(res.error);
     });
   }
 
@@ -365,6 +385,19 @@ export function ProductsTable({ products: initial }: { products: Row[] }) {
 
   return (
     <div className="space-y-3">
+      {error && (
+        <div className="flex items-start justify-between gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <span>{error}</span>
+          <button
+            type="button"
+            onClick={() => setError("")}
+            className="shrink-0 rounded-lg p-0.5 text-red-500 transition hover:bg-red-100"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* Bulk action bar */}
       {selected.size > 0 && (
         <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--color-accent)]/30 bg-[var(--color-accent)]/5 px-4 py-3">

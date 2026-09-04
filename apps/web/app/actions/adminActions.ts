@@ -294,6 +294,17 @@ export async function updateProduct(
 
 export async function deleteProduct(id: string): Promise<ActionResult> {
   try {
+    // OrderItem.product is onDelete: Restrict — a product that's ever been
+    // ordered can't be hard-deleted. Check up front so we can say why, instead
+    // of letting the DB reject it with an opaque foreign-key error.
+    const orderCount = await db.orderItem.count({ where: { productId: id } });
+    if (orderCount > 0) {
+      return {
+        success: false,
+        error: "This product has existing orders and can't be deleted. Unpublish it instead to hide it from the shop.",
+      };
+    }
+
     await db.product.delete({ where: { id } });
     revalidatePath("/");
     revalidatePath("/shop");
@@ -366,13 +377,37 @@ export async function updateProductQuickFields(
 
 // ── Bulk actions ─────────────────────────────────────────────────────────────
 
-export async function bulkDeleteProducts(ids: string[]): Promise<ActionResult> {
+export async function bulkDeleteProducts(
+  ids: string[],
+): Promise<ActionResult<{ deletedIds: string[] }>> {
   try {
-    await db.product.deleteMany({ where: { id: { in: ids } } });
-    revalidatePath("/");
-    revalidatePath("/shop");
-    revalidatePath("/admin/products");
-    return { success: true };
+    // Same onDelete: Restrict concern as deleteProduct — deleteMany fails
+    // atomically (nothing removed) if even one selected product has orders.
+    // Instead of blocking the whole batch, delete whichever ones are safe and
+    // report the rest so the admin knows to unpublish those instead.
+    const blocked = await db.orderItem.findMany({
+      where: { productId: { in: ids } },
+      select: { productId: true },
+      distinct: ["productId"],
+    });
+    const blockedIds = new Set(blocked.map((b) => b.productId));
+    const deletableIds = ids.filter((id) => !blockedIds.has(id));
+
+    if (deletableIds.length > 0) {
+      await db.product.deleteMany({ where: { id: { in: deletableIds } } });
+      revalidatePath("/");
+      revalidatePath("/shop");
+      revalidatePath("/admin/products");
+    }
+
+    return {
+      success: true,
+      data: { deletedIds: deletableIds },
+      error:
+        blockedIds.size > 0
+          ? `${blockedIds.size} of the selected products have existing orders and can't be deleted. Unpublish them instead to hide them from the shop.`
+          : undefined,
+    };
   } catch (error) {
     console.error("[ADMIN] bulkDeleteProducts error:", error);
     return { success: false, error: "Failed to delete products" };
