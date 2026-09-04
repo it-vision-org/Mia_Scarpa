@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { UserCircle } from "lucide-react";
+import { User } from "lucide-react";
 import { LogoImage } from "./LogoImage";
 import { CartIcon } from "./CartIcon";
 import { CartDrawer } from "./CartDrawer";
@@ -50,26 +50,22 @@ export async function StoreHeader() {
           </div>
 
           {/* Right: search, language, cart, profile */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="hidden h-6 w-px shrink-0 bg-[var(--color-border)] sm:block" />
-
+          <div className="flex items-center gap-4 sm:gap-5">
             <NavSearch />
 
             <LanguageSelector />
 
             <CartIcon />
 
-            <div className="h-5 w-px bg-[var(--color-border)]" />
-
             {session ? (
               <UserMenu name={session.name} email={session.email} role={session.role} />
             ) : (
               <Link
                 href="/account/login"
-                className="flex items-center gap-2 px-2 py-2 text-xs font-semibold uppercase tracking-widest text-[var(--color-text)] transition hover:text-[var(--color-muted)] sm:px-2.5"
+                aria-label={t("SignIn")}
+                className="flex items-center text-[var(--color-text)] transition hover:text-[var(--color-muted)]"
               >
-                <UserCircle size={16} />
-                <span className="hidden sm:block">{t("SignIn")}</span>
+                <User size={20} strokeWidth={1.5} />
               </Link>
             )}
 
