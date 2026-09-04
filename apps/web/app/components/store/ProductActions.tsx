@@ -75,7 +75,7 @@ export function ProductActions({
       {/* Sizes */}
       {sizes.length > 0 && (
         <div>
-          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">
+          <h2 className="mb-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-muted)]">
             {t("Size")}{selectedSize ? `: ${selectedSize}` : ""}
           </h2>
           <div className="flex flex-wrap gap-2">
@@ -88,11 +88,11 @@ export function ProductActions({
                   type="button"
                   disabled={isOut}
                   onClick={() => selectSize(ss.size)}
-                  className={`relative rounded-xl border px-4 py-2 text-sm font-medium transition ${
+                  className={`relative min-w-[56px] border px-4 py-2 text-center text-sm font-medium transition ${
                     isOut
                       ? "border-red-200 bg-red-50 text-red-400 cursor-not-allowed line-through"
                       : isSelected
-                      ? "border-[var(--color-accent)] bg-[var(--color-accent)] text-white shadow-sm"
+                      ? "border-[var(--color-accent)] bg-[var(--color-accent)] text-white"
                       : "border-[var(--color-border)] bg-white text-[var(--color-text)] hover:border-[var(--color-accent)]"
                   }`}
                 >
@@ -116,10 +116,10 @@ export function ProductActions({
       {/* Quantity */}
       {!needsSize && !outOfStock && selectedVariant && (
         <div>
-          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">
+          <h2 className="mb-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-muted)]">
             {t("Quantity")}
           </h2>
-          <div className="inline-flex items-center rounded-xl border border-[var(--color-border)] bg-white shadow-sm">
+          <div className="inline-flex items-center border border-[var(--color-border)] bg-white">
             <button
               type="button"
               onClick={() => setQty((q) => Math.max(1, q - 1))}
@@ -152,7 +152,7 @@ export function ProductActions({
         type="button"
         disabled={!canAdd}
         onClick={handleAddToCart}
-        className={`w-full rounded-2xl px-6 py-4 text-sm font-bold shadow-sm transition active:scale-95 ${
+        className={`w-full px-6 py-4 text-sm font-bold uppercase tracking-widest transition active:scale-95 ${
           added
             ? "bg-green-500 text-white"
             : canAdd
