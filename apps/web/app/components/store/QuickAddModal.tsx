@@ -62,7 +62,7 @@ export function QuickAddModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm max-h-[90dvh] overflow-y-auto rounded-2xl bg-white p-5 shadow-xl"
+        className="max-h-[90dvh] w-full max-w-sm overflow-y-auto bg-white p-5 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3">
@@ -71,7 +71,7 @@ export function QuickAddModal({
               <img
                 src={previewImage}
                 alt={product.name}
-                className="h-14 w-12 flex-shrink-0 rounded-lg object-cover"
+                className="h-14 w-12 flex-shrink-0 object-cover"
               />
             )}
             <div className="min-w-0">
@@ -86,7 +86,7 @@ export function QuickAddModal({
                   {formatPrice(displayPrice)}
                 </span>
                 {product.promoLive && !selectedVariant?.priceOverride && (
-                  <span className="rounded bg-[var(--color-promo)]/10 px-1.5 py-0.5 text-[11px] font-bold uppercase leading-none text-[var(--color-promo)]">
+                  <span className="bg-[var(--color-promo)]/10 px-1.5 py-0.5 text-[11px] font-bold uppercase leading-none text-[var(--color-promo)]">
                     {product.promoLabel?.trim() || `-${product.promoPercent}%`}
                   </span>
                 )}
@@ -96,7 +96,7 @@ export function QuickAddModal({
           <button
             type="button"
             onClick={onClose}
-            className="shrink-0 rounded-lg p-1 text-[var(--color-muted)] transition hover:bg-[var(--color-bg)]"
+            className="shrink-0 p-1 text-[var(--color-muted)] transition hover:bg-[var(--color-bg)]"
           >
             <X className="h-4 w-4" />
           </button>
@@ -114,7 +114,7 @@ export function QuickAddModal({
                   type="button"
                   onClick={() => selectColor(c)}
                   title={c.name}
-                  className={`h-7 w-7 rounded-full border-2 transition-transform ${
+                  className={`h-7 w-7 border-2 transition-transform ${
                     selectedColor?.id === c.id
                       ? "border-[var(--color-accent)] scale-110"
                       : "border-transparent hover:scale-105 hover:border-[var(--color-border)]"
@@ -144,7 +144,7 @@ export function QuickAddModal({
                       setSelectedSize(ss.size);
                       setQty(1);
                     }}
-                    className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
+                    className={`border px-3 py-1.5 text-xs font-medium transition ${
                       isOut
                         ? "cursor-not-allowed border-red-200 bg-red-50 text-red-400 line-through"
                         : isSelected
@@ -165,7 +165,7 @@ export function QuickAddModal({
             <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">
               Quantity
             </p>
-            <div className="inline-flex items-center rounded-xl border border-[var(--color-border)] bg-white">
+            <div className="inline-flex items-center border border-[var(--color-border)] bg-white">
               <button
                 type="button"
                 onClick={() => setQty((q) => Math.max(1, q - 1))}
@@ -190,7 +190,7 @@ export function QuickAddModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-xl border border-[var(--color-border)] py-2.5 text-sm font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-bg)]"
+            className="flex-1 border border-[var(--color-border)] py-2.5 text-sm font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-bg)]"
           >
             Cancel
           </button>
@@ -198,10 +198,10 @@ export function QuickAddModal({
             type="button"
             disabled={!canAdd}
             onClick={handleConfirm}
-            className={`flex-1 rounded-xl py-2.5 text-sm font-bold shadow-sm transition ${
+            className={`flex-1 border-2 py-2.5 text-sm font-bold uppercase tracking-widest transition ${
               canAdd
-                ? "bg-[var(--color-accent)] text-white hover:bg-[var(--color-green-mid)]"
-                : "cursor-not-allowed bg-[var(--color-border)] text-[var(--color-muted)]"
+                ? "border-[var(--color-text)] text-[var(--color-text)] hover:bg-[var(--color-text)] hover:text-white"
+                : "cursor-not-allowed border-[var(--color-border)] text-[var(--color-muted)]"
             }`}
           >
             <span className="flex items-center justify-center gap-1.5">

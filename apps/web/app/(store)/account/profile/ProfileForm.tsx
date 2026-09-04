@@ -1,115 +1,253 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Loader2, Pencil, Check, X } from "lucide-react";
+import { useMemo, useState, useTransition } from "react";
+import Link from "next/link";
+import { Loader2, Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { updateProfile } from "@/actions/customerAuthActions";
+import { FloatField } from "@/components/store/FloatField";
 
-type Props = { initialName: string; email: string; initialPhone: string };
+type Props = { initialFirstName: string; initialLastName: string; email: string };
 
-const inp =
-  "w-full rounded-xl border border-[var(--color-border)] bg-white px-4 py-3 text-sm text-[var(--color-text)] placeholder:text-[var(--color-muted)] outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition disabled:bg-[var(--color-bg)] disabled:text-[var(--color-muted)] disabled:cursor-default";
+function CheckboxRow({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label: string;
+}) {
+  return (
+    <label className="flex cursor-pointer items-center gap-3 text-sm text-[var(--color-text)]">
+      <span
+        className={`flex h-5 w-5 shrink-0 items-center justify-center border transition ${
+          checked
+            ? "border-[var(--color-text)] bg-[var(--color-text)] text-white"
+            : "border-[var(--color-border)] bg-white"
+        }`}
+      >
+        {checked && <Check size={14} strokeWidth={3} />}
+      </span>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="sr-only"
+      />
+      {label}
+    </label>
+  );
+}
 
-export function ProfileForm({ initialName, email, initialPhone }: Props) {
+function scorePassword(pw: string) {
+  if (!pw) return 0;
+  let score = 0;
+  if (pw.length >= 8) score += 1;
+  if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score += 1;
+  if (/\d/.test(pw)) score += 1;
+  if (/[^A-Za-z0-9]/.test(pw)) score += 1;
+  return score;
+}
+
+export function ProfileForm({ initialFirstName, initialLastName, email }: Props) {
   const t = useTranslations("Profile");
-  const [editing, setEditing] = useState(false);
-  const [name, setName] = useState(initialName);
-  const [phone, setPhone] = useState(initialPhone);
-  const [isPending, startTransition] = useTransition();
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
 
-  function handleSave(e: React.FormEvent) {
+  const [firstName, setFirstName] = useState(initialFirstName);
+  const [lastName, setLastName] = useState(initialLastName);
+  const [changeEmail, setChangeEmail] = useState(false);
+  const [changePassword, setChangePassword] = useState(false);
+  const [newEmail, setNewEmail] = useState(email);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  const strength = useMemo(() => scorePassword(newPassword), [newPassword]);
+  const strengthLabel = [
+    t("StrengthNone"),
+    t("StrengthWeak"),
+    t("StrengthMedium"),
+    t("StrengthMedium"),
+    t("StrengthStrong"),
+  ][strength];
+
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    if (changePassword && newPassword !== confirmPassword) {
+      setError("New passwords do not match");
+      return;
+    }
+
     startTransition(async () => {
-      const result = await updateProfile({ name, phoneNumber: phone });
+      const result = await updateProfile({
+        firstName,
+        lastName,
+        changeEmail,
+        newEmail: changeEmail ? newEmail : undefined,
+        changePassword,
+        currentPassword: changeEmail || changePassword ? currentPassword : undefined,
+        newPassword: changePassword ? newPassword : undefined,
+        confirmPassword: changePassword ? confirmPassword : undefined,
+      });
+
       if (!result.success) {
         setError(result.error ?? "Something went wrong.");
         return;
       }
-      setEditing(false);
+
+      const emailChanged = changeEmail;
+      setChangeEmail(false);
+      setChangePassword(false);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
       setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
+      setTimeout(() => setSuccess(false), 4000);
+
+      if (emailChanged) window.location.reload();
     });
   }
 
-  function handleCancel() {
-    setName(initialName);
-    setPhone(initialPhone);
-    setEditing(false);
-    setError("");
-  }
-
   return (
-    <form onSubmit={handleSave} className="rounded-2xl border border-[var(--color-border)] bg-white p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="font-semibold text-[var(--color-text)]">{t("PersonalDetails")}</h2>
-        {!editing ? (
-          <button
-            type="button"
-            onClick={() => setEditing(true)}
-            className="flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs font-semibold text-[var(--color-muted)] hover:text-[var(--color-text)] transition"
-          >
-            <Pencil size={12} /> {t("Edit")}
-          </button>
-        ) : (
-          <div className="flex gap-2">
-            <button
-              type="submit"
-              disabled={isPending}
-              className="flex items-center gap-1.5 rounded-lg bg-[var(--color-accent)] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[var(--color-green-mid)] disabled:opacity-60"
-            >
-              {isPending ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
-              {t("Save")}
-            </button>
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs font-semibold text-[var(--color-muted)] hover:text-[var(--color-text)] transition"
-            >
-              <X size={12} /> {t("Cancel")}
-            </button>
-          </div>
-        )}
+    <form onSubmit={handleSubmit} className="max-w-xl space-y-8">
+      <div className="space-y-1">
+        <h1 className="text-lg font-bold uppercase tracking-wide text-[var(--color-text)]">
+          {t("AccountInformation")}
+        </h1>
+        <p className="text-sm text-[var(--color-muted)]">{t("RequiredNote")}</p>
       </div>
 
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        <div className="border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
       )}
       {success && (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+        <div className="border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
           {t("Updated")}
         </div>
       )}
 
-      <div className="space-y-1.5">
-        <label className="text-sm font-bold text-[var(--color-text)]">{t("FullName")}</label>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          disabled={!editing}
+      <div className="space-y-4">
+        <FloatField
+          label={t("FirstName")}
           required
-          className={inp}
+          value={firstName}
+          onChange={setFirstName}
+          autoComplete="given-name"
+        />
+        <FloatField
+          label={t("LastName")}
+          required
+          value={lastName}
+          onChange={setLastName}
+          autoComplete="family-name"
         />
       </div>
 
-      <div className="space-y-1.5">
-        <label className="text-sm font-bold text-[var(--color-text)]">{t("Email")}</label>
-        <input value={email} disabled className={inp} />
-        <p className="text-xs text-[var(--color-muted)]">{t("EmailLocked")}</p>
+      <div className="space-y-4">
+        <CheckboxRow checked={changeEmail} onChange={setChangeEmail} label={t("ChangeEmail")} />
+        <CheckboxRow
+          checked={changePassword}
+          onChange={setChangePassword}
+          label={t("ChangePassword")}
+        />
       </div>
 
-      <div className="space-y-1.5">
-        <label className="text-sm font-bold text-[var(--color-text)]">{t("Phone")}</label>
-        <input
-          type="tel"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          disabled={!editing}
-          placeholder="+216 XX XXX XXX"
-          className={inp}
-        />
+      {changeEmail && (
+        <section className="space-y-4">
+          <h2 className="text-base font-bold uppercase tracking-wide text-[var(--color-text)]">
+            {t("ChangeEmail")}
+          </h2>
+          <FloatField
+            label={t("Email")}
+            required
+            type="email"
+            value={newEmail}
+            onChange={setNewEmail}
+            autoComplete="email"
+          />
+          {!changePassword && (
+            <FloatField
+              label={t("CurrentPassword")}
+              required
+              type="password"
+              value={currentPassword}
+              onChange={setCurrentPassword}
+              autoComplete="current-password"
+            />
+          )}
+        </section>
+      )}
+
+      {changePassword && (
+        <section className="space-y-4">
+          <h2 className="text-base font-bold uppercase tracking-wide text-[var(--color-text)]">
+            {t("ChangePassword")}
+          </h2>
+          <FloatField
+            label={t("CurrentPassword")}
+            required
+            type="password"
+            value={currentPassword}
+            onChange={setCurrentPassword}
+            autoComplete="current-password"
+          />
+          <FloatField
+            label={t("NewPassword")}
+            required
+            type="password"
+            value={newPassword}
+            onChange={setNewPassword}
+            autoComplete="new-password"
+          />
+          <div className="bg-[var(--color-bg)] px-4 py-3 text-sm text-[var(--color-text)]">
+            <div className="flex items-center justify-between">
+              <span>
+                {t("PasswordStrength")}: <span className="font-semibold">{strengthLabel}</span>
+              </span>
+            </div>
+            <div className="mt-2 flex gap-1">
+              {[0, 1, 2, 3].map((i) => (
+                <span
+                  key={i}
+                  className={`h-1 flex-1 ${
+                    i < strength ? "bg-[var(--color-text)]" : "bg-[var(--color-border)]"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+          <FloatField
+            label={t("ConfirmNewPassword")}
+            required
+            type="password"
+            value={confirmPassword}
+            onChange={setConfirmPassword}
+            autoComplete="new-password"
+          />
+        </section>
+      )}
+
+      <div className="flex items-center gap-6 pt-2">
+        <button
+          type="submit"
+          disabled={isPending}
+          className="flex items-center gap-2 border-2 border-[var(--color-text)] px-10 py-3 text-sm font-bold uppercase tracking-widest text-[var(--color-text)] transition hover:bg-[var(--color-text)] hover:text-white disabled:opacity-60"
+        >
+          {isPending && <Loader2 size={14} className="animate-spin" />}
+          {t("SaveBtn")}
+        </button>
+        <Link
+          href="/account"
+          className="text-sm text-[var(--color-muted)] underline underline-offset-4 transition hover:text-[var(--color-text)]"
+        >
+          {t("GoBack")}
+        </Link>
       </div>
     </form>
   );

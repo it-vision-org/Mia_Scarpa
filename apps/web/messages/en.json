@@ -4,6 +4,8 @@
     "Shop": "Shop",
     "Men": "Men",
     "Women": "Women",
+    "Enfant": "Kids",
+    "Promotions": "Promotions",
     "Contact": "Contact",
     "Cart": "Cart",
     "SignIn": "Sign In",
@@ -26,11 +28,16 @@
   "Checkout": {
     "Title": "Checkout",
     "YourInfo": "Your Information",
-    "FullName": "Full Name *",
+    "RequiredNote": "Asterisks (*) indicate required fields.",
+    "Optional": "optional",
+    "FullName": "Full Name",
     "Email": "Email",
     "Phone": "Phone",
     "Address": "Address",
     "City": "City",
+    "SelectCity": "Select a city",
+    "SavedAddresses": "Saved addresses",
+    "AutoFilled": "Auto-filled",
     "PlaceOrder": "Place Order",
     "OrderSummary": "Order Summary",
     "Subtotal": "Subtotal",
@@ -39,6 +46,8 @@
     "Total": "Total",
     "Size": "Size",
     "ErrorNameRequired": "Please enter your full name.",
+    "ErrorPhoneRequired": "Please enter your phone number.",
+    "ErrorAddressRequired": "Please enter your address.",
     "ErrorGeneral": "Something went wrong. Please try again."
   },
   "Account": {
@@ -52,7 +61,9 @@
     "NoOrders": "No orders yet.",
     "StartShopping": "Start shopping",
     "SignOut": "Sign out",
-    "Items": "{count, plural, one {# item} other {# items}}"
+    "Items": "{count, plural, one {# item} other {# items}}",
+    "NavMyAccount": "My Account",
+    "NavMyOrders": "My Orders"
   },
   "Login": {
     "Title": "Sign In",
@@ -87,7 +98,23 @@
     "Email": "Email",
     "Phone": "Phone",
     "EmailLocked": "Email cannot be changed.",
-    "Updated": "Profile updated successfully."
+    "Updated": "Profile updated successfully.",
+    "AccountInformation": "Account Information",
+    "RequiredNote": "Asterisks (*) indicate required fields.",
+    "FirstName": "First Name",
+    "LastName": "Last Name",
+    "ChangeEmail": "Change Email",
+    "ChangePassword": "Change Password",
+    "CurrentPassword": "Current Password",
+    "NewPassword": "New Password",
+    "ConfirmNewPassword": "Confirm New Password",
+    "PasswordStrength": "Password Strength",
+    "StrengthNone": "No Password",
+    "StrengthWeak": "Weak",
+    "StrengthMedium": "Medium",
+    "StrengthStrong": "Strong",
+    "SaveBtn": "Save",
+    "GoBack": "Go back"
   },
   "UserMenu": {
     "MyOrders": "My Orders",
@@ -175,6 +202,7 @@
     "Shop": "Loading shoes",
     "Men": "Men",
     "Women": "Women",
+    "Enfant": "Kids",
     "Product": "Loading"
   },
   "Shop": {
@@ -189,7 +217,10 @@
     "AllCategories": "All categories",
     "Men": "Men",
     "Women": "Women",
+    "Enfant": "Kids",
     "Search": "Search",
+    "Promotions": "Promotions",
+    "OnSaleOnly": "Discount",
     "ClearFilters": "Clear filters"
   },
   "Admin": {
@@ -287,6 +318,7 @@
     "NoCategory": "No category",
     "OptMen": "Men",
     "OptWomen": "Women",
+    "OptEnfant": "Kids",
     "RoleAdmin": "Admin",
     "RoleSuperAdmin": "Super Admin",
 
@@ -349,6 +381,8 @@
     "FailedCreateCategory": "Failed to create category",
     "PhCategoryName": "Category name",
     "PhSubCategoryName": "Sub-category name",
+    "CategoryParent": "Parent category",
+    "CategoryParentNone": "Top level (no parent)",
     "PhSearchOrders": "Search by name, email, phone, city…",
     "PhSize": "Size (e.g. 39, 40, 41…) then Enter",
     "PhImageUrl": "Paste image URL…",

@@ -4,6 +4,8 @@
     "Shop": "المتجر",
     "Men": "رجال",
     "Women": "نساء",
+    "Enfant": "أطفال",
+    "Promotions": "التخفيضات",
     "Contact": "اتصل بنا",
     "Cart": "السلة",
     "SignIn": "تسجيل الدخول",
@@ -26,11 +28,16 @@
   "Checkout": {
     "Title": "إتمام الشراء",
     "YourInfo": "بياناتك",
-    "FullName": "الاسم الكامل *",
+    "RequiredNote": "تشير العلامات النجمية (*) إلى الحقول المطلوبة.",
+    "Optional": "اختياري",
+    "FullName": "الاسم الكامل",
     "Email": "البريد الإلكتروني",
     "Phone": "الهاتف",
     "Address": "العنوان",
     "City": "المدينة",
+    "SelectCity": "اختر مدينة",
+    "SavedAddresses": "العناوين المحفوظة",
+    "AutoFilled": "تم التعبئة تلقائيًا",
     "PlaceOrder": "تأكيد الطلب",
     "OrderSummary": "ملخص الطلب",
     "Subtotal": "المجموع الفرعي",
@@ -39,6 +46,8 @@
     "Total": "المجموع",
     "Size": "المقاس",
     "ErrorNameRequired": "الرجاء إدخال اسمك الكامل.",
+    "ErrorPhoneRequired": "الرجاء إدخال رقم هاتفك.",
+    "ErrorAddressRequired": "الرجاء إدخال عنوانك.",
     "ErrorGeneral": "حدث خطأ. الرجاء المحاولة مرة أخرى."
   },
   "Account": {
@@ -52,7 +61,9 @@
     "NoOrders": "لا توجد طلبات بعد.",
     "StartShopping": "ابدأ التسوق",
     "SignOut": "تسجيل الخروج",
-    "Items": "{count, plural, one {# منتج} few {# منتجات} many {# منتجًا} other {# منتج}}"
+    "Items": "{count, plural, one {# منتج} few {# منتجات} many {# منتجًا} other {# منتج}}",
+    "NavMyAccount": "حسابي",
+    "NavMyOrders": "طلباتي"
   },
   "Login": {
     "Title": "تسجيل الدخول",
@@ -87,7 +98,23 @@
     "Email": "البريد الإلكتروني",
     "Phone": "الهاتف",
     "EmailLocked": "لا يمكن تغيير البريد الإلكتروني.",
-    "Updated": "تم تحديث الملف الشخصي بنجاح."
+    "Updated": "تم تحديث الملف الشخصي بنجاح.",
+    "AccountInformation": "معلومات الحساب",
+    "RequiredNote": "تشير العلامات النجمية (*) إلى الحقول المطلوبة.",
+    "FirstName": "الاسم الأول",
+    "LastName": "اسم العائلة",
+    "ChangeEmail": "تغيير البريد الإلكتروني",
+    "ChangePassword": "تغيير كلمة المرور",
+    "CurrentPassword": "كلمة المرور الحالية",
+    "NewPassword": "كلمة المرور الجديدة",
+    "ConfirmNewPassword": "تأكيد كلمة المرور الجديدة",
+    "PasswordStrength": "قوة كلمة المرور",
+    "StrengthNone": "لا توجد كلمة مرور",
+    "StrengthWeak": "ضعيفة",
+    "StrengthMedium": "متوسطة",
+    "StrengthStrong": "قوية",
+    "SaveBtn": "حفظ",
+    "GoBack": "رجوع"
   },
   "UserMenu": {
     "MyOrders": "طلباتي",
@@ -175,6 +202,7 @@
     "Shop": "جارٍ التحميل",
     "Men": "رجال",
     "Women": "نساء",
+    "Enfant": "أطفال",
     "Product": "جارٍ التحميل"
   },
   "Shop": {
@@ -189,7 +217,10 @@
     "AllCategories": "كل الفئات",
     "Men": "رجال",
     "Women": "نساء",
+    "Enfant": "أطفال",
     "Search": "بحث",
+    "Promotions": "التخفيضات",
+    "OnSaleOnly": "التخفيضات",
     "ClearFilters": "مسح الفلاتر"
   },
   "Admin": {
@@ -287,6 +318,7 @@
     "NoCategory": "بدون فئة",
     "OptMen": "رجال",
     "OptWomen": "نساء",
+    "OptEnfant": "أطفال",
     "RoleAdmin": "مشرف",
     "RoleSuperAdmin": "مشرف أعلى",
 
@@ -349,6 +381,8 @@
     "FailedCreateCategory": "فشل إنشاء الفئة",
     "PhCategoryName": "اسم الفئة",
     "PhSubCategoryName": "اسم الفئة الفرعية",
+    "CategoryParent": "الفئة الأصل",
+    "CategoryParentNone": "المستوى الأعلى (بدون)",
     "PhSearchOrders": "ابحث بالاسم أو البريد أو الهاتف أو المدينة…",
     "PhSize": "المقاس (مثل 39، 40، 41…) ثم Enter",
     "PhImageUrl": "الصق رابط الصورة…",

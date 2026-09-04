@@ -120,12 +120,14 @@ const PRODUCT_INCLUDE = {
 
 export async function getPublishedProducts(filters?: {
   categorySlug?: string;
-  gender?: "men" | "women";
+  gender?: "men" | "women" | "enfant";
   search?: string;
   sizes?: string[];
   color?: string;
   minPrice?: number;
   maxPrice?: number;
+  /** Only products with a live promotion right now — the "Promotions" nav link. */
+  promoOnly?: boolean;
 }): Promise<ActionResult<SerializedProduct[]>> {
   try {
     const search = filters?.search?.trim();
@@ -137,13 +139,16 @@ export async function getPublishedProducts(filters?: {
     const s = search?.toLowerCase() ?? "";
     const MEN_WORDS = ["men", "man", "mens", "homme", "hommes", "رجال", "رجالي"];
     const WOMEN_WORDS = ["women", "woman", "womens", "femme", "femmes", "نساء", "نسائي"];
+    const ENFANT_WORDS = ["enfant", "enfants", "kids", "kid", "child", "children", "أطفال", "طفل"];
     const matchesWord = (words: string[]) =>
       s.length >= 3 && words.some((w) => w === s || w.startsWith(s));
     const genderFromSearch = matchesWord(MEN_WORDS)
       ? "MEN"
       : matchesWord(WOMEN_WORDS)
         ? "WOMEN"
-        : null;
+        : matchesWord(ENFANT_WORDS)
+          ? "ENFANT"
+          : null;
 
     // Free-text search matches across name, description, slug, category and
     // parent category, colour names and sizes; a numeric query also matches the
@@ -166,7 +171,7 @@ export async function getPublishedProducts(filters?: {
                 { colors: { some: { sizes: { some: { priceOverride: { equals: searchNum } } } } } },
               ]
             : []),
-          ...(genderFromSearch ? [{ gender: genderFromSearch as "MEN" | "WOMEN" }] : []),
+          ...(genderFromSearch ? [{ gender: genderFromSearch as "MEN" | "WOMEN" | "ENFANT" }] : []),
         ]
       : null;
 
@@ -192,7 +197,11 @@ export async function getPublishedProducts(filters?: {
       where: {
         isPublished: true,
         ...(filters?.categorySlug ? { category: { slug: filters.categorySlug } } : {}),
-        ...(filters?.gender ? { gender: filters.gender.toUpperCase() as "MEN" | "WOMEN" } : {}),
+        ...(filters?.gender ? { gender: filters.gender.toUpperCase() as "MEN" | "WOMEN" | "ENFANT" } : {}),
+        // narrow at the DB level; the exact "is it live right now" check (date
+        // window + price actually below base) happens below via isPromoLive,
+        // the same helper the storefront itself trusts.
+        ...(filters?.promoOnly ? { promoActive: true, promoPrice: { not: null } } : {}),
         ...(Object.keys(priceWhere).length ? { basePrice: priceWhere } : {}),
         ...(facetAND.length ? { AND: facetAND } : {}),
         ...(searchOR ? { OR: searchOR } : {}),
@@ -200,7 +209,9 @@ export async function getPublishedProducts(filters?: {
       orderBy: [{ isFeatured: "desc" }, { order: "asc" }, { createdAt: "desc" }],
       include: PRODUCT_INCLUDE,
     });
-    return { success: true, data: products.map(serializeProduct) };
+    const serialized = products.map(serializeProduct);
+    const data = filters?.promoOnly ? serialized.filter((p) => p.promoLive) : serialized;
+    return { success: true, data };
   } catch (error) {
     console.error("[PRODUCTS] list error:", error);
     return { success: false, error: "Failed to load products" };
@@ -215,18 +226,25 @@ export type ShopFacets = {
 };
 
 // Distinct sizes / colours and the price span across the published catalogue
-// (optionally scoped to a gender) — powers the shop sidebar filters.
+// (optionally scoped to a gender and/or to live promotions) — powers the shop
+// sidebar filters.
 export async function getShopFacets(opts?: {
-  gender?: "men" | "women";
+  gender?: "men" | "women" | "enfant";
+  promoOnly?: boolean;
 }): Promise<ActionResult<ShopFacets>> {
   try {
     const rows = await db.product.findMany({
       where: {
         isPublished: true,
-        ...(opts?.gender ? { gender: opts.gender.toUpperCase() as "MEN" | "WOMEN" } : {}),
+        ...(opts?.gender ? { gender: opts.gender.toUpperCase() as "MEN" | "WOMEN" | "ENFANT" } : {}),
+        ...(opts?.promoOnly ? { promoActive: true, promoPrice: { not: null } } : {}),
       },
       select: {
         basePrice: true,
+        promoActive: true,
+        promoPrice: true,
+        promoStartsAt: true,
+        promoEndsAt: true,
         colors: {
           where: { isActive: true },
           select: { name: true, hex: true, sizes: { select: { size: true } } },
@@ -234,12 +252,24 @@ export async function getShopFacets(opts?: {
       },
     });
 
+    const scopedRows = opts?.promoOnly
+      ? rows.filter((p) =>
+          isPromoLive({
+            basePrice: Number(p.basePrice),
+            promoActive: p.promoActive,
+            promoPrice: p.promoPrice != null ? Number(p.promoPrice) : null,
+            promoStartsAt: p.promoStartsAt,
+            promoEndsAt: p.promoEndsAt,
+          }),
+        )
+      : rows;
+
     const sizeSet = new Set<string>();
     const colorMap = new Map<string, string | null>();
     let min = Infinity;
     let max = 0;
 
-    for (const p of rows) {
+    for (const p of scopedRows) {
       const price = Number(p.basePrice);
       if (price < min) min = price;
       if (price > max) max = price;

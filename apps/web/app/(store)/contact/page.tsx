@@ -89,40 +89,40 @@ export default async function ContactPage() {
         <div className="mx-auto max-w-5xl px-6">
           <div className="grid items-stretch gap-8 md:grid-cols-[1fr_1px_1.6fr] md:gap-10">
 
-            {/* Contact details — inverted panel: dark block against the light form */}
-            <div className="flex h-full flex-col bg-[var(--color-text)] p-8 text-white">
-              <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-white/45">
+            {/* Contact details — warm sand panel beside the form */}
+            <div className="flex h-full flex-col bg-[#FBF8F3] border-1 border-[#E4DCD0] p-8 text-[var(--color-text)]">
+              <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-[var(--color-muted)]">
                 {t("InfoHeading")}
               </h2>
 
-              <div className="mt-6 divide-y divide-white/10">
+              <div className="mt-6 divide-y divide-black/10">
                 {INFO.map(({ icon: Icon, label, value, href }) => (
                   <div key={label} className="flex items-center gap-4 py-4 first:pt-0">
-                    <Icon className="h-5 w-5 shrink-0 text-white" />
+                    <Icon className="h-5 w-5 shrink-0 text-[var(--color-text)]" />
                     <div className="min-w-0">
-                      <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/45">
+                      <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-muted)]">
                         {label}
                       </p>
                       {href ? (
                         <a
                           href={href}
-                          className="mt-0.5 block truncate text-lg font-medium text-white transition hover:text-white/60"
+                          className="mt-0.5 block truncate text-lg font-medium text-[var(--color-text)] transition hover:text-[var(--color-muted)]"
                         >
                           {value}
                         </a>
                       ) : (
-                        <p className="mt-0.5 truncate text-lg font-medium text-white">{value}</p>
+                        <p className="mt-0.5 truncate text-lg font-medium text-[var(--color-text)]">{value}</p>
                       )}
                     </div>
                   </div>
                 ))}
 
                 <div className="py-4 last:pb-0">
-                  <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/45">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-muted)]">
                     {t("ResponseTimeHeading")}
                   </p>
-                  <p className="mt-1 text-lg font-medium text-white">{contact.responseTime}</p>
-                  <p className="mt-1 text-xs text-white/45">{t("ResponseTimeNote")}</p>
+                  <p className="mt-1 text-lg font-medium text-[var(--color-text)]">{contact.responseTime}</p>
+                  <p className="mt-1 text-xs text-[var(--color-muted)]">{t("ResponseTimeNote")}</p>
                 </div>
               </div>
             </div>

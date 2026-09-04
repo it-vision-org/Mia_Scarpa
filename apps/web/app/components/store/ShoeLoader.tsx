@@ -1,8 +1,8 @@
-import { Footprints, Mars, Venus } from "lucide-react";
+import { Footprints, Mars, Venus, Baby } from "lucide-react";
 
 type Props = {
   label?: string;
-  variant?: "default" | "men" | "women";
+  variant?: "default" | "men" | "women" | "enfant";
   /** Full-screen frosted popup (default) vs. inline block. */
   overlay?: boolean;
   /** play the fade/scale/blur-out exit animation */
@@ -10,7 +10,7 @@ type Props = {
 };
 
 export function ShoeLoader({ label, variant = "default", overlay = true, exiting = false }: Props) {
-  const GenderIcon = variant === "men" ? Mars : variant === "women" ? Venus : null;
+  const GenderIcon = variant === "men" ? Mars : variant === "women" ? Venus : variant === "enfant" ? Baby : null;
 
   const core = (
     <div className="flex flex-col items-center gap-6">

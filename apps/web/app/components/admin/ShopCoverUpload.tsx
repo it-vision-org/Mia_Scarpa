@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { Loader2, CheckCircle2, ImageIcon } from "lucide-react";
 import { saveShopCoverSettings } from "@/actions/storeSettingsActions";
 import { useTranslations } from "next-intl";
-import Uploader from "./Uploader";
+import CroppedImageUploader from "./CroppedImageUploader";
 
 type Slot = "shop" | "men" | "women";
 
@@ -91,8 +91,9 @@ function CoverSlot({
         <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{uploadError}</p>
       )}
 
-      <Uploader
+      <CroppedImageUploader
         endpoint="storeImage"
+        aspect={16 / 9}
         buttonText={imageUrl ? t("UploadNewPhoto") : t("UploadPhoto")}
         handleUploadComplete={handleUploadComplete}
       />

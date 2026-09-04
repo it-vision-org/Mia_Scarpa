@@ -78,35 +78,35 @@ export function NavSearch() {
         type="button"
         onClick={() => setManualOpen(true)}
         aria-label={t("Search")}
-        className="flex items-center rounded-xl border border-[var(--color-border)] p-2.5 text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:bg-[var(--color-accent)]/5 hover:text-[var(--color-accent)]"
+        className="flex items-center text-[var(--color-text)] transition hover:text-[var(--color-muted)]"
       >
-        <Search size={16} />
+        <Search size={20} strokeWidth={1.5} />
       </button>
     );
   }
 
   return (
-    <div ref={wrapRef}>
+    <div ref={wrapRef} className={manualOpen ? "animate-ui-slide-left" : undefined}>
       <form
         onSubmit={submit}
-        className="flex items-center gap-1 rounded-xl border border-[var(--color-accent)] bg-white pl-2.5 pr-1 py-1"
+        className="flex items-center gap-1.5 border-b border-[var(--color-text)] pb-1"
       >
-        <Search size={15} className="shrink-0 text-[var(--color-muted)]" />
+        <Search size={18} strokeWidth={1.5} className="shrink-0 text-[var(--color-muted)]" />
         <input
           ref={inputRef}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t("Search")}
           aria-label={t("Search")}
-          className="w-24 bg-transparent py-1 text-sm text-[var(--color-text)] placeholder:text-[var(--color-muted)] outline-none sm:w-32"
+          className="w-28 bg-transparent py-0.5 text-sm text-[var(--color-text)] placeholder:text-[var(--color-muted)] outline-none sm:w-40"
         />
         <button
           type="button"
           onClick={clear}
           aria-label="Clear search"
-          className="shrink-0 rounded-lg p-1 text-[var(--color-muted)] transition hover:text-[var(--color-text)]"
+          className="shrink-0 p-1 text-[var(--color-muted)] transition hover:text-[var(--color-text)]"
         >
-          <X size={14} />
+          <X size={16} strokeWidth={1.5} />
         </button>
       </form>
     </div>

@@ -8,6 +8,7 @@ import { PriceRangeSlider } from "./PriceRangeSlider";
 type Current = {
   category?: string;
   gender?: string;
+  promo?: string;
   search?: string;
   size?: string;
   color?: string;
@@ -51,13 +52,16 @@ export async function ShopFilters({ categories, facets, current }: ShopFiltersPr
   const priceMinValue = current.minPrice ? Number(current.minPrice) : undefined;
   const priceMaxValue = current.maxPrice ? Number(current.maxPrice) : undefined;
 
+  const promoActive = current.promo === "1" || current.promo === "true";
+
   const hasActiveFilters = Boolean(
     current.category ||
       current.search ||
       current.size ||
       current.color ||
       current.minPrice ||
-      current.maxPrice,
+      current.maxPrice ||
+      promoActive,
   );
 
   const Section = ({
@@ -90,6 +94,7 @@ export async function ShopFilters({ categories, facets, current }: ShopFiltersPr
           <Link
             href={hrefWith({
               category: undefined,
+              promo: undefined,
               search: undefined,
               size: undefined,
               color: undefined,
@@ -116,12 +121,27 @@ export async function ShopFilters({ categories, facets, current }: ShopFiltersPr
         </Section>
       )}
 
+      <Section title={t("Promotions")}>
+        <Link
+          href={hrefWith({ promo: promoActive ? undefined : "1" })}
+          className={`flex items-center justify-between rounded-md px-3 py-1.5 text-sm font-semibold transition ${
+            promoActive
+              ? "bg-[var(--color-promo)] text-white"
+              : "text-[var(--color-promo)] hover:bg-[var(--color-promo)]/10"
+          }`}
+        >
+          {t("OnSaleOnly")}
+          {promoActive && <X className="h-3.5 w-3.5" />}
+        </Link>
+      </Section>
+
       <Section title={t("Gender")}>
         <div className="space-y-0.5">
           {[
             { key: undefined as string | undefined, label: t("All") },
             { key: "men", label: t("Men") },
             { key: "women", label: t("Women") },
+            { key: "enfant", label: t("Enfant") },
           ].map(({ key, label }) => (
             <Link
               key={label}

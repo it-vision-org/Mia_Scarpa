@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { Loader2, CheckCircle2, ImageIcon } from "lucide-react";
 import { saveFeaturedSettings } from "@/actions/storeSettingsActions";
 import { useTranslations } from "next-intl";
-import Uploader from "./Uploader";
+import CroppedImageUploader from "./CroppedImageUploader";
 import { SaveButton } from "./HeroTextEditor";
 import type { FeaturedOverlay } from "@/types";
 
@@ -80,7 +80,7 @@ export function FeaturedPhotoUpload({
       <div className="max-w-lg space-y-4">
         <div
           className="relative overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)]"
-          style={{ aspectRatio: "4/5", maxHeight: 420 }}
+          style={{ aspectRatio: "1/1", maxHeight: 420 }}
         >
           {imageUrl && !imgFailed ? (
             <img
@@ -119,13 +119,14 @@ export function FeaturedPhotoUpload({
           <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{uploadError}</p>
         )}
 
-        <Uploader
+        <CroppedImageUploader
           endpoint="storeImage"
+          aspect={1}
           buttonText={imageUrl ? t("UploadNewPhoto") : t("UploadPhoto")}
           handleUploadComplete={handleUploadComplete}
         />
         <p className="text-xs text-[var(--color-muted)]">
-          This is the photo shown next to the featured products, right below the hero. Recommended: portrait format (4:5).
+          This is the photo shown next to the featured products, right below the hero. Shown as a square — crop it to fit after uploading.
         </p>
       </div>
 

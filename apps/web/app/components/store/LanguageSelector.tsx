@@ -48,16 +48,16 @@ export function LanguageSelector() {
       <button
         type="button"
         onClick={() => setIsOpen((v) => !v)}
-        className="flex items-center gap-2 rounded-xl border border-[var(--color-border)] px-3 py-2 text-sm font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent)]/5"
+        className="flex items-center gap-1.5 text-[var(--color-text)] transition hover:text-[var(--color-muted)]"
         aria-label="Select language"
         aria-expanded={isOpen}
       >
-        <Globe className="h-4 w-4" />
-        <span className="hidden sm:block uppercase tracking-wide text-xs">{selected.code}</span>
+        <Globe size={20} strokeWidth={1.5} />
+        <span className="hidden sm:block uppercase tracking-wide text-xs font-medium">{selected.code}</span>
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-lg z-50">
+        <div className="animate-ui-slide-down absolute right-0 top-full mt-3 w-52 overflow-hidden border border-[var(--color-border)] bg-white shadow-lg z-50">
           <div className="border-b border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5">
             <p className="text-xs font-bold uppercase tracking-wider text-[var(--color-muted)]">
               {t("Label")}
@@ -77,7 +77,7 @@ export function LanguageSelector() {
                       : "hover:bg-[var(--color-bg)]"
                   }`}
                 >
-                  <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)]">
+                  <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center border border-[var(--color-border)] bg-[var(--color-bg)]">
                     <Globe className={`h-4 w-4 ${isSelected ? "text-[var(--color-accent)]" : "text-[var(--color-muted)]"}`} />
                   </span>
                   <div className="flex-1">

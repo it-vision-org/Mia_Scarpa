@@ -7,8 +7,8 @@ import { ArrowRight, Phone, Mail, MapPin } from "lucide-react";
 import { getBaseUrl } from "@/lib/seo";
 import { getContactInfo } from "@/actions/storeConfigActions";
 import { getFeaturedProducts, getProductsByIds } from "@/actions/productActions";
-import { ProductGrid } from "@/components/store/ProductGrid";
-import { ProductTile } from "@/components/store/ProductTile";
+import { FeaturedCollectionGrid } from "@/components/store/FeaturedCollectionGrid";
+import { FeaturedShoes } from "@/components/store/FeaturedShoes";
 import { AutoPlayVideo } from "@/components/store/AutoPlayVideo";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionDivider } from "@/components/ui/SectionDivider";
@@ -51,7 +51,7 @@ export default async function HomePage() {
   const homepageFeatured =
     curatedResult?.success && (curatedResult.data?.length ?? 0) > 0
       ? curatedResult.data!
-      : products.slice(0, 4);
+      : products;
 
   const hero = {
     cta1: settings?.heroCta1 ?? DEFAULT_HERO.cta1,
@@ -101,13 +101,22 @@ export default async function HomePage() {
 
   return (
     <main>
-      {/* ── HERO — FULL-SCREEN VIDEO ─────────────────────────────────── */}
-      <section className="relative h-screen w-full overflow-hidden bg-[var(--color-green-dark)]">
+      {/* ── HERO ──────────────────────────────────────────────────────
+          On mobile the video plays at its own natural size (no forced
+          full-screen height, no cropping, no letterbox bars) — the section
+          just wraps around it. From `sm:` up it goes back to the classic
+          full-screen cropped background. The image fallback (no video set)
+          always stays full-screen. */}
+      <section
+        className={`relative w-full overflow-hidden bg-[var(--color-green-dark)] ${
+          hasVideo ? "sm:h-screen" : "h-screen"
+        }`}
+      >
         {hasVideo ? (
           <AutoPlayVideo
             src={videoUrl}
             controls={false}
-            className="absolute inset-0 h-full w-full object-cover"
+            className="relative block h-auto w-full sm:absolute sm:inset-0 sm:h-full sm:object-cover"
           />
         ) : settings?.heroImage ? (
           <Image src={settings.heroImage} alt="" fill priority className="object-cover" />
@@ -115,7 +124,7 @@ export default async function HomePage() {
 
         <div className="absolute inset-0 bg-black/30" />
 
-        <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center">
           <Link
             href="/shop"
             className="inline-flex items-center gap-2 border border-white/70 px-10 py-3.5 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-white hover:text-[var(--color-green-dark)]"
@@ -132,10 +141,11 @@ export default async function HomePage() {
       {homepageFeatured.length > 0 && (
         <section className="bg-white">
           <div className="w-full">
-            <div className="grid grid-cols-1 gap-1 lg:h-[640px] lg:grid-cols-2">
-              {/* left: image, fills the full half */}
-              <Reveal className="h-full">
-                <div className="relative h-[420px] w-full overflow-hidden bg-[var(--color-bg)] lg:h-full">
+            <div className="grid grid-cols-1 gap-1 lg:grid-cols-2 lg:items-center">
+              {/* left: always a square box — admins can just upload a square
+                  photo and it fills the frame with no crop surprises */}
+              <Reveal>
+                <div className="relative aspect-square w-full overflow-hidden bg-[var(--color-bg)]">
                   {featuredImage && (
                     <Image
                       src={featuredImage}
@@ -157,15 +167,10 @@ export default async function HomePage() {
                 </div>
               </Reveal>
 
-              {/* right: 3-4 featured products, covering squares */}
-              <Reveal delay={0.1} className="h-full">
-                <div className="grid h-[420px] grid-cols-2 grid-rows-2 gap-1 lg:h-full">
-                  {homepageFeatured.map((product) => (
-                    <div key={product.id} className="relative h-full w-full">
-                      <ProductTile product={product} />
-                    </div>
-                  ))}
-                </div>
+              {/* right: featured products — a square-tile grid up to 4, a
+                  slider past that (see FeaturedShoes) */}
+              <Reveal delay={0.1}>
+                <FeaturedShoes products={homepageFeatured} />
               </Reveal>
             </div>
           </div>
@@ -192,7 +197,7 @@ export default async function HomePage() {
           {editorial1.image && (
             <Reveal>
               <div className="grid grid-cols-1 items-center lg:grid-cols-2">
-                <div className="relative aspect-[4/5] w-full overflow-hidden bg-[var(--color-bg)] lg:aspect-auto lg:h-[720px]">
+                <div className="relative aspect-square w-full overflow-hidden bg-[var(--color-bg)]">
                   <Image
                     src={editorial1.image}
                     alt={editorial1.title}
@@ -226,7 +231,7 @@ export default async function HomePage() {
                   </h2>
                   <p className="mt-5 max-w-md text-base text-[var(--color-muted)]">{editorial2.desc}</p>
                 </div>
-                <div className="order-1 relative aspect-[4/5] w-full overflow-hidden bg-[var(--color-bg)] lg:order-2 lg:aspect-auto lg:h-[720px]">
+                <div className="order-1 relative aspect-square w-full overflow-hidden bg-[var(--color-bg)] lg:order-2">
                   <Image
                     src={editorial2.image}
                     alt={editorial2.title}
@@ -260,7 +265,7 @@ export default async function HomePage() {
             </Link>
           </Reveal>
           <Reveal delay={0.1}>
-            <ProductGrid products={products} />
+            <FeaturedCollectionGrid products={products} />
           </Reveal>
         </div>
       </section>

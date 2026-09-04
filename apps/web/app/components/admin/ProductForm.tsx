@@ -3,9 +3,11 @@
 import { useState, useTransition, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Plus, X, Loader2, Link as LinkIcon, Upload, Copy, Images } from "lucide-react";
+import { Plus, X, Loader2, Link as LinkIcon, Upload, Copy, Images, Check, Save } from "lucide-react";
 
 import { createProduct, updateProduct } from "@/actions/adminActions";
+import { createCategory } from "@/actions/categoryActions";
+import { CategorySelect } from "./CategorySelect";
 import { ImagePickerModal } from "./ImagePickerModal";
 import { SeoFieldsEditor, EMPTY_SEO_FIELDS, type SeoFieldsValue } from "./SeoFieldsEditor";
 import { generateSeoFields } from "@/lib/seoAutofill";
@@ -22,6 +24,17 @@ function flattenCategories(
       { id: n.id, label: `${"— ".repeat(depth)}${n.name}` },
       ...flattenCategories(n.children, gender, depth + 1),
     ]);
+}
+
+// Immutably drop a freshly-created category into the local tree so the <select>
+// picks it up without a full page reload.
+function insertCategoryNode(nodes: CategoryNode[], node: CategoryNode): CategoryNode[] {
+  if (!node.parentId) return [...nodes, node];
+  return nodes.map((n) =>
+    n.id === node.parentId
+      ? { ...n, children: [...n.children, node] }
+      : { ...n, children: insertCategoryNode(n.children, node) },
+  );
 }
 
 type SizeEntry = { size: string; stock: number };
@@ -108,6 +121,38 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <label className="text-sm font-bold text-[var(--color-text)]">{label}</label>
       {children}
     </div>
+  );
+}
+
+// Saves the whole product right where the admin is scrolled to, so they never
+// have to jump down to the button at the bottom of the page. All of these
+// trigger the same save (the product is one record) and stay on the page.
+function SectionSaveButton({
+  submitting,
+  saved,
+  onClick,
+}: {
+  submitting: boolean;
+  saved: boolean;
+  onClick: () => void;
+}) {
+  const t = useTranslations("Admin");
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={submitting}
+      className="inline-flex items-center gap-2 self-start rounded-xl border border-[var(--color-border)] bg-white px-4 py-2.5 text-xs font-bold text-[var(--color-text)] transition hover:bg-[var(--color-bg)] disabled:opacity-60"
+    >
+      {submitting ? (
+        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+      ) : saved ? (
+        <Check className="h-3.5 w-3.5 text-emerald-600" />
+      ) : (
+        <Save className="h-3.5 w-3.5" />
+      )}
+      {submitting ? t("Saving") : saved ? t("SavedExcl") : t("SaveChanges")}
+    </button>
   );
 }
 
@@ -200,7 +245,7 @@ function SizesEditor({
 // ── Main form ─────────────────────────────────────────────────────────────────
 export function ProductForm({
   initialData,
-  categoryTree = [],
+  categoryTree: initialCategoryTree = [],
 }: {
   initialData?: AdminProductDetail;
   categoryTree?: CategoryNode[];
@@ -208,6 +253,15 @@ export function ProductForm({
   const router = useRouter();
   const t = useTranslations("Admin");
   const [, startTransition] = useTransition();
+
+  // Local copy of the category tree so a category created inline shows up in the
+  // picker immediately, without leaving the product form.
+  const [categoryTree, setCategoryTree] = useState<CategoryNode[]>(initialCategoryTree);
+  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryParent, setNewCategoryParent] = useState("");
+  const [creatingCategory, setCreatingCategory] = useState(false);
+  const [newCategoryError, setNewCategoryError] = useState("");
 
   const [name, setName]     = useState(initialData?.name ?? "");
   const [price, setPrice]   = useState(initialData ? String(initialData.priceCents / 100) : "");
@@ -250,6 +304,42 @@ export function ProductForm({
     setGender(next);
     // the previously selected category may not exist in the new gender's tree
     setCategoryId((current) => (flattenCategories(categoryTree, next).some((c) => c.id === current) ? current : ""));
+    // parent options are gender-scoped too — reset the inline "new category" form
+    setNewCategoryParent("");
+    setNewCategoryError("");
+  }
+
+  async function handleCreateCategory() {
+    const name = newCategoryName.trim();
+    if (!name) return;
+    setCreatingCategory(true);
+    setNewCategoryError("");
+    try {
+      const parentId = newCategoryParent || null;
+      const result = await createCategory({ name, gender, parentId });
+      if (!result.success || !result.data) {
+        setNewCategoryError(result.error ?? t("FailedCreateCategory"));
+        return;
+      }
+      const node: CategoryNode = {
+        id: result.data.id,
+        name,
+        slug: "",
+        parentId,
+        gender,
+        children: [],
+      };
+      setCategoryTree((prev) => insertCategoryNode(prev, node));
+      setCategoryId(node.id);
+      setNewCategoryName("");
+      setNewCategoryParent("");
+      setShowNewCategory(false);
+      router.refresh();
+    } catch {
+      setNewCategoryError(t("FailedCreateCategory"));
+    } finally {
+      setCreatingCategory(false);
+    }
   }
 
   // ── Main product photos ─────────────────────────────────────────────────
@@ -265,16 +355,22 @@ export function ProductForm({
   }
 
   async function handleMainFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
     setUploading(true);
     setError("");
+    let failed = false;
     try {
-      const url = await uploadToImgbb(file);
-      setMainImages((prev) => [...prev, url]);
-    } catch {
-      setError(t("ErrImageUpload"));
+      for (const file of files) {
+        try {
+          const url = await uploadToImgbb(file);
+          setMainImages((prev) => (prev.includes(url) ? prev : [...prev, url]));
+        } catch {
+          failed = true;
+        }
+      }
     } finally {
+      if (failed) setError(t("ErrImageUpload"));
       setUploading(false);
       e.target.value = "";
     }
@@ -374,18 +470,30 @@ export function ProductForm({
   }
 
   async function handleColorFileUpload(rowId: string, e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
     setUploading(true);
     setError("");
+    let failed = false;
     try {
-      const url = await uploadToImgbb(file);
-      setColorRows((prev) =>
-        prev.map((r) => (r.id === rowId ? { ...r, imageUrls: [...r.imageUrls, url] } : r)),
-      );
-    } catch {
-      setError(t("ErrImageUpload"));
+      for (const file of files) {
+        try {
+          const url = await uploadToImgbb(file);
+          setColorRows((prev) =>
+            prev.map((r) =>
+              r.id === rowId
+                ? r.imageUrls.includes(url)
+                  ? r
+                  : { ...r, imageUrls: [...r.imageUrls, url] }
+                : r,
+            ),
+          );
+        } catch {
+          failed = true;
+        }
+      }
     } finally {
+      if (failed) setError(t("ErrImageUpload"));
       setUploading(false);
       e.target.value = "";
     }
@@ -432,8 +540,16 @@ export function ProductForm({
   }
 
   // ── Submit ───────────────────────────────────────────────────────────────
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  // Every section's Save button runs the same save — the product is one atomic
+  // record, so "saving a section" really means "save the whole product now,
+  // without leaving the page". `productId` tracks the id once the product has
+  // been created (either from `initialData`, or from the first successful save
+  // on a brand-new product), so a second click updates in place instead of
+  // creating a duplicate. Only the bottom-of-page button navigates away.
+  const [productId, setProductId] = useState<string | null>(initialData?.id ?? null);
+  const [saved, setSaved] = useState(false);
+
+  function submitProduct(navigateAway: boolean) {
     if (!name.trim()) { setError(t("ErrNameRequired")); return; }
     if (colorRows.length === 0) { setError(t("ErrNoColor")); return; }
 
@@ -442,6 +558,7 @@ export function ProductForm({
 
     setSubmitting(true);
     setError("");
+    setSaved(false);
 
     const input = {
       name: name.trim(),
@@ -474,17 +591,31 @@ export function ProductForm({
 
     startTransition(async () => {
       try {
-        const result = initialData
-          ? await updateProduct(initialData.id, input)
+        const result = productId
+          ? await updateProduct(productId, input)
           : await createProduct(input);
         if (!result.success) { setError(result.error ?? t("ErrGeneric")); setSubmitting(false); return; }
-        router.push("/admin/products");
+        if (!productId && "data" in result && result.data?.id) setProductId(result.data.id);
+
+        if (navigateAway) {
+          router.push("/admin/products");
+          router.refresh();
+          return;
+        }
+        setSubmitting(false);
+        setSaved(true);
         router.refresh();
+        setTimeout(() => setSaved(false), 3000);
       } catch {
         setError(t("ErrGeneric"));
         setSubmitting(false);
       }
     });
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    submitProduct(true);
   }
 
   return (
@@ -503,6 +634,8 @@ export function ProductForm({
       <Field label={t("FieldBasePrice")}>
         <input type="number" min="0" step="0.001" value={price} onChange={(e) => setPrice(e.target.value)} placeholder={t("PhPriceExample")} className={inp} />
       </Field>
+
+      <SectionSaveButton submitting={submitting} saved={saved} onClick={() => submitProduct(false)} />
 
       {/* ── Promotion / Sale ── */}
       <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] p-4 space-y-4">
@@ -591,6 +724,8 @@ export function ProductForm({
             </Field>
           </div>
         )}
+
+        <SectionSaveButton submitting={submitting} saved={saved} onClick={() => submitProduct(false)} />
       </div>
 
       {/* Gender + Category */}
@@ -599,16 +734,83 @@ export function ProductForm({
           <select value={gender} onChange={(e) => handleGenderChange(e.target.value as Gender)} className={inp}>
             <option value="MEN">{t("OptMen")}</option>
             <option value="WOMEN">{t("OptWomen")}</option>
+            <option value="ENFANT">{t("OptEnfant")}</option>
           </select>
         </Field>
         <Field label={t("FieldCategory")}>
-          <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className={inp}>
-            <option value="">{t("OptNoCategory")}</option>
-            {flatCategories.map((c) => (
-              <option key={c.id} value={c.id}>{c.label}</option>
-            ))}
-          </select>
-          {flatCategories.length === 0 && (
+          <CategorySelect
+            value={categoryId}
+            onChange={setCategoryId}
+            options={flatCategories}
+            placeholder={t("OptNoCategory")}
+          />
+
+          {!showNewCategory ? (
+            <button
+              type="button"
+              onClick={() => { setShowNewCategory(true); setNewCategoryError(""); }}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--color-accent)] hover:underline"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {t("AddCategory")}
+            </button>
+          ) : (
+            <div className="space-y-2 rounded-xl border border-[var(--color-accent)]/30 bg-[var(--color-bg)] p-3">
+              <input
+                autoFocus
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") { e.preventDefault(); handleCreateCategory(); }
+                }}
+                placeholder={newCategoryParent ? t("PhSubCategoryName") : t("PhCategoryName")}
+                className={`${inp} py-2 text-xs`}
+              />
+
+              <div className="space-y-1">
+                <label className="block text-[11px] font-semibold uppercase tracking-wide text-[var(--color-muted)]">
+                  {t("CategoryParent")}
+                </label>
+                <CategorySelect
+                  value={newCategoryParent}
+                  onChange={setNewCategoryParent}
+                  options={flatCategories}
+                  placeholder={t("CategoryParentNone")}
+                />
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleCreateCategory}
+                  disabled={creatingCategory || !newCategoryName.trim()}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--color-accent)] px-3 py-2 text-xs font-bold text-white transition hover:bg-[var(--color-green-mid)] disabled:opacity-50"
+                >
+                  {creatingCategory ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                  {t("Add")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowNewCategory(false);
+                    setNewCategoryName("");
+                    setNewCategoryParent("");
+                    setNewCategoryError("");
+                  }}
+                  className="rounded-xl border border-[var(--color-border)] bg-white px-3 py-2 text-xs font-semibold text-[var(--color-muted)] transition hover:text-[var(--color-text)]"
+                >
+                  {t("Cancel")}
+                </button>
+                <span className="text-xs text-[var(--color-muted)]">
+                  {gender === "MEN" ? t("OptMen") : gender === "WOMEN" ? t("OptWomen") : t("OptEnfant")}
+                </span>
+              </div>
+
+              {newCategoryError && <p className="text-xs text-red-600">{newCategoryError}</p>}
+            </div>
+          )}
+
+          {flatCategories.length === 0 && !showNewCategory && (
             <p className="text-xs text-[var(--color-muted)]">
               {t("NoCategoriesHint")}
               <a href="/admin/categories" className="underline hover:text-[var(--color-accent)]">
@@ -619,6 +821,8 @@ export function ProductForm({
           )}
         </Field>
       </div>
+
+      <SectionSaveButton submitting={submitting} saved={saved} onClick={() => submitProduct(false)} />
 
       {/* Main Product Photos */}
       <div className="rounded-2xl border border-[var(--color-border)] bg-white p-5 space-y-3">
@@ -649,6 +853,7 @@ export function ProductForm({
           <input
             type="file"
             accept="image/*"
+            multiple
             className="hidden"
             ref={mainFileRef}
             onChange={handleMainFileUpload}
@@ -702,6 +907,8 @@ export function ProductForm({
             ))}
           </div>
         )}
+
+        <SectionSaveButton submitting={submitting} saved={saved} onClick={() => submitProduct(false)} />
       </div>
 
       {/* Colors */}
@@ -768,6 +975,7 @@ export function ProductForm({
                 <input
                   type="file"
                   accept="image/*"
+                  multiple
                   className="hidden"
                   ref={(el) => { if (el) colorFileRefs.current.set(row.id, el); }}
                   onChange={(e) => handleColorFileUpload(row.id, e)}
@@ -848,6 +1056,8 @@ export function ProductForm({
         >
           <Plus className="h-4 w-4" /> {t("AddColor")}
         </button>
+
+        <SectionSaveButton submitting={submitting} saved={saved} onClick={() => submitProduct(false)} />
       </div>
 
       {/* SEO */}
@@ -871,6 +1081,8 @@ export function ProductForm({
         entityLabel="produit"
       />
 
+      <SectionSaveButton submitting={submitting} saved={saved} onClick={() => submitProduct(false)} />
+
       {/* Visibility */}
       <div className="rounded-xl border border-[var(--color-border)] bg-white p-5 space-y-3">
         <label className="flex cursor-pointer items-center gap-3">
@@ -881,6 +1093,8 @@ export function ProductForm({
           <input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} className="h-4 w-4 rounded accent-[var(--color-accent)]" />
           <span className="text-sm font-medium text-[var(--color-text)]">{t("VisibilityFeatured")}</span>
         </label>
+
+        <SectionSaveButton submitting={submitting} saved={saved} onClick={() => submitProduct(false)} />
       </div>
 
       {/* Submit */}

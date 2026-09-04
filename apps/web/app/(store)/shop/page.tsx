@@ -22,6 +22,7 @@ import {
 type SearchParams = Promise<{
   category?: string;
   gender?: string;
+  promo?: string;
   search?: string;
   size?: string;
   color?: string;
@@ -48,11 +49,18 @@ export async function generateMetadata({
   let keywords: string | undefined;
   let canonical = `${baseUrl}/shop`;
 
-  if (params.gender === "men" || params.gender === "women") {
-    const label = params.gender === "men" ? "homme" : "femme";
+  if (params.gender === "men" || params.gender === "women" || params.gender === "enfant") {
+    const label = params.gender === "men" ? "homme" : params.gender === "women" ? "femme" : "enfant";
     title = `Chaussures ${label}`;
     description = `Découvrez la collection Mia Scarpa pour ${label} : cuir, sneakers, bottines et mocassins. Livraison rapide partout en Tunisie.`;
     canonical = `${baseUrl}/shop?gender=${params.gender}`;
+  }
+
+  if (params.promo === "1" || params.promo === "true") {
+    title = "Promotions";
+    description =
+      "Toutes les chaussures Mia Scarpa actuellement en promotion : profitez des réductions avant qu'elles ne s'arrêtent.";
+    canonical = `${baseUrl}/shop?promo=1`;
   }
 
   if (params.category) {
@@ -99,7 +107,11 @@ export default async function ShopPage({
   searchParams: SearchParams;
 }) {
   const params = await searchParams;
-  const gender = params.gender === "men" || params.gender === "women" ? params.gender : undefined;
+  const gender =
+    params.gender === "men" || params.gender === "women" || params.gender === "enfant"
+      ? params.gender
+      : undefined;
+  const promoOnly = params.promo === "1" || params.promo === "true";
 
   const parsePrice = (v?: string) => {
     const n = v != null ? Number(v) : NaN;
@@ -109,21 +121,24 @@ export default async function ShopPage({
   const maxPrice = parsePrice(params.maxPrice);
   const sizes = params.size ? params.size.split(",").map((s) => s.trim()).filter(Boolean) : [];
 
-  const [productsResult, facetsResult, menTreeResult, womenTreeResult, settingsResult] = await Promise.all([
-    getPublishedProducts({
-      categorySlug: params.category,
-      gender,
-      search: params.search,
-      sizes,
-      color: params.color,
-      minPrice,
-      maxPrice,
-    }),
-    getShopFacets({ gender }),
-    getCategoryTree("MEN"),
-    getCategoryTree("WOMEN"),
-    getStoreSettings(),
-  ]);
+  const [productsResult, facetsResult, menTreeResult, womenTreeResult, enfantTreeResult, settingsResult] =
+    await Promise.all([
+      getPublishedProducts({
+        categorySlug: params.category,
+        gender,
+        search: params.search,
+        sizes,
+        color: params.color,
+        minPrice,
+        maxPrice,
+        promoOnly,
+      }),
+      getShopFacets({ gender, promoOnly }),
+      getCategoryTree("MEN"),
+      getCategoryTree("WOMEN"),
+      getCategoryTree("ENFANT"),
+      getStoreSettings(),
+    ]);
 
   const products = productsResult.success ? (productsResult.data ?? []) : [];
   const facets =
@@ -132,9 +147,18 @@ export default async function ShopPage({
       : { sizes: [], colors: [], priceMin: 0, priceMax: 0 };
   const menTree = menTreeResult.success ? (menTreeResult.data ?? []) : [];
   const womenTree = womenTreeResult.success ? (womenTreeResult.data ?? []) : [];
-  const categoryTree = gender === "men" ? menTree : gender === "women" ? womenTree : [...menTree, ...womenTree];
+  const enfantTree = enfantTreeResult.success ? (enfantTreeResult.data ?? []) : [];
+  const categoryTree =
+    gender === "men"
+      ? menTree
+      : gender === "women"
+        ? womenTree
+        : gender === "enfant"
+          ? enfantTree
+          : [...menTree, ...womenTree, ...enfantTree];
   const settings = settingsResult.success ? settingsResult.data : null;
 
+  // Kids doesn't get its own cover-photo slot — falls back to the general shop cover, same as the bare listing.
   const coverImage =
     gender === "men"
       ? (settings?.menCoverImage ?? settings?.heroImage ?? null)
@@ -142,7 +166,15 @@ export default async function ShopPage({
         ? (settings?.womenCoverImage ?? settings?.heroImage ?? null)
         : (settings?.shopCoverImage ?? settings?.heroImage ?? null);
 
-  const title = gender === "men" ? "Men" : gender === "women" ? "Women" : "Shop";
+  const title = promoOnly
+    ? "Promotions"
+    : gender === "men"
+      ? "Men"
+      : gender === "women"
+        ? "Women"
+        : gender === "enfant"
+          ? "Kids"
+          : "Shop";
 
   const baseUrl = await getBaseUrl();
   const breadcrumbItems = [
@@ -150,6 +182,8 @@ export default async function ShopPage({
     { name: "Boutique", url: `${baseUrl}/shop` },
     ...(gender === "men" ? [{ name: "Homme", url: `${baseUrl}/shop?gender=men` }] : []),
     ...(gender === "women" ? [{ name: "Femme", url: `${baseUrl}/shop?gender=women` }] : []),
+    ...(gender === "enfant" ? [{ name: "Enfant", url: `${baseUrl}/shop?gender=enfant` }] : []),
+    ...(promoOnly ? [{ name: "Promotions", url: `${baseUrl}/shop?promo=1` }] : []),
   ];
 
   return (
@@ -188,6 +222,7 @@ export default async function ShopPage({
               current={{
                 category: params.category,
                 gender,
+                promo: params.promo,
                 search: params.search,
                 size: params.size,
                 color: params.color,

@@ -14,14 +14,16 @@ export default async function StoreLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [tFooter, tNav, user, menTreeResult, womenTreeResult, settingsResult] = await Promise.all([
-    getTranslations("Footer"),
-    getTranslations("Nav"),
-    getCurrentUser(),
-    getCategoryTree("MEN"),
-    getCategoryTree("WOMEN"),
-    getStoreSettings(),
-  ]);
+  const [tFooter, tNav, user, menTreeResult, womenTreeResult, enfantTreeResult, settingsResult] =
+    await Promise.all([
+      getTranslations("Footer"),
+      getTranslations("Nav"),
+      getCurrentUser(),
+      getCategoryTree("MEN"),
+      getCategoryTree("WOMEN"),
+      getCategoryTree("ENFANT"),
+      getStoreSettings(),
+    ]);
 
   const promoBadgeImage = settingsResult.success
     ? settingsResult.data?.promoBadgeImage ?? null
@@ -38,6 +40,11 @@ export default async function StoreLayout({
       label: tNav("Women"),
       href: "/shop?gender=women",
       tree: womenTreeResult.success ? (womenTreeResult.data ?? []) : [],
+    },
+    {
+      label: tNav("Enfant"),
+      href: "/shop?gender=enfant",
+      tree: enfantTreeResult.success ? (enfantTreeResult.data ?? []) : [],
     },
   ];
 

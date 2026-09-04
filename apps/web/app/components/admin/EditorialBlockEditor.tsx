@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { Loader2, CheckCircle2, ImageIcon } from "lucide-react";
 import { saveEditorialSettings } from "@/actions/storeSettingsActions";
-import Uploader from "./Uploader";
+import CroppedImageUploader from "./CroppedImageUploader";
 import { Field, SaveButton, inp } from "./HeroTextEditor";
 import { useTranslations } from "next-intl";
 import type { EditorialBlock } from "@/types";
@@ -75,7 +75,7 @@ export function EditorialBlockEditor({ block, initial, initialImageUrl, onTextCh
       <div className="max-w-lg space-y-3">
         <div
           className="relative overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)]"
-          style={{ aspectRatio: "4/5", maxHeight: 320 }}
+          style={{ aspectRatio: "1/1", maxHeight: 320 }}
         >
           {imageUrl && !imgFailed ? (
             <img
@@ -105,8 +105,9 @@ export function EditorialBlockEditor({ block, initial, initialImageUrl, onTextCh
         {uploadError && (
           <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{uploadError}</p>
         )}
-        <Uploader
+        <CroppedImageUploader
           endpoint="storeImage"
+          aspect={1}
           buttonText={imageUrl ? t("UploadNewPhoto") : t("UploadPhoto")}
           handleUploadComplete={handleUploadComplete}
         />

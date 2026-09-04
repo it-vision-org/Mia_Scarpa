@@ -4,6 +4,8 @@
     "Shop": "Boutique",
     "Men": "Homme",
     "Women": "Femme",
+    "Enfant": "Enfant",
+    "Promotions": "Promotions",
     "Contact": "Contact",
     "Cart": "Panier",
     "SignIn": "Connexion",
@@ -26,11 +28,16 @@
   "Checkout": {
     "Title": "Commander",
     "YourInfo": "Vos coordonnées",
-    "FullName": "Nom complet *",
+    "RequiredNote": "Les astérisques (*) indiquent les champs obligatoires.",
+    "Optional": "facultatif",
+    "FullName": "Nom complet",
     "Email": "E-mail",
     "Phone": "Téléphone",
     "Address": "Adresse",
     "City": "Ville",
+    "SelectCity": "Choisir une ville",
+    "SavedAddresses": "Adresses enregistrées",
+    "AutoFilled": "Rempli automatiquement",
     "PlaceOrder": "Passer la commande",
     "OrderSummary": "Récapitulatif",
     "Subtotal": "Sous-total",
@@ -39,6 +46,8 @@
     "Total": "Total",
     "Size": "Taille",
     "ErrorNameRequired": "Veuillez saisir votre nom complet.",
+    "ErrorPhoneRequired": "Veuillez saisir votre numéro de téléphone.",
+    "ErrorAddressRequired": "Veuillez saisir votre adresse.",
     "ErrorGeneral": "Une erreur est survenue. Veuillez réessayer."
   },
   "Account": {
@@ -52,7 +61,9 @@
     "NoOrders": "Aucune commande pour l'instant.",
     "StartShopping": "Commencer à magasiner",
     "SignOut": "Se déconnecter",
-    "Items": "{count, plural, one {# article} other {# articles}}"
+    "Items": "{count, plural, one {# article} other {# articles}}",
+    "NavMyAccount": "Mon compte",
+    "NavMyOrders": "Mes commandes"
   },
   "Login": {
     "Title": "Connexion",
@@ -87,7 +98,23 @@
     "Email": "E-mail",
     "Phone": "Téléphone",
     "EmailLocked": "L'e-mail ne peut pas être modifié.",
-    "Updated": "Profil mis à jour avec succès."
+    "Updated": "Profil mis à jour avec succès.",
+    "AccountInformation": "Informations du compte",
+    "RequiredNote": "Les astérisques (*) indiquent les champs obligatoires.",
+    "FirstName": "Prénom",
+    "LastName": "Nom",
+    "ChangeEmail": "Changer l'e-mail",
+    "ChangePassword": "Changer le mot de passe",
+    "CurrentPassword": "Mot de passe actuel",
+    "NewPassword": "Nouveau mot de passe",
+    "ConfirmNewPassword": "Confirmer le nouveau mot de passe",
+    "PasswordStrength": "Force du mot de passe",
+    "StrengthNone": "Aucun mot de passe",
+    "StrengthWeak": "Faible",
+    "StrengthMedium": "Moyen",
+    "StrengthStrong": "Fort",
+    "SaveBtn": "Enregistrer",
+    "GoBack": "Retour"
   },
   "UserMenu": {
     "MyOrders": "Mes Commandes",
@@ -175,6 +202,7 @@
     "Shop": "Chargement",
     "Men": "Homme",
     "Women": "Femme",
+    "Enfant": "Enfant",
     "Product": "Chargement"
   },
   "Shop": {
@@ -189,7 +217,10 @@
     "AllCategories": "Toutes les catégories",
     "Men": "Homme",
     "Women": "Femme",
+    "Enfant": "Enfant",
     "Search": "Recherche",
+    "Promotions": "Promotions",
+    "OnSaleOnly": "En promotion",
     "ClearFilters": "Effacer les filtres"
   },
   "Admin": {
@@ -287,6 +318,7 @@
     "NoCategory": "Aucune catégorie",
     "OptMen": "Homme",
     "OptWomen": "Femme",
+    "OptEnfant": "Enfant",
     "RoleAdmin": "Admin",
     "RoleSuperAdmin": "Super Admin",
 
@@ -349,6 +381,8 @@
     "FailedCreateCategory": "Échec de la création de la catégorie",
     "PhCategoryName": "Nom de la catégorie",
     "PhSubCategoryName": "Nom de la sous-catégorie",
+    "CategoryParent": "Catégorie parente",
+    "CategoryParentNone": "Niveau supérieur (aucune)",
     "PhSearchOrders": "Rechercher par nom, e-mail, téléphone, ville…",
     "PhSize": "Pointure (ex. 39, 40, 41…) puis Entrée",
     "PhImageUrl": "Coller l'URL de l'image…",

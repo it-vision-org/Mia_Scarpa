@@ -408,7 +408,7 @@ export function StoreSettingsClient({
       />
 
       {/* Hero photo — preview reuses HeroMiniPreview so photo updates appear there */}
-      <EditRow
+      {/* <EditRow
         title={t("SecStoreHeroPhoto")}
         desc="The background photo used when no video is set. Updates the hero preview above."
         editor={
@@ -418,7 +418,7 @@ export function StoreSettingsClient({
           />
         }
         preview={<HeroMiniPreview hero={heroPreview} colors={colorPreview} heroImageUrl={heroImageUrl} />}
-      />
+      /> */}
 
       {/* Shop cover photos — one per gender, shown on /shop */}
       <EditRow
