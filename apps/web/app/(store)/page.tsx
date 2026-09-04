@@ -101,13 +101,22 @@ export default async function HomePage() {
 
   return (
     <main>
-      {/* ── HERO — FULL-SCREEN VIDEO ─────────────────────────────────── */}
-      <section className="relative h-screen w-full overflow-hidden bg-[var(--color-green-dark)]">
+      {/* ── HERO ──────────────────────────────────────────────────────
+          On mobile the video plays at its own natural size (no forced
+          full-screen height, no cropping, no letterbox bars) — the section
+          just wraps around it. From `sm:` up it goes back to the classic
+          full-screen cropped background. The image fallback (no video set)
+          always stays full-screen. */}
+      <section
+        className={`relative w-full overflow-hidden bg-[var(--color-green-dark)] ${
+          hasVideo ? "sm:h-screen" : "h-screen"
+        }`}
+      >
         {hasVideo ? (
           <AutoPlayVideo
             src={videoUrl}
             controls={false}
-            className="absolute inset-0 h-full w-full object-cover"
+            className="relative block h-auto w-full sm:absolute sm:inset-0 sm:h-full sm:object-cover"
           />
         ) : settings?.heroImage ? (
           <Image src={settings.heroImage} alt="" fill priority className="object-cover" />
@@ -115,7 +124,7 @@ export default async function HomePage() {
 
         <div className="absolute inset-0 bg-black/30" />
 
-        <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center">
           <Link
             href="/shop"
             className="inline-flex items-center gap-2 border border-white/70 px-10 py-3.5 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-white hover:text-[var(--color-green-dark)]"
