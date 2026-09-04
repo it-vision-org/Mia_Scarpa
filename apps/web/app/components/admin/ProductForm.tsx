@@ -323,16 +323,22 @@ export function ProductForm({
   }
 
   async function handleMainFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
     setUploading(true);
     setError("");
+    let failed = false;
     try {
-      const url = await uploadToImgbb(file);
-      setMainImages((prev) => [...prev, url]);
-    } catch {
-      setError(t("ErrImageUpload"));
+      for (const file of files) {
+        try {
+          const url = await uploadToImgbb(file);
+          setMainImages((prev) => (prev.includes(url) ? prev : [...prev, url]));
+        } catch {
+          failed = true;
+        }
+      }
     } finally {
+      if (failed) setError(t("ErrImageUpload"));
       setUploading(false);
       e.target.value = "";
     }
@@ -432,18 +438,30 @@ export function ProductForm({
   }
 
   async function handleColorFileUpload(rowId: string, e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
     setUploading(true);
     setError("");
+    let failed = false;
     try {
-      const url = await uploadToImgbb(file);
-      setColorRows((prev) =>
-        prev.map((r) => (r.id === rowId ? { ...r, imageUrls: [...r.imageUrls, url] } : r)),
-      );
-    } catch {
-      setError(t("ErrImageUpload"));
+      for (const file of files) {
+        try {
+          const url = await uploadToImgbb(file);
+          setColorRows((prev) =>
+            prev.map((r) =>
+              r.id === rowId
+                ? r.imageUrls.includes(url)
+                  ? r
+                  : { ...r, imageUrls: [...r.imageUrls, url] }
+                : r,
+            ),
+          );
+        } catch {
+          failed = true;
+        }
+      }
     } finally {
+      if (failed) setError(t("ErrImageUpload"));
       setUploading(false);
       e.target.value = "";
     }
@@ -773,6 +791,7 @@ export function ProductForm({
           <input
             type="file"
             accept="image/*"
+            multiple
             className="hidden"
             ref={mainFileRef}
             onChange={handleMainFileUpload}
@@ -892,6 +911,7 @@ export function ProductForm({
                 <input
                   type="file"
                   accept="image/*"
+                  multiple
                   className="hidden"
                   ref={(el) => { if (el) colorFileRefs.current.set(row.id, el); }}
                   onChange={(e) => handleColorFileUpload(row.id, e)}
