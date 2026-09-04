@@ -3,7 +3,7 @@
 import { useState, useTransition, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Plus, X, Loader2, Link as LinkIcon, Upload, Copy, Images, Check } from "lucide-react";
+import { Plus, X, Loader2, Link as LinkIcon, Upload, Copy, Images, Check, Save } from "lucide-react";
 
 import { createProduct, updateProduct } from "@/actions/adminActions";
 import { createCategory } from "@/actions/categoryActions";
@@ -121,6 +121,38 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <label className="text-sm font-bold text-[var(--color-text)]">{label}</label>
       {children}
     </div>
+  );
+}
+
+// Saves the whole product right where the admin is scrolled to, so they never
+// have to jump down to the button at the bottom of the page. All of these
+// trigger the same save (the product is one record) and stay on the page.
+function SectionSaveButton({
+  submitting,
+  saved,
+  onClick,
+}: {
+  submitting: boolean;
+  saved: boolean;
+  onClick: () => void;
+}) {
+  const t = useTranslations("Admin");
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={submitting}
+      className="inline-flex items-center gap-2 self-start rounded-xl border border-[var(--color-border)] bg-white px-4 py-2.5 text-xs font-bold text-[var(--color-text)] transition hover:bg-[var(--color-bg)] disabled:opacity-60"
+    >
+      {submitting ? (
+        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+      ) : saved ? (
+        <Check className="h-3.5 w-3.5 text-emerald-600" />
+      ) : (
+        <Save className="h-3.5 w-3.5" />
+      )}
+      {submitting ? t("Saving") : saved ? t("SavedExcl") : t("SaveChanges")}
+    </button>
   );
 }
 
@@ -508,8 +540,16 @@ export function ProductForm({
   }
 
   // ── Submit ───────────────────────────────────────────────────────────────
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  // Every section's Save button runs the same save — the product is one atomic
+  // record, so "saving a section" really means "save the whole product now,
+  // without leaving the page". `productId` tracks the id once the product has
+  // been created (either from `initialData`, or from the first successful save
+  // on a brand-new product), so a second click updates in place instead of
+  // creating a duplicate. Only the bottom-of-page button navigates away.
+  const [productId, setProductId] = useState<string | null>(initialData?.id ?? null);
+  const [saved, setSaved] = useState(false);
+
+  function submitProduct(navigateAway: boolean) {
     if (!name.trim()) { setError(t("ErrNameRequired")); return; }
     if (colorRows.length === 0) { setError(t("ErrNoColor")); return; }
 
@@ -518,6 +558,7 @@ export function ProductForm({
 
     setSubmitting(true);
     setError("");
+    setSaved(false);
 
     const input = {
       name: name.trim(),
@@ -550,17 +591,31 @@ export function ProductForm({
 
     startTransition(async () => {
       try {
-        const result = initialData
-          ? await updateProduct(initialData.id, input)
+        const result = productId
+          ? await updateProduct(productId, input)
           : await createProduct(input);
         if (!result.success) { setError(result.error ?? t("ErrGeneric")); setSubmitting(false); return; }
-        router.push("/admin/products");
+        if (!productId && "data" in result && result.data?.id) setProductId(result.data.id);
+
+        if (navigateAway) {
+          router.push("/admin/products");
+          router.refresh();
+          return;
+        }
+        setSubmitting(false);
+        setSaved(true);
         router.refresh();
+        setTimeout(() => setSaved(false), 3000);
       } catch {
         setError(t("ErrGeneric"));
         setSubmitting(false);
       }
     });
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    submitProduct(true);
   }
 
   return (
@@ -579,6 +634,8 @@ export function ProductForm({
       <Field label={t("FieldBasePrice")}>
         <input type="number" min="0" step="0.001" value={price} onChange={(e) => setPrice(e.target.value)} placeholder={t("PhPriceExample")} className={inp} />
       </Field>
+
+      <SectionSaveButton submitting={submitting} saved={saved} onClick={() => submitProduct(false)} />
 
       {/* ── Promotion / Sale ── */}
       <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] p-4 space-y-4">
@@ -667,6 +724,8 @@ export function ProductForm({
             </Field>
           </div>
         )}
+
+        <SectionSaveButton submitting={submitting} saved={saved} onClick={() => submitProduct(false)} />
       </div>
 
       {/* Gender + Category */}
@@ -762,6 +821,8 @@ export function ProductForm({
         </Field>
       </div>
 
+      <SectionSaveButton submitting={submitting} saved={saved} onClick={() => submitProduct(false)} />
+
       {/* Main Product Photos */}
       <div className="rounded-2xl border border-[var(--color-border)] bg-white p-5 space-y-3">
         <div>
@@ -845,6 +906,8 @@ export function ProductForm({
             ))}
           </div>
         )}
+
+        <SectionSaveButton submitting={submitting} saved={saved} onClick={() => submitProduct(false)} />
       </div>
 
       {/* Colors */}
@@ -992,6 +1055,8 @@ export function ProductForm({
         >
           <Plus className="h-4 w-4" /> {t("AddColor")}
         </button>
+
+        <SectionSaveButton submitting={submitting} saved={saved} onClick={() => submitProduct(false)} />
       </div>
 
       {/* SEO */}
@@ -1015,6 +1080,8 @@ export function ProductForm({
         entityLabel="produit"
       />
 
+      <SectionSaveButton submitting={submitting} saved={saved} onClick={() => submitProduct(false)} />
+
       {/* Visibility */}
       <div className="rounded-xl border border-[var(--color-border)] bg-white p-5 space-y-3">
         <label className="flex cursor-pointer items-center gap-3">
@@ -1025,6 +1092,8 @@ export function ProductForm({
           <input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} className="h-4 w-4 rounded accent-[var(--color-accent)]" />
           <span className="text-sm font-medium text-[var(--color-text)]">{t("VisibilityFeatured")}</span>
         </label>
+
+        <SectionSaveButton submitting={submitting} saved={saved} onClick={() => submitProduct(false)} />
       </div>
 
       {/* Submit */}

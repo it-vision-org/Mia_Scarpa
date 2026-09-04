@@ -109,7 +109,7 @@ export async function getProductForEdit(
 
 export async function createProduct(
   data: ProductInput,
-): Promise<ActionResult<{ slug: string }>> {
+): Promise<ActionResult<{ id: string; slug: string }>> {
   try {
     if (!data.name) return { success: false, error: "Name is required" };
 
@@ -130,7 +130,7 @@ export async function createProduct(
       },
     }));
 
-    await db.product.create({
+    const created = await db.product.create({
       data: {
         name: data.name,
         slug,
@@ -154,7 +154,7 @@ export async function createProduct(
     revalidatePath("/");
     revalidatePath("/shop");
     revalidatePath("/admin/products");
-    return { success: true, data: { slug } };
+    return { success: true, data: { id: created.id, slug } };
   } catch (error) {
     console.error("[ADMIN] createProduct error:", error);
     return { success: false, error: "Failed to create product" };
