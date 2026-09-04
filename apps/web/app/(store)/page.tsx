@@ -7,8 +7,8 @@ import { ArrowRight, Phone, Mail, MapPin } from "lucide-react";
 import { getBaseUrl } from "@/lib/seo";
 import { getContactInfo } from "@/actions/storeConfigActions";
 import { getFeaturedProducts, getProductsByIds } from "@/actions/productActions";
-import { ProductGrid } from "@/components/store/ProductGrid";
-import { ProductTile } from "@/components/store/ProductTile";
+import { FeaturedCollectionGrid } from "@/components/store/FeaturedCollectionGrid";
+import { FeaturedShoes } from "@/components/store/FeaturedShoes";
 import { AutoPlayVideo } from "@/components/store/AutoPlayVideo";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionDivider } from "@/components/ui/SectionDivider";
@@ -51,7 +51,11 @@ export default async function HomePage() {
   const homepageFeatured =
     curatedResult?.success && (curatedResult.data?.length ?? 0) > 0
       ? curatedResult.data!
-      : products.slice(0, 4);
+      : products;
+  // Fewer than 4: the box shrinks to fit the cards. 4 or more (a plain 2x2
+  // grid at 4, a slider past that — see FeaturedShoes) keeps the tall,
+  // symmetric layout matched against the image on the left.
+  const featuredBoxed = homepageFeatured.length >= 4;
 
   const hero = {
     cta1: settings?.heroCta1 ?? DEFAULT_HERO.cta1,
@@ -132,10 +136,14 @@ export default async function HomePage() {
       {homepageFeatured.length > 0 && (
         <section className="bg-white">
           <div className="w-full">
-            <div className="grid grid-cols-1 gap-1 lg:h-[640px] lg:grid-cols-2">
-              {/* left: image, fills the full half */}
-              <Reveal className="h-full">
-                <div className="relative h-[420px] w-full overflow-hidden bg-[var(--color-bg)] lg:h-full">
+            <div className={`grid grid-cols-1 gap-1 lg:grid-cols-2 ${featuredBoxed ? "lg:h-[640px]" : ""}`}>
+              {/* left: image, fills the full half (or shrinks to match a small card grid) */}
+              <Reveal className={featuredBoxed ? "h-full" : "self-start"}>
+                <div
+                  className={`relative w-full overflow-hidden bg-[var(--color-bg)] ${
+                    featuredBoxed ? "h-[420px] lg:h-full" : "h-[280px] sm:h-[360px] lg:h-full"
+                  }`}
+                >
                   {featuredImage && (
                     <Image
                       src={featuredImage}
@@ -157,15 +165,10 @@ export default async function HomePage() {
                 </div>
               </Reveal>
 
-              {/* right: 3-4 featured products, covering squares */}
-              <Reveal delay={0.1} className="h-full">
-                <div className="grid h-[420px] grid-cols-2 grid-rows-2 gap-1 lg:h-full">
-                  {homepageFeatured.map((product) => (
-                    <div key={product.id} className="relative h-full w-full">
-                      <ProductTile product={product} />
-                    </div>
-                  ))}
-                </div>
+              {/* right: featured products — a 2x2 grid, a slider past 4, or a
+                  small grid sized to the cards when there are fewer than 4 */}
+              <Reveal delay={0.1} className={featuredBoxed ? "h-full" : "self-start"}>
+                <FeaturedShoes products={homepageFeatured} />
               </Reveal>
             </div>
           </div>
@@ -260,7 +263,7 @@ export default async function HomePage() {
             </Link>
           </Reveal>
           <Reveal delay={0.1}>
-            <ProductGrid products={products} />
+            <FeaturedCollectionGrid products={products} />
           </Reveal>
         </div>
       </section>
