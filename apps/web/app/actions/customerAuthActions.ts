@@ -117,18 +117,64 @@ export async function logoutUser(): Promise<void> {
 }
 
 export async function updateProfile(data: {
-  name: string;
-  phoneNumber?: string;
+  firstName: string;
+  lastName: string;
+  changeEmail?: boolean;
+  newEmail?: string;
+  changePassword?: boolean;
+  currentPassword?: string;
+  newPassword?: string;
+  confirmPassword?: string;
 }): Promise<ActionResult> {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) return { success: false, error: "Not logged in" };
-    if (!data.name.trim()) return { success: false, error: "Name is required" };
 
-    await db.user.update({
-      where: { id: currentUser.id },
-      data: { name: data.name.trim(), phoneNumber: data.phoneNumber?.trim() || null },
-    });
+    const firstName = data.firstName.trim();
+    const lastName = data.lastName.trim();
+    if (!firstName || !lastName) {
+      return { success: false, error: "First and last name are required" };
+    }
+
+    const dbUser = await db.user.findUnique({ where: { id: currentUser.id } });
+    if (!dbUser) return { success: false, error: "Not logged in" };
+
+    const update: { name: string; email?: string; password?: string } = {
+      name: `${firstName} ${lastName}`,
+    };
+
+    if (data.changeEmail || data.changePassword) {
+      if (!data.currentPassword) {
+        return { success: false, error: "Please enter your current password" };
+      }
+      const valid = await comparePassword(data.currentPassword, dbUser.password);
+      if (!valid) return { success: false, error: "Current password is incorrect" };
+    }
+
+    if (data.changeEmail) {
+      const email = (data.newEmail ?? "").trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return { success: false, error: "Please enter a valid email address" };
+      }
+      if (email !== dbUser.email) {
+        const taken = await db.user.findUnique({ where: { email } });
+        if (taken) return { success: false, error: "This email address is already in use" };
+        update.email = email;
+      }
+    }
+
+    if (data.changePassword) {
+      const newPassword = data.newPassword ?? "";
+      if (newPassword.length < 6) {
+        return { success: false, error: "New password must be at least 6 characters" };
+      }
+      if (newPassword !== (data.confirmPassword ?? "")) {
+        return { success: false, error: "New passwords do not match" };
+      }
+      update.password = await hashPassword(newPassword);
+    }
+
+    await db.user.update({ where: { id: currentUser.id }, data: update });
 
     revalidatePath("/account");
     revalidatePath("/account/profile");

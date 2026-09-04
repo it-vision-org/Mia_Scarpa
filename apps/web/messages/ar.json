@@ -52,7 +52,9 @@
     "NoOrders": "لا توجد طلبات بعد.",
     "StartShopping": "ابدأ التسوق",
     "SignOut": "تسجيل الخروج",
-    "Items": "{count, plural, one {# منتج} few {# منتجات} many {# منتجًا} other {# منتج}}"
+    "Items": "{count, plural, one {# منتج} few {# منتجات} many {# منتجًا} other {# منتج}}",
+    "NavMyAccount": "حسابي",
+    "NavMyOrders": "طلباتي"
   },
   "Login": {
     "Title": "تسجيل الدخول",
@@ -87,7 +89,23 @@
     "Email": "البريد الإلكتروني",
     "Phone": "الهاتف",
     "EmailLocked": "لا يمكن تغيير البريد الإلكتروني.",
-    "Updated": "تم تحديث الملف الشخصي بنجاح."
+    "Updated": "تم تحديث الملف الشخصي بنجاح.",
+    "AccountInformation": "معلومات الحساب",
+    "RequiredNote": "تشير العلامات النجمية (*) إلى الحقول المطلوبة.",
+    "FirstName": "الاسم الأول",
+    "LastName": "اسم العائلة",
+    "ChangeEmail": "تغيير البريد الإلكتروني",
+    "ChangePassword": "تغيير كلمة المرور",
+    "CurrentPassword": "كلمة المرور الحالية",
+    "NewPassword": "كلمة المرور الجديدة",
+    "ConfirmNewPassword": "تأكيد كلمة المرور الجديدة",
+    "PasswordStrength": "قوة كلمة المرور",
+    "StrengthNone": "لا توجد كلمة مرور",
+    "StrengthWeak": "ضعيفة",
+    "StrengthMedium": "متوسطة",
+    "StrengthStrong": "قوية",
+    "SaveBtn": "حفظ",
+    "GoBack": "رجوع"
   },
   "UserMenu": {
     "MyOrders": "طلباتي",

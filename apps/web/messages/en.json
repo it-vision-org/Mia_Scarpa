@@ -52,7 +52,9 @@
     "NoOrders": "No orders yet.",
     "StartShopping": "Start shopping",
     "SignOut": "Sign out",
-    "Items": "{count, plural, one {# item} other {# items}}"
+    "Items": "{count, plural, one {# item} other {# items}}",
+    "NavMyAccount": "My Account",
+    "NavMyOrders": "My Orders"
   },
   "Login": {
     "Title": "Sign In",
@@ -87,7 +89,23 @@
     "Email": "Email",
     "Phone": "Phone",
     "EmailLocked": "Email cannot be changed.",
-    "Updated": "Profile updated successfully."
+    "Updated": "Profile updated successfully.",
+    "AccountInformation": "Account Information",
+    "RequiredNote": "Asterisks (*) indicate required fields.",
+    "FirstName": "First Name",
+    "LastName": "Last Name",
+    "ChangeEmail": "Change Email",
+    "ChangePassword": "Change Password",
+    "CurrentPassword": "Current Password",
+    "NewPassword": "New Password",
+    "ConfirmNewPassword": "Confirm New Password",
+    "PasswordStrength": "Password Strength",
+    "StrengthNone": "No Password",
+    "StrengthWeak": "Weak",
+    "StrengthMedium": "Medium",
+    "StrengthStrong": "Strong",
+    "SaveBtn": "Save",
+    "GoBack": "Go back"
   },
   "UserMenu": {
     "MyOrders": "My Orders",
