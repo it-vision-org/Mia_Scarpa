@@ -52,10 +52,6 @@ export default async function HomePage() {
     curatedResult?.success && (curatedResult.data?.length ?? 0) > 0
       ? curatedResult.data!
       : products;
-  // Fewer than 4: the box shrinks to fit the cards. 4 or more (a plain 2x2
-  // grid at 4, a slider past that — see FeaturedShoes) keeps the tall,
-  // symmetric layout matched against the image on the left.
-  const featuredBoxed = homepageFeatured.length >= 4;
 
   const hero = {
     cta1: settings?.heroCta1 ?? DEFAULT_HERO.cta1,
@@ -136,14 +132,12 @@ export default async function HomePage() {
       {homepageFeatured.length > 0 && (
         <section className="bg-white">
           <div className="w-full">
-            <div className={`grid grid-cols-1 gap-1 lg:grid-cols-2 ${featuredBoxed ? "lg:h-[640px]" : ""}`}>
-              {/* left: image, fills the full half (or shrinks to match a small card grid) */}
-              <Reveal className={featuredBoxed ? "h-full" : "self-start"}>
-                <div
-                  className={`relative w-full overflow-hidden bg-[var(--color-bg)] ${
-                    featuredBoxed ? "h-[420px] lg:h-full" : "h-[280px] sm:h-[360px] lg:h-full"
-                  }`}
-                >
+            <div className="grid grid-cols-1 gap-1 lg:grid-cols-2">
+              {/* left: image — on lg it stretches to match however tall the
+                  product grid on the right naturally comes out (square tiles,
+                  so that's driven by content, not a fixed box) */}
+              <Reveal>
+                <div className="relative h-[280px] w-full overflow-hidden bg-[var(--color-bg)] sm:h-[360px] lg:h-full">
                   {featuredImage && (
                     <Image
                       src={featuredImage}
@@ -165,9 +159,9 @@ export default async function HomePage() {
                 </div>
               </Reveal>
 
-              {/* right: featured products — a 2x2 grid, a slider past 4, or a
-                  small grid sized to the cards when there are fewer than 4 */}
-              <Reveal delay={0.1} className={featuredBoxed ? "h-full" : "self-start"}>
+              {/* right: featured products — a square-tile grid up to 4, a
+                  slider past that (see FeaturedShoes) */}
+              <Reveal delay={0.1}>
                 <FeaturedShoes products={homepageFeatured} />
               </Reveal>
             </div>

@@ -57,7 +57,8 @@ export function ProductDetail({
               promoLabel: promo.label,
               promoPercent: promo.percent,
             }}
-            className="left-3 top-3 h-32 w-32 sm:h-40 sm:w-40"
+            className="left-3 top-3"
+            imageClassName="h-32 w-32 sm:h-40 sm:w-40"
           />
         )}
         <ProductGallery

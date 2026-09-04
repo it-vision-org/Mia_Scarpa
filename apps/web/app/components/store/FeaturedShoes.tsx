@@ -5,35 +5,21 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductTile } from "./ProductTile";
 import type { SerializedProduct } from "@/types";
 
-// Right-hand side of the homepage "featured" section. With exactly 4 products
-// it's the classic 2x2 grid; with more than 4 it becomes a horizontally-paged
-// 2-row slider (same 2x2 look, just paginated); with fewer than 4 it's a
-// plain grid sized to the cards themselves instead of stretched to fill a
-// fixed box (see `featuredBoxed` in the page — it mirrors this >= 4 split).
+// Right-hand side of the homepage "featured" section. Every tile is a perfect
+// square (see ProductTile), so this grid is always sized by its own content —
+// never stretched to fill an arbitrary fixed-height box, which used to distort
+// how images filled their tile. With more than 4 products it becomes a
+// horizontally-paged 2-row slider instead of wrapping into extra rows.
 export function FeaturedShoes({ products }: { products: SerializedProduct[] }) {
   const trackRef = useRef<HTMLDivElement>(null);
 
   if (products.length === 0) return null;
 
-  if (products.length < 4) {
+  if (products.length <= 4) {
     return (
       <div className="grid grid-cols-2 gap-1">
         {products.map((product) => (
-          <div key={product.id} className="relative aspect-square">
-            <ProductTile product={product} />
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (products.length === 4) {
-    return (
-      <div className="grid h-[420px] grid-cols-2 grid-rows-2 gap-1 lg:h-full">
-        {products.map((product) => (
-          <div key={product.id} className="relative h-full w-full">
-            <ProductTile product={product} />
-          </div>
+          <ProductTile key={product.id} product={product} />
         ))}
       </div>
     );
@@ -46,13 +32,13 @@ export function FeaturedShoes({ products }: { products: SerializedProduct[] }) {
   }
 
   return (
-    <div className="relative h-[420px] lg:h-full">
+    <div className="relative">
       <div
         ref={trackRef}
-        className="grid h-full auto-cols-[50%] grid-flow-col grid-rows-2 gap-1 overflow-x-auto snap-x snap-mandatory scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="grid auto-cols-[50%] grid-flow-col grid-rows-2 gap-1 overflow-x-auto snap-x snap-mandatory scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {products.map((product) => (
-          <div key={product.id} className="relative h-full w-full snap-start">
+          <div key={product.id} className="snap-start">
             <ProductTile product={product} />
           </div>
         ))}
