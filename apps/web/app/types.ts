@@ -14,7 +14,7 @@ export type ColorImage = {
   sizes: SizeStock[];  // per-color stock per size
 };
 
-export type Gender = "MEN" | "WOMEN";
+export type Gender = "MEN" | "WOMEN" | "ENFANT";
 
 // ─── SEO fields — shared by Product, Category, and their admin forms ──────────
 // All optional. Left empty, the public pages auto-generate title/description/

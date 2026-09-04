@@ -9,9 +9,11 @@ import type { CategoryNode } from "@/types";
 export function MobileNavMenu({
   menCategoryTree = [],
   womenCategoryTree = [],
+  enfantCategoryTree = [],
 }: {
   menCategoryTree?: CategoryNode[];
   womenCategoryTree?: CategoryNode[];
+  enfantCategoryTree?: CategoryNode[];
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -35,7 +37,12 @@ export function MobileNavMenu({
       {open && (
         <div className="absolute inset-x-0 top-full z-40 border-t border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-3 shadow-lg">
           <Suspense fallback={null}>
-            <NavLinks vertical menCategoryTree={menCategoryTree} womenCategoryTree={womenCategoryTree} />
+            <NavLinks
+              vertical
+              menCategoryTree={menCategoryTree}
+              womenCategoryTree={womenCategoryTree}
+              enfantCategoryTree={enfantCategoryTree}
+            />
           </Suspense>
         </div>
       )}

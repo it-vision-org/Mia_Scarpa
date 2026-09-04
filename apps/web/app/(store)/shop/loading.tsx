@@ -10,5 +10,6 @@ export default function ShopLoading() {
 
   if (gender === "men") return <ShoeLoader variant="men" label={t("Men")} />;
   if (gender === "women") return <ShoeLoader variant="women" label={t("Women")} />;
+  if (gender === "enfant") return <ShoeLoader variant="enfant" label={t("Enfant")} />;
   return <ShoeLoader label={t("Shop")} />;
 }

@@ -4,6 +4,7 @@
     "Shop": "Shop",
     "Men": "Men",
     "Women": "Women",
+    "Enfant": "Kids",
     "Contact": "Contact",
     "Cart": "Cart",
     "SignIn": "Sign In",
@@ -193,6 +194,7 @@
     "Shop": "Loading shoes",
     "Men": "Men",
     "Women": "Women",
+    "Enfant": "Kids",
     "Product": "Loading"
   },
   "Shop": {
@@ -207,6 +209,7 @@
     "AllCategories": "All categories",
     "Men": "Men",
     "Women": "Women",
+    "Enfant": "Kids",
     "Search": "Search",
     "ClearFilters": "Clear filters"
   },
@@ -305,6 +308,7 @@
     "NoCategory": "No category",
     "OptMen": "Men",
     "OptWomen": "Women",
+    "OptEnfant": "Kids",
     "RoleAdmin": "Admin",
     "RoleSuperAdmin": "Super Admin",
 

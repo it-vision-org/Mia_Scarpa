@@ -734,6 +734,7 @@ export function ProductForm({
           <select value={gender} onChange={(e) => handleGenderChange(e.target.value as Gender)} className={inp}>
             <option value="MEN">{t("OptMen")}</option>
             <option value="WOMEN">{t("OptWomen")}</option>
+            <option value="ENFANT">{t("OptEnfant")}</option>
           </select>
         </Field>
         <Field label={t("FieldCategory")}>
@@ -801,7 +802,7 @@ export function ProductForm({
                   {t("Cancel")}
                 </button>
                 <span className="text-xs text-[var(--color-muted)]">
-                  {gender === "MEN" ? t("OptMen") : t("OptWomen")}
+                  {gender === "MEN" ? t("OptMen") : gender === "WOMEN" ? t("OptWomen") : t("OptEnfant")}
                 </span>
               </div>
 

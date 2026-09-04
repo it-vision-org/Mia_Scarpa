@@ -122,6 +122,7 @@ export async function ShopFilters({ categories, facets, current }: ShopFiltersPr
             { key: undefined as string | undefined, label: t("All") },
             { key: "men", label: t("Men") },
             { key: "women", label: t("Women") },
+            { key: "enfant", label: t("Enfant") },
           ].map(({ key, label }) => (
             <Link
               key={label}

@@ -120,7 +120,7 @@ const PRODUCT_INCLUDE = {
 
 export async function getPublishedProducts(filters?: {
   categorySlug?: string;
-  gender?: "men" | "women";
+  gender?: "men" | "women" | "enfant";
   search?: string;
   sizes?: string[];
   color?: string;
@@ -137,13 +137,16 @@ export async function getPublishedProducts(filters?: {
     const s = search?.toLowerCase() ?? "";
     const MEN_WORDS = ["men", "man", "mens", "homme", "hommes", "رجال", "رجالي"];
     const WOMEN_WORDS = ["women", "woman", "womens", "femme", "femmes", "نساء", "نسائي"];
+    const ENFANT_WORDS = ["enfant", "enfants", "kids", "kid", "child", "children", "أطفال", "طفل"];
     const matchesWord = (words: string[]) =>
       s.length >= 3 && words.some((w) => w === s || w.startsWith(s));
     const genderFromSearch = matchesWord(MEN_WORDS)
       ? "MEN"
       : matchesWord(WOMEN_WORDS)
         ? "WOMEN"
-        : null;
+        : matchesWord(ENFANT_WORDS)
+          ? "ENFANT"
+          : null;
 
     // Free-text search matches across name, description, slug, category and
     // parent category, colour names and sizes; a numeric query also matches the
@@ -166,7 +169,7 @@ export async function getPublishedProducts(filters?: {
                 { colors: { some: { sizes: { some: { priceOverride: { equals: searchNum } } } } } },
               ]
             : []),
-          ...(genderFromSearch ? [{ gender: genderFromSearch as "MEN" | "WOMEN" }] : []),
+          ...(genderFromSearch ? [{ gender: genderFromSearch as "MEN" | "WOMEN" | "ENFANT" }] : []),
         ]
       : null;
 
@@ -192,7 +195,7 @@ export async function getPublishedProducts(filters?: {
       where: {
         isPublished: true,
         ...(filters?.categorySlug ? { category: { slug: filters.categorySlug } } : {}),
-        ...(filters?.gender ? { gender: filters.gender.toUpperCase() as "MEN" | "WOMEN" } : {}),
+        ...(filters?.gender ? { gender: filters.gender.toUpperCase() as "MEN" | "WOMEN" | "ENFANT" } : {}),
         ...(Object.keys(priceWhere).length ? { basePrice: priceWhere } : {}),
         ...(facetAND.length ? { AND: facetAND } : {}),
         ...(searchOR ? { OR: searchOR } : {}),
@@ -217,13 +220,13 @@ export type ShopFacets = {
 // Distinct sizes / colours and the price span across the published catalogue
 // (optionally scoped to a gender) — powers the shop sidebar filters.
 export async function getShopFacets(opts?: {
-  gender?: "men" | "women";
+  gender?: "men" | "women" | "enfant";
 }): Promise<ActionResult<ShopFacets>> {
   try {
     const rows = await db.product.findMany({
       where: {
         isPublished: true,
-        ...(opts?.gender ? { gender: opts.gender.toUpperCase() as "MEN" | "WOMEN" } : {}),
+        ...(opts?.gender ? { gender: opts.gender.toUpperCase() as "MEN" | "WOMEN" | "ENFANT" } : {}),
       },
       select: {
         basePrice: true,

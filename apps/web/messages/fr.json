@@ -4,6 +4,7 @@
     "Shop": "Boutique",
     "Men": "Homme",
     "Women": "Femme",
+    "Enfant": "Enfant",
     "Contact": "Contact",
     "Cart": "Panier",
     "SignIn": "Connexion",
@@ -193,6 +194,7 @@
     "Shop": "Chargement",
     "Men": "Homme",
     "Women": "Femme",
+    "Enfant": "Enfant",
     "Product": "Chargement"
   },
   "Shop": {
@@ -207,6 +209,7 @@
     "AllCategories": "Toutes les catégories",
     "Men": "Homme",
     "Women": "Femme",
+    "Enfant": "Enfant",
     "Search": "Recherche",
     "ClearFilters": "Effacer les filtres"
   },
@@ -305,6 +308,7 @@
     "NoCategory": "Aucune catégorie",
     "OptMen": "Homme",
     "OptWomen": "Femme",
+    "OptEnfant": "Enfant",
     "RoleAdmin": "Admin",
     "RoleSuperAdmin": "Super Admin",
 

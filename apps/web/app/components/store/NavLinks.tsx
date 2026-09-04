@@ -153,10 +153,12 @@ export function NavLinks({
   vertical = false,
   menCategoryTree = [],
   womenCategoryTree = [],
+  enfantCategoryTree = [],
 }: {
   vertical?: boolean;
   menCategoryTree?: CategoryNode[];
   womenCategoryTree?: CategoryNode[];
+  enfantCategoryTree?: CategoryNode[];
 }) {
   const pathname = usePathname();
   const gender = useSearchParams().get("gender");
@@ -165,6 +167,7 @@ export function NavLinks({
   const GENDER_LINKS = [
     { href: "/shop?gender=men", label: t("Men"), categories: menCategoryTree },
     { href: "/shop?gender=women", label: t("Women"), categories: womenCategoryTree },
+    { href: "/shop?gender=enfant", label: t("Enfant"), categories: enfantCategoryTree },
   ];
   const OTHER_LINKS = [
     { href: "/contact", label: t("Contact") },

@@ -224,14 +224,17 @@ function CategoryGenderSection({ gender, label, tree }: { gender: Gender; label:
 export function CategoriesClient({
   menTree,
   womenTree,
+  enfantTree,
 }: {
   menTree: CategoryNode[];
   womenTree: CategoryNode[];
+  enfantTree: CategoryNode[];
 }) {
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       <CategoryGenderSection gender="MEN" label="Men" tree={menTree} />
       <CategoryGenderSection gender="WOMEN" label="Women" tree={womenTree} />
+      <CategoryGenderSection gender="ENFANT" label="Enfant" tree={enfantTree} />
     </div>
   );
 }

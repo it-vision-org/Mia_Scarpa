@@ -15,16 +15,18 @@ import { getStoreSettings } from "@/actions/storeSettingsActions";
 import { getCategoryTree } from "@/actions/categoryActions";
 
 export async function StoreHeader() {
-  const [session, settings, menTreeResult, womenTreeResult] = await Promise.all([
+  const [session, settings, menTreeResult, womenTreeResult, enfantTreeResult] = await Promise.all([
     getCurrentUser(),
     getStoreSettings(),
     getCategoryTree("MEN"),
     getCategoryTree("WOMEN"),
+    getCategoryTree("ENFANT"),
   ]);
   const t = await getTranslations("Nav");
   const logoUrl = settings.success ? settings.data?.logoUrl ?? null : null;
   const menCategoryTree = menTreeResult.success ? (menTreeResult.data ?? []) : [];
   const womenCategoryTree = womenTreeResult.success ? (womenTreeResult.data ?? []) : [];
+  const enfantCategoryTree = enfantTreeResult.success ? (enfantTreeResult.data ?? []) : [];
 
   return (
     <>
@@ -44,7 +46,11 @@ export async function StoreHeader() {
             <div className="hidden h-6 w-px shrink-0 bg-[var(--color-border)] sm:block" />
             <div className="hidden sm:flex">
               <Suspense fallback={null}>
-                <NavLinks menCategoryTree={menCategoryTree} womenCategoryTree={womenCategoryTree} />
+                <NavLinks
+                  menCategoryTree={menCategoryTree}
+                  womenCategoryTree={womenCategoryTree}
+                  enfantCategoryTree={enfantCategoryTree}
+                />
               </Suspense>
             </div>
           </div>
@@ -69,7 +75,11 @@ export async function StoreHeader() {
               </Link>
             )}
 
-            <MobileNavMenu menCategoryTree={menCategoryTree} womenCategoryTree={womenCategoryTree} />
+            <MobileNavMenu
+              menCategoryTree={menCategoryTree}
+              womenCategoryTree={womenCategoryTree}
+              enfantCategoryTree={enfantCategoryTree}
+            />
           </div>
         </div>
       </header>

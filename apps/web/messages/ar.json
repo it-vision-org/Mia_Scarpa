@@ -4,6 +4,7 @@
     "Shop": "المتجر",
     "Men": "رجال",
     "Women": "نساء",
+    "Enfant": "أطفال",
     "Contact": "اتصل بنا",
     "Cart": "السلة",
     "SignIn": "تسجيل الدخول",
@@ -193,6 +194,7 @@
     "Shop": "جارٍ التحميل",
     "Men": "رجال",
     "Women": "نساء",
+    "Enfant": "أطفال",
     "Product": "جارٍ التحميل"
   },
   "Shop": {
@@ -207,6 +209,7 @@
     "AllCategories": "كل الفئات",
     "Men": "رجال",
     "Women": "نساء",
+    "Enfant": "أطفال",
     "Search": "بحث",
     "ClearFilters": "مسح الفلاتر"
   },
@@ -305,6 +308,7 @@
     "NoCategory": "بدون فئة",
     "OptMen": "رجال",
     "OptWomen": "نساء",
+    "OptEnfant": "أطفال",
     "RoleAdmin": "مشرف",
     "RoleSuperAdmin": "مشرف أعلى",
 
