@@ -49,7 +49,7 @@ export function UserMenu({ name, role }: Props) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-3 w-48 border border-[var(--color-border)] bg-white shadow-lg z-50">
+        <div className="animate-ui-slide-down absolute right-0 top-full mt-3 w-48 border border-[var(--color-border)] bg-white shadow-lg z-50">
           {ADMIN_ROLES.has(role) && (
             <Link
               href="/admin/orders"

@@ -1,50 +1,13 @@
 "use client";
 
-import { useId, useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { Loader2, Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { updateProfile } from "@/actions/customerAuthActions";
+import { FloatField } from "@/components/store/FloatField";
 
 type Props = { initialFirstName: string; initialLastName: string; email: string };
-
-function FloatInput({
-  label,
-  required,
-  type = "text",
-  value,
-  onChange,
-  autoComplete,
-}: {
-  label: string;
-  required?: boolean;
-  type?: string;
-  value: string;
-  onChange: (v: string) => void;
-  autoComplete?: string;
-}) {
-  const id = useId();
-  return (
-    <div className="relative border border-[var(--color-border)] bg-transparent transition focus-within:border-[var(--color-text)]">
-      <input
-        id={id}
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder=" "
-        autoComplete={autoComplete}
-        className="peer w-full bg-transparent px-4 pb-2 pt-3 text-sm text-[var(--color-text)] outline-none"
-      />
-      <label
-        htmlFor={id}
-        className="pointer-events-none absolute left-3 top-0 -translate-y-1/2 bg-[var(--color-bg)] px-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-[var(--color-muted)] transition-all peer-placeholder-shown:left-4 peer-placeholder-shown:top-1/2 peer-placeholder-shown:bg-transparent peer-placeholder-shown:px-0 peer-placeholder-shown:text-xs peer-focus:left-3 peer-focus:top-0 peer-focus:bg-[var(--color-bg)] peer-focus:px-1 peer-focus:text-[10px] peer-focus:text-[var(--color-text)]"
-      >
-        {label}
-        {required ? " *" : ""}
-      </label>
-    </div>
-  );
-}
 
 function CheckboxRow({
   checked,
@@ -170,14 +133,14 @@ export function ProfileForm({ initialFirstName, initialLastName, email }: Props)
       )}
 
       <div className="space-y-4">
-        <FloatInput
+        <FloatField
           label={t("FirstName")}
           required
           value={firstName}
           onChange={setFirstName}
           autoComplete="given-name"
         />
-        <FloatInput
+        <FloatField
           label={t("LastName")}
           required
           value={lastName}
@@ -200,7 +163,7 @@ export function ProfileForm({ initialFirstName, initialLastName, email }: Props)
           <h2 className="text-base font-bold uppercase tracking-wide text-[var(--color-text)]">
             {t("ChangeEmail")}
           </h2>
-          <FloatInput
+          <FloatField
             label={t("Email")}
             required
             type="email"
@@ -209,7 +172,7 @@ export function ProfileForm({ initialFirstName, initialLastName, email }: Props)
             autoComplete="email"
           />
           {!changePassword && (
-            <FloatInput
+            <FloatField
               label={t("CurrentPassword")}
               required
               type="password"
@@ -226,7 +189,7 @@ export function ProfileForm({ initialFirstName, initialLastName, email }: Props)
           <h2 className="text-base font-bold uppercase tracking-wide text-[var(--color-text)]">
             {t("ChangePassword")}
           </h2>
-          <FloatInput
+          <FloatField
             label={t("CurrentPassword")}
             required
             type="password"
@@ -234,7 +197,7 @@ export function ProfileForm({ initialFirstName, initialLastName, email }: Props)
             onChange={setCurrentPassword}
             autoComplete="current-password"
           />
-          <FloatInput
+          <FloatField
             label={t("NewPassword")}
             required
             type="password"
@@ -259,7 +222,7 @@ export function ProfileForm({ initialFirstName, initialLastName, email }: Props)
               ))}
             </div>
           </div>
-          <FloatInput
+          <FloatField
             label={t("ConfirmNewPassword")}
             required
             type="password"

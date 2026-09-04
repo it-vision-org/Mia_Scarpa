@@ -57,7 +57,7 @@ export function LanguageSelector() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-3 w-52 overflow-hidden border border-[var(--color-border)] bg-white shadow-lg z-50">
+        <div className="animate-ui-slide-down absolute right-0 top-full mt-3 w-52 overflow-hidden border border-[var(--color-border)] bg-white shadow-lg z-50">
           <div className="border-b border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5">
             <p className="text-xs font-bold uppercase tracking-wider text-[var(--color-muted)]">
               {t("Label")}

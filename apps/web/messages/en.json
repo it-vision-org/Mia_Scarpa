@@ -367,6 +367,8 @@
     "FailedCreateCategory": "Failed to create category",
     "PhCategoryName": "Category name",
     "PhSubCategoryName": "Sub-category name",
+    "CategoryParent": "Parent category",
+    "CategoryParentNone": "Top level (no parent)",
     "PhSearchOrders": "Search by name, email, phone, city…",
     "PhSize": "Size (e.g. 39, 40, 41…) then Enter",
     "PhImageUrl": "Paste image URL…",

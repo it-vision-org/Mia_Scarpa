@@ -15,12 +15,12 @@ export function CartDrawer() {
     <>
       {/* backdrop */}
       <div
-        className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
+        className="animate-ui-fade-in fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
         onClick={closeDrawer}
       />
 
       {/* drawer */}
-      <div className="fixed right-0 top-0 z-50 flex h-dvh w-full max-w-sm flex-col bg-white shadow-2xl">
+      <div className="animate-ui-slide-in-right fixed right-0 top-0 z-50 flex h-dvh w-full max-w-sm flex-col bg-white shadow-2xl">
         {/* header */}
         <div className="flex items-center justify-between border-b border-[var(--color-border)] px-5 py-4">
           <div className="flex items-center gap-2">

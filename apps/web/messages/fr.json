@@ -367,6 +367,8 @@
     "FailedCreateCategory": "Échec de la création de la catégorie",
     "PhCategoryName": "Nom de la catégorie",
     "PhSubCategoryName": "Nom de la sous-catégorie",
+    "CategoryParent": "Catégorie parente",
+    "CategoryParentNone": "Niveau supérieur (aucune)",
     "PhSearchOrders": "Rechercher par nom, e-mail, téléphone, ville…",
     "PhSize": "Pointure (ex. 39, 40, 41…) puis Entrée",
     "PhImageUrl": "Coller l'URL de l'image…",

@@ -86,7 +86,7 @@ export function NavSearch() {
   }
 
   return (
-    <div ref={wrapRef}>
+    <div ref={wrapRef} className={manualOpen ? "animate-ui-slide-left" : undefined}>
       <form
         onSubmit={submit}
         className="flex items-center gap-1.5 border-b border-[var(--color-text)] pb-1"

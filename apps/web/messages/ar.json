@@ -367,6 +367,8 @@
     "FailedCreateCategory": "فشل إنشاء الفئة",
     "PhCategoryName": "اسم الفئة",
     "PhSubCategoryName": "اسم الفئة الفرعية",
+    "CategoryParent": "الفئة الأصل",
+    "CategoryParentNone": "المستوى الأعلى (بدون)",
     "PhSearchOrders": "ابحث بالاسم أو البريد أو الهاتف أو المدينة…",
     "PhSize": "المقاس (مثل 39، 40، 41…) ثم Enter",
     "PhImageUrl": "الصق رابط الصورة…",
