@@ -40,6 +40,7 @@ function serialize(s: any, usps: any[]): SerializedStoreSettings {
     shopCoverImage: s.shopCoverImage,
     menCoverImage: s.menCoverImage,
     womenCoverImage: s.womenCoverImage,
+    enfantCoverImage: s.enfantCoverImage,
     featuredImage: s.featuredImage,
     featuredOverlayLabel: s.featuredOverlayLabel,
     featuredOverlayYear: s.featuredOverlayYear,
@@ -181,6 +182,7 @@ export async function saveShopCoverSettings(data: {
   shopCoverImage?: string | null;
   menCoverImage?: string | null;
   womenCoverImage?: string | null;
+  enfantCoverImage?: string | null;
 }): Promise<ActionResult> {
   try {
     const settings = await getOrCreate();

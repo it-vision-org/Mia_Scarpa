@@ -158,13 +158,14 @@ export default async function ShopPage({
           : [...menTree, ...womenTree, ...enfantTree];
   const settings = settingsResult.success ? settingsResult.data : null;
 
-  // Kids doesn't get its own cover-photo slot — falls back to the general shop cover, same as the bare listing.
   const coverImage =
     gender === "men"
       ? (settings?.menCoverImage ?? settings?.heroImage ?? null)
       : gender === "women"
         ? (settings?.womenCoverImage ?? settings?.heroImage ?? null)
-        : (settings?.shopCoverImage ?? settings?.heroImage ?? null);
+        : gender === "enfant"
+          ? (settings?.enfantCoverImage ?? settings?.heroImage ?? null)
+          : (settings?.shopCoverImage ?? settings?.heroImage ?? null);
 
   const title = promoOnly
     ? "Promotions"

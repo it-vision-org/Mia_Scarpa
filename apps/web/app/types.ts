@@ -338,6 +338,7 @@ export type SerializedStoreSettings = {
   shopCoverImage: string | null;
   menCoverImage: string | null;
   womenCoverImage: string | null;
+  enfantCoverImage: string | null;
   featuredImage: string | null;
   featuredOverlayLabel: string | null;
   featuredOverlayYear: string | null;
