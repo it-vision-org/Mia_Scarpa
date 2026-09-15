@@ -98,6 +98,7 @@ export async function StoreSettingsContent() {
         shopCoverImage: settings?.shopCoverImage ?? null,
         menCoverImage: settings?.menCoverImage ?? null,
         womenCoverImage: settings?.womenCoverImage ?? null,
+        enfantCoverImage: settings?.enfantCoverImage ?? null,
         featuredImage: settings?.featuredImage ?? null,
         editorialImage1: settings?.editorialImage1 ?? null,
         editorialImage2: settings?.editorialImage2 ?? null,

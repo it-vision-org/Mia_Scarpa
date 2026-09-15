@@ -270,9 +270,10 @@ model StoreSettings {
 
   videoUrl String?
 
-  shopCoverImage  String?
-  menCoverImage   String?
-  womenCoverImage String?
+  shopCoverImage   String?
+  menCoverImage    String?
+  womenCoverImage  String?
+  enfantCoverImage String?
 
   featuredImage             String?
   featuredOverlayLabel      String? @default("Collection")

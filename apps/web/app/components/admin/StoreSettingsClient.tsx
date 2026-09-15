@@ -39,6 +39,7 @@ type StoreMedia = {
   shopCoverImage: string | null;
   menCoverImage: string | null;
   womenCoverImage: string | null;
+  enfantCoverImage: string | null;
   featuredImage: string | null;
   editorialImage1: string | null;
   editorialImage2: string | null;
@@ -369,6 +370,7 @@ export function StoreSettingsClient({
   const [shopCoverUrl, setShopCoverUrl]       = useState(media.shopCoverImage);
   const [menCoverUrl, setMenCoverUrl]         = useState(media.menCoverImage);
   const [womenCoverUrl, setWomenCoverUrl]     = useState(media.womenCoverImage);
+  const [enfantCoverUrl, setEnfantCoverUrl]   = useState(media.enfantCoverImage);
   const [featuredOverlayPreview, setFeaturedOverlayPreview] = useState(featuredOverlay);
   const [featuredImageUrl, setFeaturedImageUrl] = useState(media.featuredImage);
   const [editorial1Preview, setEditorial1Preview] = useState(editorial1);
@@ -429,10 +431,12 @@ export function StoreSettingsClient({
             initialShopImage={media.shopCoverImage}
             initialMenImage={media.menCoverImage}
             initialWomenImage={media.womenCoverImage}
+            initialEnfantImage={media.enfantCoverImage}
             onUploaded={(slot, url) => {
               if (slot === "shop") setShopCoverUrl(url);
               else if (slot === "men") setMenCoverUrl(url);
-              else setWomenCoverUrl(url);
+              else if (slot === "women") setWomenCoverUrl(url);
+              else setEnfantCoverUrl(url);
             }}
           />
         }
@@ -442,6 +446,7 @@ export function StoreSettingsClient({
               { label: "Shop", url: shopCoverUrl },
               { label: "Men", url: menCoverUrl },
               { label: "Women", url: womenCoverUrl },
+              { label: "Kids", url: enfantCoverUrl },
             ].map(({ label, url }) => (
               <div key={label} className="overflow-hidden rounded-xl border border-[var(--color-border)]">
                 <div className="relative bg-[var(--color-bg)]" style={{ aspectRatio: "16/9" }}>
