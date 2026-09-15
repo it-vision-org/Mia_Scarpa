@@ -34,7 +34,7 @@ export default function Uploader({
     onClientUploadComplete: (res) => {
       if (res && res.length > 0) {
         handleUploadComplete(res as UploadResponse[]);
-        toast.success("Image uploaded successfully!");
+        toast.success(endpoint === "storeVideo" ? "Video uploaded successfully!" : "Image uploaded successfully!");
       }
       setProgress(null);
     },
@@ -46,6 +46,8 @@ export default function Uploader({
   });
 
   const handleClick = () => inputRef.current?.click();
+
+  const accept = endpoint === "storeVideo" ? "video/*" : "image/*";
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -62,7 +64,7 @@ export default function Uploader({
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept={accept}
         multiple={maxFileCount > 1}
         className="hidden"
         onChange={handleFileChange}
