@@ -298,6 +298,8 @@
     "FailedToSavePhoto": "Failed to save photo",
     "UploadPhoto": "Upload Photo",
     "UploadNewPhoto": "Upload New Photo",
+    "UploadVideo": "Upload Video",
+    "UploadNewVideo": "Upload New Video",
     "Preview": "Preview",
     "ResettingEllipsis": "Resetting…",
     "ClickAgainConfirmReset": "Click again to confirm reset",

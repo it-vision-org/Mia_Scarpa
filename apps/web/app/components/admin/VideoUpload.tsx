@@ -64,11 +64,11 @@ export function VideoUpload({ initialUrl }: { initialUrl: string | null }) {
 
       <Uploader
         endpoint="storeVideo"
-        buttonText={url ? t("UploadNewPhoto") : t("UploadPhoto")}
+        buttonText={url ? t("UploadNewVideo") : t("UploadVideo")}
         handleUploadComplete={handleUploadComplete}
       />
       <p className="text-xs text-[var(--color-muted)]">
-        Recommended: MP4, 16:9 format. This appears in the &quot;Our Story&quot; section.
+        Recommended: MP4, 16:9 format. Max size: 64MB. This appears in the &quot;Our Story&quot; section.
       </p>
     </div>
   );
