@@ -142,11 +142,14 @@ export default async function HomePage() {
       {homepageFeatured.length > 0 && (
         <section className="bg-white">
           <div className="w-full">
-            <div className="grid grid-cols-1 gap-1 lg:grid-cols-2 lg:items-center">
-              {/* left: always a square box — admins can just upload a square
-                  photo and it fills the frame with no crop surprises */}
-              <Reveal>
-                <div className="relative aspect-square w-full overflow-hidden bg-[var(--color-bg)]">
+            <div className="grid grid-cols-1 gap-1 lg:grid-cols-2">
+              {/* left: a square box on mobile; on desktop it stretches to match
+                  the exact height of the product grid on the right instead of
+                  computing its own (which left a few px of mismatch — the two
+                  were each sized independently: aspect-square vs. tile-grid
+                  content height) */}
+              <Reveal className="lg:h-full">
+                <div className="relative aspect-square w-full overflow-hidden bg-[var(--color-bg)] lg:aspect-auto lg:h-full">
                   {featuredImage && (
                     <Image
                       src={featuredImage}

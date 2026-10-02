@@ -7,6 +7,7 @@ import { ChevronLeft } from "lucide-react";
 import { getProductBySlug } from "@/actions/productActions";
 import { ProductDetail } from "@/components/store/ProductDetail";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { formatPrice } from "@/lib/utils";
 import {
   getBaseUrl,
   getSiteIdentity,
@@ -16,15 +17,30 @@ import {
   breadcrumbJsonLd,
   MAX_DESCRIPTION_LENGTH,
 } from "@/lib/seo";
+import type { SerializedProduct } from "@/types";
 
 // Deduped across generateMetadata and the page render — same request, one DB query.
 const getProduct = cache((slug: string) => getProductBySlug(slug));
 
-function buildDescription(description: string | null, name: string, storeName: string): string {
-  const text =
-    description?.trim() ||
-    `Découvrez ${name} chez ${storeName} — cuir de qualité, finitions soignées et confort au quotidien. Livraison rapide partout en Tunisie.`;
-  return truncate(text, MAX_DESCRIPTION_LENGTH);
+function priceText(product: SerializedProduct): string {
+  return product.promoLive
+    ? `${formatPrice(product.effectivePrice)} au lieu de ${formatPrice(product.basePrice)}`
+    : formatPrice(product.effectivePrice);
+}
+
+function buildDescriptionBody(product: SerializedProduct, storeName: string): string {
+  return (
+    product.description?.trim() ||
+    `${product.name} chez ${storeName} — cuir de qualité, finitions soignées et confort au quotidien. Livraison rapide partout en Tunisie.`
+  );
+}
+
+// Price always leads the description — including when the admin set a custom
+// seoDescription — so link previews (WhatsApp, Messenger, iMessage, ...)
+// surface it without the admin having to type it in themselves.
+function buildDescription(product: SerializedProduct, storeName: string): string {
+  const body = product.seoDescription?.trim() || buildDescriptionBody(product, storeName);
+  return truncate(`${priceText(product)} · ${body}`, MAX_DESCRIPTION_LENGTH);
 }
 
 export async function generateMetadata({
@@ -48,9 +64,7 @@ export async function generateMetadata({
   const imageUrl =
     product.ogImage?.trim() || product.primaryImage || identity.seo.ogImage;
   const title = product.seoTitle?.trim() || product.name;
-  const description =
-    product.seoDescription?.trim() ||
-    buildDescription(product.description, product.name, identity.storeName);
+  const description = buildDescription(product, identity.storeName);
   const keywords = product.seoKeywords?.trim() || undefined;
 
   return {

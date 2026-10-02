@@ -47,7 +47,7 @@ export function ProductCard({ product }: { product: SerializedProduct }) {
     <>
       <Link
         href={`/product/${product.slug}`}
-        className="group block overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)] transition hover:border-[var(--color-text)]"
+        className="group flex h-full flex-col overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)] transition hover:border-[var(--color-text)]"
       >
         <div className="relative aspect-square overflow-hidden bg-[var(--color-bg)]">
           <PromoBadge product={product} />
@@ -105,27 +105,35 @@ export function ProductCard({ product }: { product: SerializedProduct }) {
             </>
           )}
         </div>
-        <div className="p-4">
-          {product.category?.name && (
-            <p className="text-xs uppercase tracking-wider text-[var(--color-muted)]">
-              {product.category.name}
-            </p>
-          )}
-          <h3 className="font-display mt-1 text-base text-[var(--color-text)]">
-            {product.name}
-          </h3>
-          <div className="mt-1.5 flex items-center gap-2">
-            <ProductPrice product={product} className="text-sm text-[var(--color-text)]" />
+        <div className="flex flex-1 flex-col p-4">
+          <div>
+            {product.category?.name && (
+              <p className="text-xs uppercase tracking-wider text-[var(--color-muted)]">
+                {product.category.name}
+              </p>
+            )}
+            <h3 className="font-display mt-1 text-base text-[var(--color-text)]">
+              {product.name}
+            </h3>
           </div>
 
-          <button
-            type="button"
-            onClick={openQuickAdd}
-            className="mt-3 flex w-full items-center justify-center gap-2 border border-[var(--color-text)] py-2.5 text-xs font-semibold uppercase tracking-widest text-[var(--color-text)] transition hover:bg-[var(--color-text)] hover:text-white active:scale-[0.98]"
-          >
-            <ShoppingCart className="h-3.5 w-3.5" />
-            Add to Cart
-          </button>
+          {/* pinned to the card's bottom edge regardless of how many lines the
+              name above takes, so price + button line up across every card in
+              a row instead of drifting with name length */}
+          <div className="mt-auto pt-1.5">
+            <div className="flex items-center gap-2">
+              <ProductPrice product={product} className="text-sm text-[var(--color-text)]" />
+            </div>
+
+            <button
+              type="button"
+              onClick={openQuickAdd}
+              className="mt-3 flex w-full items-center justify-center gap-2 border border-[var(--color-text)] py-2.5 text-xs font-semibold uppercase tracking-widest text-[var(--color-text)] transition hover:bg-[var(--color-text)] hover:text-white active:scale-[0.98]"
+            >
+              <ShoppingCart className="h-3.5 w-3.5" />
+              Add to Cart
+            </button>
+          </div>
         </div>
       </Link>
 
