@@ -83,7 +83,10 @@ function serialize(s: any, usps: any[]): SerializedStoreSettings {
   };
 }
 
-export async function getStoreSettings(): Promise<ActionResult<SerializedStoreSettings>> {
+// cache()'d for the same reason as getOrCreate() above — layout, header, and
+// page all call this once per request, and without dedup the usps query ran
+// three times over for identical data every single page load.
+export const getStoreSettings = cache(async (): Promise<ActionResult<SerializedStoreSettings>> => {
   try {
     const settings = await getOrCreate();
     const usps = await db.storeUsp.findMany({
@@ -95,7 +98,7 @@ export async function getStoreSettings(): Promise<ActionResult<SerializedStoreSe
     console.error("[STORE SETTINGS] get error:", error);
     return { success: false, error: "Failed to load store settings" };
   }
-}
+});
 
 export async function saveDeliveryFee(deliveryFee: number): Promise<ActionResult> {
   try {

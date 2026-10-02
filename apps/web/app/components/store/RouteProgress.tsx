@@ -95,12 +95,23 @@ export function RouteProgress() {
       }
       start();
     }
+    // Restoring from the browser's back/forward cache (bfcache) freezes this
+    // page's JS — including pending timers — while the user is elsewhere, and
+    // resuming it doesn't reliably re-fire them. Without this, a loader that
+    // was mid-animation when the user navigated away can come back stuck
+    // forever on a bfcache restore (the classic "back button hangs" bug).
+    function onPageShow(e: PageTransitionEvent) {
+      if (e.persisted) clearAll();
+    }
+
     document.addEventListener("click", onClick);
     window.addEventListener("popstate", () => start());
+    window.addEventListener("pageshow", onPageShow);
 
     return () => {
       history.pushState = origPush;
       document.removeEventListener("click", onClick);
+      window.removeEventListener("pageshow", onPageShow);
       if (popupTimer.current) clearTimeout(popupTimer.current);
       if (safetyTimer.current) clearTimeout(safetyTimer.current);
     };

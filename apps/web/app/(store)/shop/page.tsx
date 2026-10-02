@@ -121,41 +121,48 @@ export default async function ShopPage({
   const maxPrice = parsePrice(params.maxPrice);
   const sizes = params.size ? params.size.split(",").map((s) => s.trim()).filter(Boolean) : [];
 
-  const [productsResult, facetsResult, menTreeResult, womenTreeResult, enfantTreeResult, settingsResult] =
-    await Promise.all([
-      getPublishedProducts({
-        categorySlug: params.category,
-        gender,
-        search: params.search,
-        sizes,
-        color: params.color,
-        minPrice,
-        maxPrice,
-        promoOnly,
-      }),
-      getShopFacets({ gender, promoOnly }),
-      getCategoryTree("MEN"),
-      getCategoryTree("WOMEN"),
-      getCategoryTree("ENFANT"),
-      getStoreSettings(),
-    ]);
+  // Only fetch the category tree(s) the sidebar will actually show — a specific
+  // department when a gender filter is active, all three merged only when it isn't.
+  const categoryTreePromise =
+    gender === "men"
+      ? getCategoryTree("MEN")
+      : gender === "women"
+        ? getCategoryTree("WOMEN")
+        : gender === "enfant"
+          ? getCategoryTree("ENFANT")
+          : Promise.all([getCategoryTree("MEN"), getCategoryTree("WOMEN"), getCategoryTree("ENFANT")]).then(
+              ([men, women, enfant]) => ({
+                success: true as const,
+                data: [
+                  ...(men.success ? (men.data ?? []) : []),
+                  ...(women.success ? (women.data ?? []) : []),
+                  ...(enfant.success ? (enfant.data ?? []) : []),
+                ],
+              }),
+            );
+
+  const [productsResult, facetsResult, categoryTreeResult, settingsResult] = await Promise.all([
+    getPublishedProducts({
+      categorySlug: params.category,
+      gender,
+      search: params.search,
+      sizes,
+      color: params.color,
+      minPrice,
+      maxPrice,
+      promoOnly,
+    }),
+    getShopFacets({ gender, promoOnly }),
+    categoryTreePromise,
+    getStoreSettings(),
+  ]);
 
   const products = productsResult.success ? (productsResult.data ?? []) : [];
   const facets =
     facetsResult.success && facetsResult.data
       ? facetsResult.data
       : { sizes: [], colors: [], priceMin: 0, priceMax: 0 };
-  const menTree = menTreeResult.success ? (menTreeResult.data ?? []) : [];
-  const womenTree = womenTreeResult.success ? (womenTreeResult.data ?? []) : [];
-  const enfantTree = enfantTreeResult.success ? (enfantTreeResult.data ?? []) : [];
-  const categoryTree =
-    gender === "men"
-      ? menTree
-      : gender === "women"
-        ? womenTree
-        : gender === "enfant"
-          ? enfantTree
-          : [...menTree, ...womenTree, ...enfantTree];
+  const categoryTree = categoryTreeResult.success ? (categoryTreeResult.data ?? []) : [];
   const settings = settingsResult.success ? settingsResult.data : null;
 
   const coverImage =

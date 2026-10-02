@@ -101,6 +101,7 @@ export async function ShopFilters({ categories, facets, current }: ShopFiltersPr
               minPrice: undefined,
               maxPrice: undefined,
             })}
+            scroll={false}
             className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--color-muted)] transition hover:text-[var(--color-text)]"
           >
             <X className="h-3 w-3" />
@@ -113,6 +114,7 @@ export async function ShopFilters({ categories, facets, current }: ShopFiltersPr
         <Section title={t("Search")}>
           <Link
             href={hrefWith({ search: undefined })}
+            scroll={false}
             className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-1.5 text-sm text-[var(--color-text)] transition hover:border-[var(--color-text)]"
           >
             <span className="truncate">&ldquo;{current.search}&rdquo;</span>
@@ -124,6 +126,7 @@ export async function ShopFilters({ categories, facets, current }: ShopFiltersPr
       <Section title={t("Promotions")}>
         <Link
           href={hrefWith({ promo: promoActive ? undefined : "1" })}
+          scroll={false}
           className={`flex items-center justify-between rounded-md px-3 py-1.5 text-sm font-semibold transition ${
             promoActive
               ? "bg-[var(--color-promo)] text-white"
@@ -146,6 +149,7 @@ export async function ShopFilters({ categories, facets, current }: ShopFiltersPr
             <Link
               key={label}
               href={hrefWith({ gender: key, category: undefined })}
+              scroll={false}
               className={rowClass((current.gender ?? undefined) === key)}
             >
               {label}
@@ -156,12 +160,16 @@ export async function ShopFilters({ categories, facets, current }: ShopFiltersPr
 
       <Section title={t("Category")}>
         <div className="space-y-0.5">
-          <Link href={hrefWith({ category: undefined })} className={rowClass(!current.category)}>
+          <Link href={hrefWith({ category: undefined })} scroll={false} className={rowClass(!current.category)}>
             {t("AllCategories")}
           </Link>
           {categories.map((c) => (
             <div key={c.id}>
-              <Link href={hrefWith({ category: c.slug })} className={rowClass(current.category === c.slug)}>
+              <Link
+                href={hrefWith({ category: c.slug })}
+                scroll={false}
+                className={rowClass(current.category === c.slug)}
+              >
                 {c.name}
               </Link>
               {c.children.length > 0 && (
@@ -170,6 +178,7 @@ export async function ShopFilters({ categories, facets, current }: ShopFiltersPr
                     <Link
                       key={child.id}
                       href={hrefWith({ category: child.slug })}
+                      scroll={false}
                       className={`${rowClass(current.category === child.slug)} text-[13px]`}
                     >
                       {child.name}
@@ -208,6 +217,7 @@ export async function ShopFilters({ categories, facets, current }: ShopFiltersPr
                 <Link
                   key={size}
                   href={hrefWith({ size: next.length ? next.join(",") : undefined })}
+                  scroll={false}
                   className={`flex h-9 items-center justify-center border text-xs font-semibold transition ${
                     active
                       ? "border-[var(--color-text)] bg-[var(--color-text)] text-white"
@@ -231,6 +241,7 @@ export async function ShopFilters({ categories, facets, current }: ShopFiltersPr
                 <Link
                   key={c.name}
                   href={hrefWith({ color: active ? undefined : c.name })}
+                  scroll={false}
                   title={c.name}
                   aria-label={c.name}
                   className={`flex h-7 w-7 items-center justify-center rounded-full border transition ${

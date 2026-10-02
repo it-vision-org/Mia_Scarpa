@@ -9,6 +9,7 @@ import { getContactInfo } from "@/actions/storeConfigActions";
 import { getFeaturedProducts, getProductsByIds } from "@/actions/productActions";
 import { FeaturedCollectionGrid } from "@/components/store/FeaturedCollectionGrid";
 import { FeaturedShoes } from "@/components/store/FeaturedShoes";
+import { UspMarquee } from "@/components/store/UspMarquee";
 import { AutoPlayVideo } from "@/components/store/AutoPlayVideo";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionDivider } from "@/components/ui/SectionDivider";
@@ -177,18 +178,11 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ── USP BAR ──────────────────────────────────────────────────── */}
-      <section className="border-y border-[var(--color-border)] bg-white">
-        <div className="mx-auto max-w-6xl px-6 py-10">
-          <Reveal className="grid grid-cols-2 divide-x divide-[var(--color-border)] md:grid-cols-4">
-            {usp.map((item, i) => (
-              <div key={i} className="px-4 text-center first:pl-0 last:pr-0">
-                <p className="text-base font-semibold uppercase tracking-wide text-[var(--color-text)] sm:text-lg">{item.label}</p>
-                <p className="mt-1.5 text-sm text-[var(--color-muted)]">{item.desc}</p>
-              </div>
-            ))}
-          </Reveal>
-        </div>
+      {/* ── USP BAR — STATIC IF IT FITS, INFINITE MARQUEE IF IT DOESN'T ── */}
+      <section className="overflow-hidden border-y border-[var(--color-border)] bg-white py-8">
+        <Reveal>
+          <UspMarquee usp={usp} />
+        </Reveal>
       </section>
 
       {/* ── EDITORIAL / CRAFTSMANSHIP ────────────────────────────────── */}

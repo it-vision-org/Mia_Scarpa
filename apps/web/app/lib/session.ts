@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { jwtVerify, SignJWT } from "jose";
 import { db } from "@shoestore/db";
@@ -19,7 +20,10 @@ function getSecret(): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
-export async function getCurrentUser(): Promise<AuthUser | null> {
+// cache()'d — the header and the storefront layout both read the current
+// user on every request, so without this every page paid for two JWT
+// verifications and two DB lookups instead of one.
+export const getCurrentUser = cache(async (): Promise<AuthUser | null> => {
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_NAME)?.value;
   if (!token) return null;
@@ -50,7 +54,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
     return null;
   }
-}
+});
 
 export async function setAuthCookie(userId: string, role: string): Promise<void> {
   const secret = getSecret();

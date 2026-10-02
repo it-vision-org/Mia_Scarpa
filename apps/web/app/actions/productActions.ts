@@ -208,6 +208,7 @@ export async function getPublishedProducts(filters?: {
       },
       orderBy: [{ isFeatured: "desc" }, { order: "asc" }, { createdAt: "desc" }],
       include: PRODUCT_INCLUDE,
+      relationLoadStrategy: "join",
     });
     const serialized = products.map(serializeProduct);
     const data = filters?.promoOnly ? serialized.filter((p) => p.promoLive) : serialized;
@@ -250,6 +251,7 @@ export async function getShopFacets(opts?: {
           select: { name: true, hex: true, sizes: { select: { size: true } } },
         },
       },
+      relationLoadStrategy: "join",
     });
 
     const scopedRows = opts?.promoOnly
@@ -307,6 +309,7 @@ export async function getFeaturedProducts(): Promise<ActionResult<SerializedProd
       orderBy: [{ order: "asc" }, { createdAt: "desc" }],
       take: 6,
       include: PRODUCT_INCLUDE,
+      relationLoadStrategy: "join",
     });
     return { success: true, data: products.map(serializeProduct) };
   } catch (error) {
@@ -323,6 +326,7 @@ export async function getProductsByIds(ids: string[]): Promise<ActionResult<Seri
     const products = await db.product.findMany({
       where: { id: { in: ids }, isPublished: true },
       include: PRODUCT_INCLUDE,
+      relationLoadStrategy: "join",
     });
     const byId = new Map(products.map((p) => [p.id, p]));
     const ordered = ids.map((id) => byId.get(id)).filter((p): p is NonNullable<typeof p> => Boolean(p));
@@ -339,6 +343,7 @@ export async function getProductBySlug(slug: string): Promise<ActionResult<Seria
     const product = await db.product.findFirst({
       where: { slug, isPublished: true },
       include: PRODUCT_INCLUDE,
+      relationLoadStrategy: "join",
     });
     if (!product) return { success: false, error: "Product not found" };
     return { success: true, data: serializeProduct(product) };
@@ -356,6 +361,7 @@ export async function getProductColors(
     const product = await db.product.findUnique({
       where: { id: productId },
       select: { colors: PRODUCT_INCLUDE.colors },
+      relationLoadStrategy: "join",
     });
     if (!product) return { success: false, error: "Product not found" };
     return { success: true, data: product.colors.map(serializeColor) };

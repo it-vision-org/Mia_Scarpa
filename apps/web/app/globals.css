@@ -148,6 +148,21 @@ body {
   }
 }
 
+/* USP bar — infinite horizontal ticker (content is duplicated once in markup,
+   so a -50% shift lands exactly back on an identical copy for a seamless loop) */
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee-scroll 28s linear infinite;
+}
+
 .animate-ui-fade-in {
   animation: ui-fade-in 0.18s ease-out both;
 }
@@ -211,7 +226,8 @@ body {
   .animate-ui-fade-in,
   .animate-ui-slide-down,
   .animate-ui-slide-left,
-  .animate-ui-slide-in-right {
+  .animate-ui-slide-in-right,
+  .animate-marquee {
     animation-duration: 0.001ms;
     animation-iteration-count: 1;
   }

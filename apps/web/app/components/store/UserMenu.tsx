@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect, useTransition } from "react";
 import Link from "next/link";
-import { User, Loader2 } from "lucide-react";
+import { User, Loader2, LayoutDashboard, LogOut, UserCircle, Package } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { logoutUser } from "@/actions/customerAuthActions";
 
@@ -32,7 +32,7 @@ export function UserMenu({ name, role }: Props) {
   }
 
   const itemClass =
-    "block w-full px-4 py-3 text-left text-sm text-[var(--color-text)] transition hover:bg-[var(--color-bg)]";
+    "flex w-full items-center gap-2.5 px-4 py-3 text-left text-sm text-[var(--color-text)] transition hover:bg-[var(--color-bg)]";
 
   return (
     <div ref={ref} className="relative">
@@ -54,28 +54,37 @@ export function UserMenu({ name, role }: Props) {
             <Link
               href="/admin/orders"
               onClick={() => setOpen(false)}
-              className="block px-4 py-3 text-sm font-semibold text-[var(--color-accent)] transition hover:bg-[var(--color-bg)]"
+              className="flex items-center gap-2.5 px-4 py-3 text-sm font-semibold text-[var(--color-accent)] transition hover:bg-[var(--color-bg)]"
             >
+              <LayoutDashboard size={16} strokeWidth={1.75} />
               Admin Dashboard
             </Link>
           )}
+
+          <Link href="/account/profile" onClick={() => setOpen(false)} className={itemClass}>
+            <UserCircle size={16} strokeWidth={1.75} />
+            {t("MyProfile")}
+          </Link>
+
+          <Link href="/account" onClick={() => setOpen(false)} className={itemClass}>
+            <Package size={16} strokeWidth={1.75} />
+            {t("MyOrders")}
+          </Link>
+
+          <div className="border-t border-[var(--color-border)]" />
 
           <button
             onClick={handleLogout}
             disabled={isPending}
             className={`${itemClass} disabled:opacity-60`}
           >
-            {isPending && <Loader2 size={14} className="mr-2 inline animate-spin align-[-2px]" />}
+            {isPending ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <LogOut size={16} strokeWidth={1.75} />
+            )}
             {t("SignOut")}
           </button>
-
-          <Link href="/account/profile" onClick={() => setOpen(false)} className={itemClass}>
-            {t("MyProfile")}
-          </Link>
-
-          <Link href="/account" onClick={() => setOpen(false)} className={itemClass}>
-            {t("MyOrders")}
-          </Link>
         </div>
       )}
     </div>
