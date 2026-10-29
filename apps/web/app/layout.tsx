@@ -13,6 +13,7 @@ import {
   DEFAULT_SITE_URL,
 } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { MetaPixel } from "@/components/tracking/MetaPixel";
 import { CartProvider } from "@/cart-context";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
@@ -81,6 +82,7 @@ export default async function RootLayout({
           } as React.CSSProperties
         }
       >
+        <MetaPixel enabled={settings?.metaEnabled ?? false} pixelId={settings?.metaPixelId ?? null} />
         <JsonLd data={organizationJsonLd(identity, siteUrl)} />
         <JsonLd data={websiteJsonLd({ url: siteUrl, storeName: identity.storeName })} />
         <NextIntlClientProvider>

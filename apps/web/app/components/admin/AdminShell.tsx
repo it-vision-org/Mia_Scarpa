@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { ShoppingBag, PackagePlus, Store, ClipboardList, MessageSquare, MessageCircle, Users, Menu, X, FolderTree, Search } from "lucide-react";
+import { ShoppingBag, PackagePlus, Store, ClipboardList, MessageSquare, MessageCircle, Users, Menu, X, FolderTree, Search, Megaphone } from "lucide-react";
 import { LogoutButton } from "./LogoutButton";
 import { LogoImage } from "@/components/store/LogoImage";
 import { LanguageSelector } from "@/components/store/LanguageSelector";
@@ -95,6 +95,12 @@ export function AdminShell({
       active: pathname.startsWith("/admin/seo"),
       icon: Search,
       label: t("SEO"),
+    },
+    {
+      href: "/admin/marketing/meta",
+      active: pathname.startsWith("/admin/marketing"),
+      icon: Megaphone,
+      label: t("Marketing"),
     },
     {
       href: "/admin/team",

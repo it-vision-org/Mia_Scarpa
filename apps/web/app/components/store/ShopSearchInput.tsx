@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Search, X } from "lucide-react";
+import { trackSearch } from "@/lib/tracking";
 
 export function ShopSearchInput({
   defaultValue,
@@ -35,6 +36,7 @@ export function ShopSearchInput({
     const handle = setTimeout(() => {
       const current = searchParams.get("search") ?? "";
       if (value === current) return;
+      if (value.trim()) trackSearch({ searchQuery: value.trim() });
       pushValue(value);
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, 300);
